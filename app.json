@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "yugen-mobile",
-    "slug": "yugen-mobile",
+    "name": "triage-mobile",
+    "slug": "triage-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

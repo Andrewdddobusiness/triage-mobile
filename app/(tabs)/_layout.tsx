@@ -48,6 +48,8 @@ export default function AppLayout() {
                 return "Keypad";
               case "contacts":
                 return "Contacts";
+              case "profile":
+                return "Profiles";
               default:
                 return "";
             }

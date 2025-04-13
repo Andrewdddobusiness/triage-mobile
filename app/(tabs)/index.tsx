@@ -1,156 +1,113 @@
-import React from "react";
-import { View, ScrollView, Text, Pressable, Image, RefreshControl } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Bot, Clock, Wrench, DollarSign, Phone, MessageSquare } from "lucide-react-native";
+import React, { useEffect } from "react";
+import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl, Platform } from "react-native";
 import { router } from "expo-router";
-
-// Mock data - in real app this would come from your backend
-const MOCK_REQUESTS = [
-  {
-    id: "1",
-    customerName: "John Smith",
-    phoneNumber: "+61 400 123 456",
-    callTime: "2024-03-20T10:30:00",
-    projectSummary: "Kitchen renovation project. Customer is looking for a complete remodel with modern appliances.",
-    budget: "$25,000",
-    timeline: "Flexible",
-    location: "Melbourne, VIC",
-    status: "New",
-    projectType: "Kitchen Renovation",
-    botTranscript: "Bot collected requirements and budget details. Customer prefers communication via phone.",
-    unread: true,
-  },
-  {
-    id: "2",
-    customerName: "Sarah Wilson",
-    phoneNumber: "+61 400 789 012",
-    callTime: "2024-03-20T09:15:00",
-    projectSummary: "Bathroom remodeling with focus on accessibility features for elderly parents.",
-    budget: "$15,000",
-    timeline: "Within 2 months",
-    location: "Sydney, NSW",
-    status: "New",
-    projectType: "Bathroom Remodel",
-    botTranscript: "Customer needs urgent consultation. Specified accessibility requirements.",
-    unread: true,
-  },
-  {
-    id: "3",
-    customerName: "Mike Brown",
-    phoneNumber: "+61 400 345 678",
-    callTime: "2024-03-19T16:45:00",
-    projectSummary: "Deck extension and outdoor kitchen installation.",
-    budget: "$20,000",
-    timeline: "3-4 weeks",
-    location: "Brisbane, QLD",
-    status: "New",
-    projectType: "Outdoor Construction",
-    botTranscript: "Customer wants to discuss material options and timeline flexibility.",
-    unread: false,
-  },
-];
+import { useCustomerInquiries } from "~/app/stores/customerInquiries";
+import { Calendar, DollarSign } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function InboxScreen() {
+  const { inquiries, fetchInquiries, isLoading } = useCustomerInquiries();
   const insets = useSafeAreaInsets();
-  const [refreshing, setRefreshing] = React.useState(false);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    // Simulate a refresh - in real app, fetch new requests
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+  // Calculate bottom padding to account for tab bar and safe area
+  const bottomPadding = Platform.select({
+    ios: 85 + insets.bottom, // Tab bar height (85) + safe area
+    android: 60, // Android tab bar height
+    default: 60,
+  });
+
+  useEffect(() => {
+    fetchInquiries();
   }, []);
 
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-
-    if (hours < 1) {
-      return "Just now";
-    } else if (hours < 24) {
-      return `${hours}h ago`;
-    } else if (days === 1) {
-      return "Yesterday";
-    } else if (days < 7) {
-      return `${days}d ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-
-  const handleRequestPress = (requestId: string) => {
-    router.push({
-      pathname: "/request/[id]",
-      params: { id: requestId },
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-AU", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
-  return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{
-        paddingBottom: insets.bottom,
-      }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <View className="p-4 bg-blue-50 border-b border-blue-100">
-        <Text className="text-blue-800 font-medium">AI Bot-Handled Requests</Text>
-        <Text className="text-blue-600 text-sm mt-1">
-          These are new project requests captured by your AI assistant when you were unavailable
-        </Text>
-      </View>
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return "Not specified";
+    return new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+    }).format(amount);
+  };
 
-      {MOCK_REQUESTS.map((request) => (
-        <Pressable
-          key={request.id}
-          className="bg-white p-4 border-b border-gray-100"
-          onPress={() => handleRequestPress(request.id)}
-        >
-          <View className="flex-row items-start">
-            <View className="relative">
-              <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center">
-                <Bot size={24} color="#0a7ea4" />
-              </View>
-              {request.unread && <View className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />}
-            </View>
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, { bg: string; text: string }> = {
+      new: { bg: "bg-blue-100", text: "text-blue-800" },
+      contacted: { bg: "bg-yellow-100", text: "text-yellow-800" },
+      scheduled: { bg: "bg-purple-100", text: "text-purple-800" },
+      completed: { bg: "bg-green-100", text: "text-green-800" },
+      cancelled: { bg: "bg-red-100", text: "text-red-800" },
+    };
+    return colors[status] || { bg: "bg-gray-100", text: "text-gray-800" };
+  };
 
-            <View className="flex-1 ml-3">
-              <View className="flex-row items-center justify-between">
-                <Text className="font-semibold text-base">{request.customerName}</Text>
-                <Text className="text-xs text-gray-500">{formatDate(request.callTime)}</Text>
-              </View>
+  const renderItem = ({ item }: { item: any }) => {
+    const statusColors = getStatusColor(item.status);
 
-              <View className="flex-row items-center mt-1">
-                <Phone size={12} color="#64748b" />
-                <Text className="text-xs text-gray-600 ml-1">{request.phoneNumber}</Text>
-              </View>
-
-              <Text className="text-gray-600 text-sm mt-2" numberOfLines={2}>
-                {request.projectSummary}
-              </Text>
-
-              <View className="flex-row mt-2 space-x-4">
-                <View className="flex-row items-center">
-                  <Wrench size={14} color="#64748b" />
-                  <Text className="ml-1 text-xs text-gray-600">{request.projectType}</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <DollarSign size={14} color="#64748b" />
-                  <Text className="ml-1 text-xs text-gray-600">{request.budget}</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Clock size={14} color="#64748b" />
-                  <Text className="ml-1 text-xs text-gray-600">{request.timeline}</Text>
-                </View>
-              </View>
-            </View>
+    return (
+      <Pressable
+        onPress={() => {
+          router.push(`/request/${item.id}`);
+        }}
+        className="bg-white mb-2 p-4 mx-4 rounded-lg shadow-sm"
+      >
+        <View className="flex-row justify-between items-start mb-2">
+          <Text className="text-lg font-semibold flex-1 mr-2">{item.name}</Text>
+          <View className={`px-2 py-1 rounded ${statusColors.bg}`}>
+            <Text className={`${statusColors.text} text-sm capitalize`}>{item.status}</Text>
           </View>
-        </Pressable>
-      ))}
-    </ScrollView>
+        </View>
+
+        <View className="flex-row items-center mb-2">
+          <Calendar size={16} color="#64748b" className="mr-1" />
+          <Text className="text-gray-600 text-sm">Inquiry: {formatDate(item.inquiry_date)}</Text>
+        </View>
+
+        {item.budget && (
+          <View className="flex-row items-center mb-2">
+            <DollarSign size={16} color="#64748b" className="mr-1" />
+            <Text className="text-gray-600 text-sm">Budget: {formatCurrency(item.budget)}</Text>
+          </View>
+        )}
+
+        {item.job_description && (
+          <Text numberOfLines={2} className="text-gray-600 text-sm">
+            {item.job_description}
+          </Text>
+        )}
+      </Pressable>
+    );
+  };
+
+  if (isLoading && inquiries.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={inquiries}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={{
+        paddingVertical: 16,
+        paddingBottom: bottomPadding, // Add the calculated bottom padding
+      }}
+      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchInquiries} />}
+      ListEmptyComponent={
+        <View className="flex-1 items-center justify-center p-4">
+          <Text className="text-gray-500 text-lg">No inquiries found</Text>
+        </View>
+      }
+    />
   );
 }
