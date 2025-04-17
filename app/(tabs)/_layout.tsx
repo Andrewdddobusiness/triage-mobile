@@ -3,14 +3,13 @@ import React from "react";
 import { Platform, Text } from "react-native";
 import { Redirect } from "expo-router";
 import { useSession } from "~/lib/auth/ctx";
-import { MessageSquare, Phone, Users, Grip, CircleUserRound } from "lucide-react-native";
 import { Header } from "~/components/ui/header";
-import { useHeaderTitleStore } from "@/stores/headerTitleStore";
-
-import { HapticTab } from "@/components/HapticTab";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { useHeaderTitleStore } from "~/stores/headerTitleStore";
+import { InboxIcon, ContactsIcon, KeypadIcon, CallsIcon, ProfileIcon } from "~/components/ui/icons";
+import { HapticTab } from "~/components/HapticTab";
+import TabBarBackground from "~/components/ui/TabBarBackground";
+import { Colors } from "~/constants/Colors";
+import { useColorScheme } from "~/hooks/useColorScheme";
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
@@ -49,7 +48,7 @@ export default function AppLayout() {
               case "contacts":
                 return "Contacts";
               case "profile":
-                return "Profiles";
+                return "Profile";
               default:
                 return "";
             }
@@ -60,6 +59,7 @@ export default function AppLayout() {
           );
         },
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarInactiveTintColor: "#64748b",
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarShowLabel: true,
@@ -75,36 +75,35 @@ export default function AppLayout() {
         name="index"
         options={{
           title: "Inbox",
-          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <InboxIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="contacts"
         options={{
           title: "Contacts",
-          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <ContactsIcon size={size} color={color} />,
         }}
       />
-
       <Tabs.Screen
         name="keypad"
         options={{
           title: "Keypad",
-          tabBarIcon: ({ color, size }) => <Grip size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <KeypadIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="calls"
         options={{
           title: "Calls",
-          tabBarIcon: ({ color, size }) => <Phone size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <CallsIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <CircleUserRound size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <ProfileIcon size={size} color={color} />,
         }}
       />
     </Tabs>

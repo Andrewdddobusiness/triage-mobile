@@ -1,5 +1,7 @@
+// /app/request/[id].ts - Updated with Hardcoded Call Button Functionality
+
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert, Linking } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Bot, Phone, MapPin, Calendar, Clock, Wrench, DollarSign, ArrowLeft, MessageSquare } from "lucide-react-native";
@@ -10,7 +12,6 @@ export default function RequestDetailScreen() {
   const { selectedInquiry, selectInquiry, inquiries, isLoading } = useCustomerInquiries();
 
   useEffect(() => {
-    // Find and select the inquiry when the component mounts
     const inquiry = inquiries.find((inq) => inq.id === id);
     if (inquiry) {
       selectInquiry(inquiry);
@@ -40,6 +41,10 @@ export default function RequestDetailScreen() {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const handleCall = () => {
+    router.push(`/request/${id}/call`);
   };
 
   return (
@@ -132,7 +137,7 @@ export default function RequestDetailScreen() {
               </Pressable>
               <Pressable
                 className="flex-1 bg-green-500 py-3 px-4 rounded-full flex-row items-center justify-center"
-                onPress={() => console.log("Call customer")}
+                onPress={handleCall}
               >
                 <Phone size={20} color="white" />
                 <Text className="text-white font-medium ml-2">Call Customer</Text>

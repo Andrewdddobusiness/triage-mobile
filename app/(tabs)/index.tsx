@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl, Platform } from "react-native";
 import { router } from "expo-router";
 import { useCustomerInquiries } from "~/app/stores/customerInquiries";
-import { Calendar, DollarSign } from "lucide-react-native";
+import { CalendarIcon, BudgetIcon, InquiryIcon } from "~/components/ui/icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function InboxScreen() {
@@ -58,21 +58,24 @@ export default function InboxScreen() {
         className="bg-white mb-2 p-4 mx-4 rounded-lg shadow-sm"
       >
         <View className="flex-row justify-between items-start mb-2">
-          <Text className="text-lg font-semibold flex-1 mr-2">{item.name}</Text>
+          <View className="flex-row items-center">
+            <InquiryIcon size={24} color="#0369a1" bgColor="#f0f9ff" />
+            <Text className="text-lg font-semibold ml-2">{item.name}</Text>
+          </View>
           <View className={`px-2 py-1 rounded ${statusColors.bg}`}>
             <Text className={`${statusColors.text} text-sm capitalize`}>{item.status}</Text>
           </View>
         </View>
 
         <View className="flex-row items-center mb-2">
-          <Calendar size={16} color="#64748b" className="mr-1" />
-          <Text className="text-gray-600 text-sm">Inquiry: {formatDate(item.inquiry_date)}</Text>
+          <CalendarIcon size={16} color="#64748b" />
+          <Text className="text-gray-600 text-sm ml-1">Inquiry: {formatDate(item.inquiry_date)}</Text>
         </View>
 
         {item.budget && (
           <View className="flex-row items-center mb-2">
-            <DollarSign size={16} color="#64748b" className="mr-1" />
-            <Text className="text-gray-600 text-sm">Budget: {formatCurrency(item.budget)}</Text>
+            <BudgetIcon size={16} color="#64748b" />
+            <Text className="text-gray-600 text-sm ml-1">Budget: {formatCurrency(item.budget)}</Text>
           </View>
         )}
 
@@ -100,7 +103,7 @@ export default function InboxScreen() {
       keyExtractor={(item) => item.id}
       contentContainerStyle={{
         paddingVertical: 16,
-        paddingBottom: bottomPadding, // Add the calculated bottom padding
+        paddingBottom: bottomPadding,
       }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchInquiries} />}
       ListEmptyComponent={

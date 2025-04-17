@@ -9,13 +9,34 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.triage.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls",
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
+        "UIBackgroundModes": ["voip", "audio"],
+        "NSMicrophoneUsageDescription": "This app needs microphone access to handle calls.",
+        "UIRequiresPersistentWiFi": true
+      },
+      "entitlements": {
+        "com.apple.developer.push-to-talk": true,
+        "com.apple.developer.pushkit.voip": true
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.triage.mobile",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +54,25 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "react-native-permissions",
+        {
+          "iosPermissions": ["Microphone", "Camera", "PhotoLibrary", "PhotoLibraryAddOnly"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "68314ba1-8f71-4261-af16-e60862221296"
+      }
+    },
+    "owner": "andrewdddo"
   }
 }
