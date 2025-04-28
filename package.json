@@ -12,7 +12,7 @@
     "lint": "expo lint",
     "backend:dev": "ts-node-dev backend/src/index.ts",
     "backend:build": "tsc -p backend",
-    "backend:start": "node backend/dist/index.js",
+    "backend:start": "npx tsx --env-file=backend/.env backend/src/index.ts",
     "dev:all": "concurrently \"npm run backend:dev\" \"npm run start\""
   },
   "jest": {

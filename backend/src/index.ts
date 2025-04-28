@@ -6,7 +6,19 @@ const { AccessToken } = jwt;
 const VoiceGrant = AccessToken.VoiceGrant;
 const VoiceResponse = twiml.VoiceResponse;
 
-dotenv.config();
+// Load environment variables
+const envPath = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+console.log("env: ", envPath);
+dotenv.config({ path: envPath });
+
+// Debug environment variables
+console.log("Environment variables loaded:", {
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ? "Set" : "Missing",
+  TWILIO_API_KEY: process.env.TWILIO_API_KEY ? "Set" : "Missing",
+  TWILIO_API_SECRET: process.env.TWILIO_API_SECRET ? "Set" : "Missing",
+  TWILIO_TWIML_APP_SID: process.env.TWILIO_TWIML_APP_SID ? "Set" : "Missing",
+  PORT: process.env.PORT || 3001,
+});
 
 const app = express();
 app.use(cors());
@@ -44,6 +56,7 @@ app.get("/accessToken", (req, res) => {
 
     const grant = new VoiceGrant({
       outgoingApplicationSid: process.env.TWILIO_TWIML_APP_SID,
+      pushCredentialSid: process.env.TWILIO_PUSH_CREDENTIAL_SID,
       incomingAllow: true,
     });
     accessToken.addGrant(grant);

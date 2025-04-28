@@ -15,14 +15,7 @@
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
-        "UIBackgroundModes": ["voip", "audio"],
-        "NSMicrophoneUsageDescription": "This app needs microphone access to handle calls.",
-        "UIRequiresPersistentWiFi": true
-      },
-      "entitlements": {
-        "com.apple.developer.push-to-talk": true,
-        "com.apple.developer.pushkit.voip": true
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
       }
     },
     "android": {

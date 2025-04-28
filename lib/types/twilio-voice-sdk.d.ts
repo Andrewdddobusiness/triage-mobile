@@ -14,6 +14,9 @@ declare module "@twilio/voice-react-native-sdk" {
   export type AudioDevice = "earpiece" | "speaker";
 
   export class Voice {
+    initializePushRegistry() {
+      throw new Error("Method not implemented.");
+    }
     register(token: string): Promise<void>;
     unregister(): Promise<void>;
     connect(token: string, options: { params: { To: string } }): Promise<Call>;

@@ -4,11 +4,11 @@ import { Platform } from "react-native";
 
 const API_URL = __DEV__
   ? Platform.select({
-      ios: "https://328c-58-107-53-183.ngrok-free.app",
+      ios: "https://cf24-58-107-53-183.ngrok-free.app",
       android: "http://10.0.2.2:3001",
-      default: "https://328c-58-107-53-183.ngrok-free.app",
+      default: "https://cf24-58-107-53-183.ngrok-free.app",
     })
-  : "your_production_api_url_here";
+  : "https://cf24-58-107-53-183.ngrok-free.app";
 
 export function useTwilio(identity: string) {
   const [isConnected, setIsConnected] = useState(false);
@@ -23,10 +23,24 @@ export function useTwilio(identity: string) {
   useEffect(() => {
     const setup = async () => {
       try {
+        console.log("Fetching token from:", `${API_URL}/accessToken?identity=${identity}`);
         const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
-        const { token } = await res.json();
+        console.log("useEffect response:", res);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Server response:", text);
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
-        await voice.register(token);
+        const data = await res.json();
+        const { token } = data;
+        console.log("Token:", token);
+
+        // ✅ Fix: Initialize PushKit registry before registering
+        const pr = await voice.initializePushRegistry();
+        console.log("PR: ", pr);
+        const regResult = await voice.register(token);
+        console.log("Voice registered:", regResult);
 
         voice.on("connected", (call: Call) => {
           console.log("✅ Connected call", call);
@@ -43,6 +57,12 @@ export function useTwilio(identity: string) {
           setIsMuted(false);
           setIsSpeakerOn(false);
           setIsOnHold(false);
+        });
+
+        voice.on("callInvite", (invite) => {
+          console.log("📞 Incoming call invite:", invite);
+          setIsIncoming(true);
+          setCallStatus("incoming");
         });
       } catch (error) {
         console.error("Error setting up Twilio:", error);
@@ -61,6 +81,7 @@ export function useTwilio(identity: string) {
       const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
       const { token } = await res.json();
 
+      console.log("Initiating call to:", to);
       await voice.connect(token, {
         params: { To: to },
       });
