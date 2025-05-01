@@ -4,11 +4,11 @@ import { Platform } from "react-native";
 
 const API_URL = __DEV__
   ? Platform.select({
-      ios: "https://cf24-58-107-53-183.ngrok-free.app",
+      ios: "https://0842-58-107-53-183.ngrok-free.app",
       android: "http://10.0.2.2:3001",
-      default: "https://cf24-58-107-53-183.ngrok-free.app",
+      default: "https://0842-58-107-53-183.ngrok-free.app",
     })
-  : "https://cf24-58-107-53-183.ngrok-free.app";
+  : "https://0842-58-107-53-183.ngrok-free.app";
 
 export function useTwilio(identity: string) {
   const [isConnected, setIsConnected] = useState(false);

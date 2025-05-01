@@ -229,6 +229,8 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (14.0.3):
     - ExpoModulesCore
+  - ExpoLinearGradient (14.0.2):
+    - ExpoModulesCore
   - ExpoLinking (7.0.5):
     - ExpoModulesCore
   - ExpoModulesCore (2.2.3):
@@ -1928,7 +1930,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.16.7):
+  - RNReanimated (3.16.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1948,10 +1950,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.16.7)
-    - RNReanimated/worklets (= 3.16.7)
+    - RNReanimated/reanimated (= 3.16.2)
+    - RNReanimated/worklets (= 3.16.2)
     - Yoga
-  - RNReanimated/reanimated (3.16.7):
+  - RNReanimated/reanimated (3.16.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1971,9 +1973,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.16.7)
+    - RNReanimated/reanimated/apple (= 3.16.2)
     - Yoga
-  - RNReanimated/reanimated/apple (3.16.7):
+  - RNReanimated/reanimated/apple (3.16.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1994,7 +1996,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.16.7):
+  - RNReanimated/worklets (3.16.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2128,6 +2130,7 @@ DEPENDENCIES:
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
@@ -2251,6 +2254,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-router/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
+  ExpoLinearGradient:
+    :path: "../node_modules/expo-linear-gradient/ios"
   ExpoLinking:
     :path: "../node_modules/expo-linking/ios"
   ExpoModulesCore:
@@ -2431,6 +2436,7 @@ SPEC CHECKSUMS:
   ExpoHaptics: 8d199b2f33245ea85289ff6c954c7ee7c00a5b5d
   ExpoHead: cee2d16ef197aaadb0ac481cf221a663636eb074
   ExpoKeepAwake: b0171a73665bfcefcfcc311742a72a956e6aa680
+  ExpoLinearGradient: 35ebd83b16f80b3add053a2fd68cc328ed927f60
   ExpoLinking: 8d12bee174ba0cdf31239706578e29e74a417402
   ExpoModulesCore: 98297c2cc7977c43740a2e52d850d94ac8dbf176
   ExpoSecureStore: 9a3665d7161dd1031be386e278bffd623658f316
@@ -2506,7 +2512,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: ff8f69859448bde50f1c25d3e7eb37555fed33ab
   RNGestureHandler: 16ef3dc2d7ecb09f240f25df5255953c4098819b
   RNPermissions: 2ae7c9245aa9b206c1c26c924f1921e030dff0bc
-  RNReanimated: a2692304a6568bc656c04c8ffea812887d37436e
+  RNReanimated: 01d743d77838211eeec6bb9fbee99458b0bcf857
   RNScreens: 351f431ef2a042a1887d4d90e1c1024b8ae9d123
   RNSVG: bbbdd17e8730c0f2a9cb416e5f37be87e29ebc90
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
@@ -2514,6 +2520,6 @@ SPEC CHECKSUMS:
   TwilioVoice: fdf3e90f84023b42d64c204ffbd03c490c86e0cf
   Yoga: 90d80701b27946c4b23461c00a7207f300a6ff71
 
-PODFILE CHECKSUM: 29e92649fd206c35f936f0589221009f402bb823
+PODFILE CHECKSUM: 8d51798bbd379be5d7051de562f8335269865ded
 
 COCOAPODS: 1.16.2

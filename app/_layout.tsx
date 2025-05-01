@@ -9,6 +9,7 @@ import { NAV_THEME } from "../lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { SessionProvider, useSession } from "~/lib/auth/ctx";
 import { Text } from "~/components/ui/text";
+import { SplashScreenProvider } from "./splash-screen";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -47,6 +48,7 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         {!session ? (
           <>
+            <Stack.Screen name="welcome" />
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>
@@ -83,9 +85,11 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionProvider>
-      <RootLayoutNav />
-    </SessionProvider>
+    <SplashScreenProvider>
+      <SessionProvider>
+        <RootLayoutNav />
+      </SessionProvider>
+    </SplashScreenProvider>
   );
 }
 
