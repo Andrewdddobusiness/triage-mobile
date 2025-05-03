@@ -6,7 +6,7 @@ import { useSession } from "~/lib/auth/ctx";
 import { Header } from "~/components/ui/header";
 import { useHeaderTitleStore } from "~/stores/headerTitleStore";
 import { InboxIcon, ContactsIcon, KeypadIcon, CallsIcon, ProfileIcon } from "~/components/ui/icons";
-import { HapticTab } from "~/components/HapticTab";
+// import { HapticTab } from "~/components/HapticTab";
 import TabBarBackground from "~/components/ui/TabBarBackground";
 import { Colors } from "~/constants/Colors";
 import { useColorScheme } from "~/hooks/useColorScheme";
@@ -60,7 +60,7 @@ export default function AppLayout() {
         },
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarInactiveTintColor: "#64748b",
-        tabBarButton: HapticTab,
+        // tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarShowLabel: true,
         tabBarStyle: Platform.select({

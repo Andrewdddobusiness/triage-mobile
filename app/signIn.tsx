@@ -9,6 +9,13 @@ import { useSession } from "~/lib/auth/ctx";
 import { supabase } from "~/lib/supabase";
 import { X } from "lucide-react-native";
 
+import {
+  GoogleSignin,
+  isSuccessResponse,
+  isErrorWithCode,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+
 import { useGoogleSignIn } from "~/hooks/useGoogleSignIn";
 
 const { width } = Dimensions.get("window");
@@ -27,6 +34,7 @@ export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const { signInWithGoogle } = useGoogleSignIn();
 
@@ -41,6 +49,36 @@ export default function SignInScreen() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsSubmitting(true);
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (isSuccessResponse(response)) {
+        const { idToken, user } = response.data;
+        console.log("hi");
+        router.replace("/(tabs)");
+      } else {
+        console.log("Google SignIn was cancelled");
+      }
+      setIsSubmitting(false);
+    } catch (error) {
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.IN_PROGRESS:
+            console.log("Google SignIn in progress");
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            console.log("Play services are not available");
+            break;
+        }
+      } else {
+        console.log("An error occurred");
+      }
+      setIsSubmitting(false);
     }
   };
 
@@ -140,6 +178,7 @@ export default function SignInScreen() {
         >
           <TouchableOpacity
             onPress={signInWithGoogle}
+            disabled={isSubmitting}
             activeOpacity={0.8}
             style={{
               backgroundColor: "white",

@@ -12,12 +12,7 @@ import { Text } from "~/components/ui/text";
 import { SplashScreenProvider } from "./splash-screen";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-
-GoogleSignin.configure({
-  webClientId: "<YOUR_WEB_CLIENT_ID>", // from GCP console (OAuth 2.0 Client IDs → Web)
-  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  offlineAccess: true, // if you need refresh tokens
-});
+import { useEffect } from "react";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -46,6 +41,15 @@ function RootLayoutNav() {
   const { session, isLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: "244259622983-d8hokavl2edb0gl050f40rkeak1otq6n.apps.googleusercontent.com",
+      iosClientId: "244259622983-oc0g6h4n3pamklfcevffjeup6k0pohos.apps.googleusercontent.com",
+      offlineAccess: true, // if you need refresh tokens
+      forceCodeForRefreshToken: true, // Add this line
+    });
+  }, []);
+
   // if (isLoading) {
   //   return <LoadingScreen />;
   // }
@@ -56,7 +60,7 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         {!session ? (
           <>
-            {/* <Stack.Screen name="welcome" /> */}
+            <Stack.Screen name="welcome" />
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>

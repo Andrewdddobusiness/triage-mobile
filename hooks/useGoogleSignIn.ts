@@ -5,6 +5,7 @@ import {
   isErrorWithCode,
   isCancelledResponse,
 } from "@react-native-google-signin/google-signin";
+import { router } from "expo-router";
 import { Alert } from "react-native";
 import { supabase } from "~/lib/supabase";
 
@@ -22,22 +23,28 @@ export function useGoogleSignIn() {
         // user cancelled or something went wrong; bail out
         return;
       }
-
+      console.log("hi1");
       // 4. Extract the User from `result.data`
       const user = result.data;
       const idToken = user.idToken;
       if (!idToken) {
         throw new Error("No idToken returned from Google Sign-In");
       }
-
+      console.log("hi2");
       // 5. Exchange the ID token with Supabase Auth
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: "google",
-        token: idToken, // <-- use `token`, not `id_token`
+        token: idToken,
+        nonce: undefined,
       });
+      console.log("hi3");
+      console.log(error);
       if (error) throw error;
 
       // 6. (Optional) Now `data.session` and `data.user` are available
+      console.log("hi4");
+      router.replace("/(tabs)");
+      return data;
     } catch (err: any) {
       // 7. Handle Google-Signin-specific errors
       if (isErrorWithCode(err)) {
