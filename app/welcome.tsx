@@ -95,6 +95,16 @@ export default function WelcomeScreen() {
         renderItem={({ item }) => <View className="flex justify-center items-center w-full px-4">{item}</View>}
       />
 
+      {/* Divider with OR */}
+      <View
+        className="flex flex-row items-center mx-8 absolute bottom-24 left-0 right-0"
+        style={{ width: width - 48, alignSelf: "center" }}
+      >
+        <View className="flex h-[1px] flex-1 bg-white/50" />
+        <Text className="mx-3 text-white/80">or</Text>
+        <View className="flex h-[1px] flex-1 bg-white/50" />
+      </View>
+
       {/* Sign In button */}
       <TouchableOpacity
         className="bg-white rounded-full py-4 items-center mx-8 absolute bottom-16 left-0 right-0"

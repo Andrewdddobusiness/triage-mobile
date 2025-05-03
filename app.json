@@ -1,25 +1,26 @@
 {
   "expo": {
-    "name": "Spaak",
-    "slug": "Spaak",
+    "name": "spaak",
+    "slug": "spaak",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo/background/logo-gradient-1.png",
-    "scheme": "myapp",
+    "scheme": "spaak",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
+      "googleClientId": "244259622983-d8hokavl2edb0gl050f40rkeak1otq6n.apps.googleusercontent.com",
       "router": {
         "origin": false,
         "initialRouteName": "welcome"
       },
       "eas": {
-        "projectId": "68314ba1-8f71-4261-af16-e60862221296"
+        "projectId": "a8e32c86-9708-4a38-b110-b92d6a29e491"
       }
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.triage.mobile",
+      "bundleIdentifier": "com.spaak.mobile",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
@@ -32,7 +33,7 @@
         "foregroundImage": "./assets/images/logo/background/logo-gradient-1.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.triage.mobile",
+      "package": "com.spaak.mobile",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
@@ -70,14 +71,24 @@
       [
         "react-native-permissions",
         {
-          "iosPermissions": ["Microphone", "Camera", "PhotoLibrary", "PhotoLibraryAddOnly"]
+          "iosPermissions": [
+            "Microphone",
+            "Camera",
+            "PhotoLibrary",
+            "PhotoLibraryAddOnly"
+          ]
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.244259622983-oc0g6h4n3pamklfcevffjeup6k0pohos"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
     },
-
     "owner": "andrewdddo"
   }
 }

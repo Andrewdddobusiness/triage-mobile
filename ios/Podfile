@@ -24,7 +24,7 @@ setup_permissions([
 ])
 # @generated end setup
 
-target 'Spaak' do
+target 'spaak' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'

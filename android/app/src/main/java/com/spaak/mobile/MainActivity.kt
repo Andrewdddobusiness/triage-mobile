@@ -1,4 +1,4 @@
-package com.triage.mobile
+package com.spaak.mobile
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

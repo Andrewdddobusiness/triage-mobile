@@ -11,6 +11,14 @@ import { SessionProvider, useSession } from "~/lib/auth/ctx";
 import { Text } from "~/components/ui/text";
 import { SplashScreenProvider } from "./splash-screen";
 
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
+GoogleSignin.configure({
+  webClientId: "<YOUR_WEB_CLIENT_ID>", // from GCP console (OAuth 2.0 Client IDs → Web)
+  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+  offlineAccess: true, // if you need refresh tokens
+});
+
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
