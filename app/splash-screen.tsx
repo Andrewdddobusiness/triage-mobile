@@ -12,7 +12,7 @@ SplashScreen.setOptions({
   fade: true,
 });
 
-export function useSplashScreen() {
+export default function useSplashScreen() {
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {

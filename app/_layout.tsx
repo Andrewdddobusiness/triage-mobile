@@ -38,9 +38,9 @@ function RootLayoutNav() {
   const { session, isLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  // if (isLoading) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
@@ -48,7 +48,7 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         {!session ? (
           <>
-            <Stack.Screen name="welcome" />
+            {/* <Stack.Screen name="welcome" /> */}
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>
@@ -80,9 +80,9 @@ export default function RootLayout() {
     hasMounted.current = true;
   }, []);
 
-  if (!isColorSchemeLoaded) {
-    return <LoadingScreen />;
-  }
+  // if (!isColorSchemeLoaded) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <SplashScreenProvider>

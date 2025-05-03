@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 // Initialize Supabase client
 const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL!, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!);
 
-export interface CustomerInquiry {
+export default interface CustomerInquiry {
   id: string;
   name: string;
   phone: string;
