@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
-import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl, Platform } from "react-native";
-import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, Platform, TouchableOpacity } from "react-native";
 import { useCustomerInquiries } from "~/app/stores/customerInquiries";
-import { CalendarIcon, BudgetIcon, InquiryIcon } from "~/components/ui/icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { InquiryCard } from "~/components/ui/InquiryCard";
+import { FilterDropdown } from "~/components/ui/FilterDropdown";
+import { STATUS_FILTERS, JOB_TYPE_FILTERS, FilterOption } from "~/types/filters";
+import { Search } from "lucide-react-native";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading } = useCustomerInquiries();
   const insets = useSafeAreaInsets();
+
+  // Initialize with the first option from each filter
+  const [statusFilter, setStatusFilter] = useState<FilterOption>(STATUS_FILTERS.options[0]);
+  const [jobTypeFilter, setJobTypeFilter] = useState<FilterOption>(JOB_TYPE_FILTERS.options[0]);
 
   // Calculate bottom padding to account for tab bar and safe area
   const bottomPadding = Platform.select({
@@ -20,97 +26,74 @@ export default function InboxScreen() {
     fetchInquiries();
   }, []);
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-AU", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // Apply filters to inquiries
+  const filteredInquiries = inquiries.filter((item) => {
+    // Only apply status filter if not "All Jobs"
+    const passesStatusFilter =
+      statusFilter.id === "all" ||
+      (statusFilter.id === "new" && item.status === "new") ||
+      (statusFilter.id === "contacted" && item.status === "contacted") ||
+      (statusFilter.id === "completed" && item.status === "completed");
 
-  const formatCurrency = (amount: number | null) => {
-    if (amount === null) return "Not specified";
-    return new Intl.NumberFormat("en-AU", {
-      style: "currency",
-      currency: "AUD",
-    }).format(amount);
-  };
+    // Only apply job type filter if not "All Types"
+    const passesJobTypeFilter = jobTypeFilter.id === "all" || item.job_type === jobTypeFilter.id;
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, { bg: string; text: string }> = {
-      new: { bg: "bg-blue-100", text: "text-blue-800" },
-      contacted: { bg: "bg-yellow-100", text: "text-yellow-800" },
-      scheduled: { bg: "bg-purple-100", text: "text-purple-800" },
-      completed: { bg: "bg-green-100", text: "text-green-800" },
-      cancelled: { bg: "bg-red-100", text: "text-red-800" },
-    };
-    return colors[status] || { bg: "bg-gray-100", text: "text-gray-800" };
-  };
-
-  const renderItem = ({ item }: { item: any }) => {
-    const statusColors = getStatusColor(item.status);
-
-    return (
-      <Pressable
-        onPress={() => {
-          router.push(`/request/${item.id}`);
-        }}
-        className="bg-white mb-2 p-4 mx-4 rounded-lg shadow-sm"
-      >
-        <View className="flex-row justify-between items-start mb-2">
-          <View className="flex-row items-center">
-            <InquiryIcon size={24} color="#0369a1" bgColor="#f0f9ff" />
-            <Text className="text-lg font-semibold ml-2">{item.name}</Text>
-          </View>
-          <View className={`px-2 py-1 rounded ${statusColors.bg}`}>
-            <Text className={`${statusColors.text} text-sm capitalize`}>{item.status}</Text>
-          </View>
-        </View>
-
-        <View className="flex-row items-center mb-2">
-          <CalendarIcon size={16} color="#64748b" />
-          <Text className="text-gray-600 text-sm ml-1">Inquiry: {formatDate(item.inquiry_date)}</Text>
-        </View>
-
-        {item.budget && (
-          <View className="flex-row items-center mb-2">
-            <BudgetIcon size={16} color="#64748b" />
-            <Text className="text-gray-600 text-sm ml-1">Budget: {formatCurrency(item.budget)}</Text>
-          </View>
-        )}
-
-        {item.job_description && (
-          <Text numberOfLines={2} className="text-gray-600 text-sm">
-            {item.job_description}
-          </Text>
-        )}
-      </Pressable>
-    );
-  };
+    return passesStatusFilter && passesJobTypeFilter;
+  });
 
   if (isLoading && inquiries.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center bg-gray-100">
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   return (
-    <FlatList
-      data={inquiries}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={{
-        paddingVertical: 16,
-        paddingBottom: bottomPadding,
-      }}
-      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchInquiries} />}
-      ListEmptyComponent={
-        <View className="flex-1 items-center justify-center p-4">
-          <Text className="text-gray-500 text-lg">No inquiries found</Text>
+    <View className="flex-1 bg-gray-100">
+      {/* Filters and Search Row */}
+      <View className="bg-white border-b border-gray-200 p-4">
+        <View className="flex-row items-center">
+          {/* Status Filter - takes 40% of the space */}
+          <View className="flex-[4]">
+            <FilterDropdown options={STATUS_FILTERS.options} selectedOption={statusFilter} onSelect={setStatusFilter} />
+          </View>
+
+          {/* Job Type Filter - takes 40% of the space */}
+          <View className="flex-[4] mx-2">
+            <FilterDropdown
+              options={JOB_TYPE_FILTERS.options}
+              selectedOption={jobTypeFilter}
+              onSelect={setJobTypeFilter}
+            />
+          </View>
+
+          {/* Search Button - takes 20% of the space */}
+          <View className="flex-[1]">
+            <TouchableOpacity className="p-2 bg-white border border-gray-300 rounded-full items-center justify-center">
+              <Search size={20} color="#374151" />
+            </TouchableOpacity>
+          </View>
         </View>
-      }
-    />
+      </View>
+
+      <FlatList
+        data={filteredInquiries}
+        renderItem={({ item }) => (
+          <InquiryCard item={{ ...item, job_description: item.job_description || undefined }} />
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{
+          paddingVertical: 16,
+          paddingBottom: bottomPadding,
+        }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchInquiries} />}
+        ListEmptyComponent={
+          <View className="flex-1 items-center justify-center p-4">
+            <Text className="text-gray-500 text-lg">No inquiries found</Text>
+          </View>
+        }
+      />
+    </View>
   );
 }

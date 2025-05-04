@@ -1,8 +1,8 @@
 import React from "react";
 import { View } from "react-native";
-import { MessageSquare, Phone, Users, Grip, CircleUserRound, Calendar, DollarSign } from "lucide-react-native";
+import { MessageSquare, Phone, Users, Grip, CircleUserRound, Calendar, DollarSign, Inbox } from "lucide-react-native";
 
-export const InboxIcon = ({ size = 24, color = "#000" }) => <MessageSquare size={size} color={color} />;
+export const InboxIcon = ({ size = 24, color = "#000" }) => <Inbox size={size} color={color} />;
 
 export const ContactsIcon = ({ size = 24, color = "#000" }) => <Users size={size} color={color} />;
 
