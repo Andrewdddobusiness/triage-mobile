@@ -95,23 +95,22 @@ export default function WelcomeScreen() {
         renderItem={({ item }) => <View className="flex justify-center items-center w-full px-4">{item}</View>}
       />
 
-      {/* Divider with OR */}
-      <View
-        className="flex flex-row items-center mx-8 absolute bottom-24 left-0 right-0"
+      {/* Sign Up button */}
+      <TouchableOpacity
+        className="bg-white rounded-full py-4 items-center mx-8 absolute bottom-32 left-0 right-0"
         style={{ width: width - 48, alignSelf: "center" }}
+        onPress={() => router.push("/signUp")}
       >
-        <View className="flex h-[1px] flex-1 bg-white/50" />
-        <Text className="mx-3 text-white/80">or</Text>
-        <View className="flex h-[1px] flex-1 bg-white/50" />
-      </View>
+        <Text className="text-orange-400 text-lg font-semibold">Get Started</Text>
+      </TouchableOpacity>
 
       {/* Sign In button */}
       <TouchableOpacity
-        className="bg-white rounded-full py-4 items-center mx-8 absolute bottom-16 left-0 right-0"
+        className="rounded-full py-4 items-center mx-8 absolute bottom-16 left-0 right-0"
         style={{ width: width - 48, alignSelf: "center" }}
         onPress={() => router.push("/signIn")}
       >
-        <Text className="text-orange-400 text-lg font-semibold">Sign In</Text>
+        <Text className="text-white text-lg font-semibold">Sign In</Text>
       </TouchableOpacity>
     </LinearGradient>
   );

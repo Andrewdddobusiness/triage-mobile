@@ -4,11 +4,11 @@ import { Platform } from "react-native";
 
 const API_URL = __DEV__
   ? Platform.select({
-      ios: "https://0842-58-107-53-183.ngrok-free.app",
+      ios: "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app",
       android: "http://10.0.2.2:3001",
-      default: "https://0842-58-107-53-183.ngrok-free.app",
+      default: "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app",
     })
-  : "https://0842-58-107-53-183.ngrok-free.app";
+  : "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app";
 
 export function useTwilio(identity: string) {
   const [isConnected, setIsConnected] = useState(false);
@@ -36,34 +36,45 @@ export function useTwilio(identity: string) {
         const { token } = data;
         console.log("Token:", token);
 
-        // ✅ Fix: Initialize PushKit registry before registering
-        const pr = await voice.initializePushRegistry();
-        console.log("PR: ", pr);
-        const regResult = await voice.register(token);
-        console.log("Voice registered:", regResult);
+        // Initialize PushKit with proper error handling
+        try {
+          console.log("Initializing PushKit registry...");
+          await voice.initializePushRegistry();
+          console.log("PushKit registry initialized successfully");
 
-        voice.on("connected", (call: Call) => {
-          console.log("✅ Connected call", call);
-          setActiveCall(call);
-          setIsConnected(true);
-          setCallStatus("connected");
-        });
+          // Only proceed with registration if PushKit initialization succeeded
+          const regResult = await voice.register(token);
+          console.log("Voice registered:", regResult);
 
-        voice.on("disconnected", () => {
-          setActiveCall(null);
-          setIsConnected(false);
-          setIsIncoming(false);
-          setCallStatus("disconnected");
-          setIsMuted(false);
-          setIsSpeakerOn(false);
-          setIsOnHold(false);
-        });
+          // Rest of your event handlers...
+          voice.on("connected", (call: Call) => {
+            console.log("✅ Connected call", call);
+            setActiveCall(call);
+            setIsConnected(true);
+            setCallStatus("connected");
+          });
 
-        voice.on("callInvite", (invite) => {
-          console.log("📞 Incoming call invite:", invite);
-          setIsIncoming(true);
-          setCallStatus("incoming");
-        });
+          voice.on("disconnected", () => {
+            setActiveCall(null);
+            setIsConnected(false);
+            setIsIncoming(false);
+            setCallStatus("disconnected");
+            setIsMuted(false);
+            setIsSpeakerOn(false);
+            setIsOnHold(false);
+          });
+
+          voice.on("callInvite", (invite) => {
+            console.log("📞 Incoming call invite:", invite);
+            setIsIncoming(true);
+            setCallStatus("incoming");
+          });
+        } catch (pushKitError) {
+          console.error("PushKit initialization error:", pushKitError);
+          // You might want to show an alert to the user here
+          // For outgoing calls only, you could potentially continue without PushKit
+          // but incoming calls won't work
+        }
       } catch (error) {
         console.error("Error setting up Twilio:", error);
       }

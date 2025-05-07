@@ -16,6 +16,7 @@ export default interface CustomerInquiry {
   budget: number | null;
   job_description: string | null;
   call_sid: string | null;
+  location: string | null;
   status: "new" | "contacted" | "scheduled" | "completed" | "cancelled";
   created_at: string;
   updated_at: string;

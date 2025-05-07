@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator, RefreshControl, Platform, TouchableOpacity } from "react-native";
-import { useCustomerInquiries } from "~/app/stores/customerInquiries";
+import { useCustomerInquiries } from "~/stores/customerInquiries";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { InquiryCard } from "~/components/ui/InquiryCard";
 import { FilterDropdown } from "~/components/ui/FilterDropdown";
-import { STATUS_FILTERS, JOB_TYPE_FILTERS, FilterOption } from "~/types/filters";
-import { Search } from "lucide-react-native";
+import { STATUS_FILTERS, IFilterOption, JOB_TYPE_FILTERS } from "~/lib/types/filters";
+
+import IconIon from "@expo/vector-icons/Ionicons";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading } = useCustomerInquiries();
   const insets = useSafeAreaInsets();
-
-  // Initialize with the first option from each filter
-  const [statusFilter, setStatusFilter] = useState<FilterOption>(STATUS_FILTERS.options[0]);
-  const [jobTypeFilter, setJobTypeFilter] = useState<FilterOption>(JOB_TYPE_FILTERS.options[0]);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<IFilterOption>(STATUS_FILTERS.options[0]);
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState<IFilterOption>(JOB_TYPE_FILTERS.options[0]);
 
   // Calculate bottom padding to account for tab bar and safe area
   const bottomPadding = Platform.select({
-    ios: 85 + insets.bottom, // Tab bar height (85) + safe area
-    android: 60, // Android tab bar height
+    ios: 85 + insets.bottom,
+    android: 60,
     default: 60,
   });
 
@@ -26,20 +25,13 @@ export default function InboxScreen() {
     fetchInquiries();
   }, []);
 
-  // Apply filters to inquiries
-  const filteredInquiries = inquiries.filter((item) => {
-    // Only apply status filter if not "All Jobs"
-    const passesStatusFilter =
-      statusFilter.id === "all" ||
-      (statusFilter.id === "new" && item.status === "new") ||
-      (statusFilter.id === "contacted" && item.status === "contacted") ||
-      (statusFilter.id === "completed" && item.status === "completed");
+  const handleStatusFilterSelect = (option: IFilterOption) => {
+    setSelectedStatusFilter(option);
+  };
 
-    // Only apply job type filter if not "All Types"
-    const passesJobTypeFilter = jobTypeFilter.id === "all" || item.job_type === jobTypeFilter.id;
-
-    return passesStatusFilter && passesJobTypeFilter;
-  });
+  const handleTypeFilterSelect = (option: IFilterOption) => {
+    setSelectedTypeFilter(option);
+  };
 
   if (isLoading && inquiries.length === 0) {
     return (
@@ -51,36 +43,42 @@ export default function InboxScreen() {
 
   return (
     <View className="flex-1 bg-gray-100">
-      {/* Filters and Search Row */}
-      <View className="bg-white border-b border-gray-200 p-4">
-        <View className="flex-row items-center">
-          {/* Status Filter - takes 40% of the space */}
-          <View className="flex-[4]">
-            <FilterDropdown options={STATUS_FILTERS.options} selectedOption={statusFilter} onSelect={setStatusFilter} />
-          </View>
-
-          {/* Job Type Filter - takes 40% of the space */}
-          <View className="flex-[4] mx-2">
-            <FilterDropdown
-              options={JOB_TYPE_FILTERS.options}
-              selectedOption={jobTypeFilter}
-              onSelect={setJobTypeFilter}
-            />
-          </View>
-
-          {/* Search Button - takes 20% of the space */}
-          <View className="flex-[1]">
-            <TouchableOpacity className="p-2 bg-white border border-gray-300 rounded-full items-center justify-center">
-              <Search size={20} color="#374151" />
-            </TouchableOpacity>
-          </View>
+      {/* Filter Header */}
+      <View className="flex-row bg-white  px-4 py-2 space-x-4">
+        <View className="flex-1">
+          <FilterDropdown
+            options={STATUS_FILTERS.options}
+            selectedOption={selectedStatusFilter}
+            onSelect={handleStatusFilterSelect}
+          />
         </View>
+        <View className="flex-1">
+          <FilterDropdown
+            options={JOB_TYPE_FILTERS.options}
+            selectedOption={selectedTypeFilter}
+            onSelect={handleTypeFilterSelect}
+          />
+        </View>
+        <TouchableOpacity
+          className="p-2 rounded-full border border-gray-300"
+          onPress={() => {
+            console.log("Search pressed");
+          }}
+        >
+          <IconIon name="search" size={20} color="#374151" />
+        </TouchableOpacity>
       </View>
 
       <FlatList
-        data={filteredInquiries}
+        data={inquiries}
         renderItem={({ item }) => (
-          <InquiryCard item={{ ...item, job_description: item.job_description || undefined }} />
+          <InquiryCard
+            item={{
+              ...item,
+              job_description: item.job_description || undefined,
+              location: item.location || undefined,
+            }}
+          />
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{

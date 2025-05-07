@@ -5,7 +5,6 @@ import { Wrench, Paintbrush, Zap, Hammer, Construction, Home, Scissors, Truck, H
 
 type InquiryCardProps = {
   item: {
-    location?: string;
     id: string;
     name: string;
     status: string;
@@ -13,6 +12,7 @@ type InquiryCardProps = {
     budget: number | null;
     job_type?: string;
     job_description?: string;
+    location?: string;
   };
 };
 

@@ -12,7 +12,8 @@ import { Text } from "~/components/ui/text";
 import { SplashScreenProvider } from "./splash-screen";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { serviceProviderService } from "~/lib/services/serviceProviderService";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -40,6 +41,7 @@ function LoadingScreen() {
 function RootLayoutNav() {
   const { session, isLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -50,9 +52,26 @@ function RootLayoutNav() {
     });
   }, []);
 
-  // if (isLoading) {
-  //   return <LoadingScreen />;
-  // }
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (session?.user) {
+        // First ensure the service provider record exists
+        await serviceProviderService.createServiceProvider(session.user.id);
+
+        // Then check if onboarding is completed
+        const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
+        setOnboardingCompleted(isCompleted);
+      } else {
+        setOnboardingCompleted(null);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [session]);
+
+  if (isLoading || (session && onboardingCompleted === null)) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
@@ -64,6 +83,8 @@ function RootLayoutNav() {
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>
+        ) : !onboardingCompleted ? (
+          <Stack.Screen name="onboarding" />
         ) : (
           <>
             <Stack.Screen name="(tabs)" />

@@ -51,3 +51,6 @@ expo-env.d.ts
 .expo
 
 Certificates.p12
+Certificates-old.p12
+cred.p12
+AuthKey_WYTWHJ77F7.p8

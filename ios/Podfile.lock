@@ -1597,6 +1597,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-vector-icons-evil-icons (12.0.0)
+  - react-native-vector-icons-fontawesome6 (12.0.0)
   - react-native-voice (0.3.0):
     - React
   - react-native-webview (13.12.5):
@@ -2222,6 +2224,8 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-vector-icons-evil-icons (from `../node_modules/@react-native-vector-icons/evil-icons`)"
+  - "react-native-vector-icons-fontawesome6 (from `../node_modules/@react-native-vector-icons/fontawesome6`)"
   - react-native-voice (from `../node_modules/react-native-voice`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -2399,6 +2403,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-vector-icons-evil-icons:
+    :path: "../node_modules/@react-native-vector-icons/evil-icons"
+  react-native-vector-icons-fontawesome6:
+    :path: "../node_modules/@react-native-vector-icons/fontawesome6"
   react-native-voice:
     :path: "../node_modules/react-native-voice"
   react-native-webview:
@@ -2546,6 +2554,8 @@ SPEC CHECKSUMS:
   React-Mapbuffer: a381120aea722d2244d4e4b663a10d4c3b2d4e51
   React-microtasksnativemodule: d9b946675010659cddd1c7611c074216579c8ad3
   react-native-safe-area-context: 2985d96d364676d1e2e2d5e77f64860874e31e13
+  react-native-vector-icons-evil-icons: 6c5b7eefc20197657d80997f1f2d41ee3dd6c4fd
+  react-native-vector-icons-fontawesome6: b5647e0499000d08551a8d037d9883ed6b5eb604
   react-native-voice: d5a15fad6cdf841cd9a12158c8e611de13d5e9e2
   react-native-webview: 2ae666ce72cfd3c38d8750c2009f5caa621d709f
   React-nativeconfig: 67fa7a63ea288cb5b1d0dd2deaf240405fec164f

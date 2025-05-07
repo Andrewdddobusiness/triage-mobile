@@ -1,7 +1,9 @@
 import React from "react";
 import { View, ScrollView, Text, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Phone, MessageSquare, Star } from "lucide-react-native";
+import { Star } from "lucide-react-native";
+import Icon6 from "@expo/vector-icons/FontAwesome6";
+import IconEn from "@expo/vector-icons/Entypo";
 
 // Mock data - in real app this would come from your backend
 const MOCK_CONTACTS = [
@@ -75,7 +77,7 @@ export default function ContactsScreen() {
               <View className="flex-row items-center">
                 <Text className="font-semibold text-base">{contact.name}</Text>
                 <Pressable className="ml-2" onPress={() => toggleStar(contact.id)}>
-                  <Star size={16} color="#0a7ea4" fill={contact.isStarred ? "#0a7ea4" : "none"} />
+                  <Star size={16} color="#fe885a" fill={contact.isStarred ? "#fe885a" : "none"} />
                 </Pressable>
               </View>
               <Text className="text-gray-500">{contact.company}</Text>
@@ -84,11 +86,11 @@ export default function ContactsScreen() {
 
           <View className="flex-row mt-3">
             <Pressable className="flex-row items-center" onPress={() => handleCall(contact.phone)}>
-              <Phone size={16} color="#0a7ea4" />
+              <Icon6 name="phone" size={16} color="#adb5bd" />
               <Text className="ml-1 text-sm text-gray-600">{contact.phone}</Text>
             </Pressable>
             <Pressable className="flex-row items-center ml-4" onPress={() => handleMessage(contact.id)}>
-              <MessageSquare size={16} color="#0a7ea4" />
+              <IconEn name="message" size={18} color={"#adb5bd"} />
               <Text className="ml-1 text-sm text-gray-600">{contact.email}</Text>
             </Pressable>
           </View>

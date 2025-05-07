@@ -16,9 +16,9 @@ export function ProfileActionButton({ label, onPress, icon, variant = "default" 
       <View className="flex-row items-center justify-between p-4 bg-white">
         <View className="flex-row items-center gap-3">
           {icon}
-          <Text className={variant === "destructive" ? "text-base text-destructive" : "text-base"}>{label}</Text>
+          <Text className={variant === "destructive" ? "text-destructive" : "text-[#495057]"}>{label}</Text>
         </View>
-        <ChevronRight size={20} color={variant === "destructive" ? "#ef4444" : "#64748b"} />
+        <ChevronRight size={20} color={variant === "destructive" ? "#ef4444" : "#adb5bd"} />
       </View>
     </Pressable>
   );

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { ChevronDown, Search } from "lucide-react-native";
-import { FilterOption } from "~/types/filters";
+import { ChevronDown } from "lucide-react-native";
+import { IFilterOption } from "~/lib/types/filters";
 
 interface FilterDropdownProps {
   title?: string;
-  options: FilterOption[];
-  selectedOption: FilterOption;
-  onSelect: (option: FilterOption) => void;
+  options: IFilterOption[];
+  selectedOption: IFilterOption;
+  onSelect: (option: IFilterOption) => void;
   showSearch?: boolean;
 }
 
@@ -27,7 +27,7 @@ export function FilterDropdown({ title, options, selectedOption, onSelect, showS
       </View>
 
       {showFilterOptions && (
-        <View className="absolute top-16 left-4 z-10 bg-white border border-gray-300 rounded-full shadow-md w-48">
+        <View className="absolute top-12 z-10 bg-white border border-gray-300 rounded-md w-[95%]">
           {options.map((option, index) => (
             <TouchableOpacity
               key={option.id}

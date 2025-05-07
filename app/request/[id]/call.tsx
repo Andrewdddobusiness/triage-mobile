@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { useTwilio } from "~/lib/hooks/useTwilio";
 import { Pause, Volume2, MicOff, PhoneOff, UserSquare2, MessageSquare, ClipboardEdit } from "lucide-react-native";
 import { useSession } from "~/lib/auth/ctx";
-import { useCustomerInquiries } from "~/app/stores/customerInquiries";
+import { useCustomerInquiries } from "~/stores/customerInquiries";
 
 export default function CallScreen() {
   const { id } = useLocalSearchParams();
@@ -19,7 +19,7 @@ export default function CallScreen() {
   useEffect(() => {
     if (inquiry?.phone) {
       makeCall(inquiry.phone);
-      console.log("this");
+      console.log("this2");
     }
   }, [inquiry?.phone]);
 

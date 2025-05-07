@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Dimensions, TouchableOpacity, Alert, AppState } from "react-native";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text } from "~/components/ui/text";
@@ -8,6 +8,7 @@ import { Input } from "~/components/ui/input";
 import { useSession } from "~/lib/auth/ctx";
 import { supabase } from "~/lib/supabase";
 import { X } from "lucide-react-native";
+import Icon6 from "@expo/vector-icons/FontAwesome6";
 
 import {
   GoogleSignin,
@@ -33,19 +34,44 @@ export default function SignInScreen() {
   const { signIn } = useSession();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const { signInWithGoogle } = useGoogleSignIn();
 
   const handleSignIn = async () => {
     try {
       setLoading(true);
+      setErrorMessage(""); // Clear any previous errors
+
       await signIn(email, password);
       router.replace("/(tabs)");
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error", error.message);
+        // Handle specific error cases
+        const errorText = error.message.toLowerCase();
+
+        if (errorText.includes("email not confirmed") || errorText.includes("email confirmation")) {
+          setErrorMessage(
+            "Please confirm your email address before signing in. Check your inbox for a confirmation link."
+          );
+        } else if (
+          errorText.includes("invalid login") ||
+          errorText.includes("incorrect password") ||
+          errorText.includes("invalid credentials")
+        ) {
+          setErrorMessage("Incorrect email or password. Please try again.");
+        } else if (errorText.includes("rate limit") || errorText.includes("too many requests")) {
+          setErrorMessage("Too many sign-in attempts. Please try again later.");
+        } else if (errorText.includes("network") || errorText.includes("connection")) {
+          setErrorMessage("Network error. Please check your internet connection and try again.");
+        } else {
+          setErrorMessage("An unexpected error occurred. Please try again later.");
+        }
+      } else {
+        setErrorMessage("An unexpected error occurred. Please try again later.");
       }
     } finally {
       setLoading(false);
@@ -55,6 +81,8 @@ export default function SignInScreen() {
   const handleGoogleSignIn = async () => {
     try {
       setIsSubmitting(true);
+      setErrorMessage(""); // Clear any previous errors
+
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
@@ -73,10 +101,15 @@ export default function SignInScreen() {
             break;
           case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
             console.log("Play services are not available");
+            setErrorMessage("Google Play services are not available. Please try another sign-in method.");
+            break;
+          default:
+            setErrorMessage("Error signing in with Google. Please try again.");
             break;
         }
       } else {
         console.log("An error occurred");
+        setErrorMessage("Error signing in with Google. Please try again.");
       }
       setIsSubmitting(false);
     }
@@ -93,13 +126,16 @@ export default function SignInScreen() {
       className="px-6"
     >
       {/* Logo */}
-      <View className="mt-16 mb-10 flex-row justify-center items-center ">
+      <View className="mt-16 mb-8 flex-row justify-center items-center ">
         <Image
           source={require("../assets/images/logo/color/logo-color-1.png")}
           className="w-10 h-10 mr-2"
           resizeMode="contain"
         />
-        <Text className="text-[#202020] text-3xl font-semibold">Spaak</Text>
+      </View>
+
+      <View className="mb-8 flex-row justify-center items-center ">
+        <Text className="text-[#202020] text-3xl font-semibold">Welcome back!</Text>
       </View>
 
       <View className="absolute top-0 right-0 mt-16 mr-4">
@@ -108,31 +144,57 @@ export default function SignInScreen() {
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 mx-4">
+      <View className="flex-1">
         {/* Form */}
         <Text className="text-[#202020] text-base mb-4 font-semibold">Enter your email</Text>
-        <View className="bg-[#EAEAEA] rounded-xl overflow-hidden mb-4">
+        <View className=" mb-4">
           <Input
             placeholder="Your email"
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
-            onChangeText={setEmail}
-            className="text-black px-4 py-3 text-base"
+            onChangeText={(text) => {
+              setEmail(text);
+              setErrorMessage(""); // Clear error when user types
+            }}
+            className="text-black px-4 py-3 text-base rounded-full"
             placeholderTextColor="rgba(0,0,0,0.3)"
           />
         </View>
         <Text className="text-[#202020] text-base mb-4 font-semibold">Password</Text>
-        <View className="bg-[#EAEAEA] rounded-xl overflow-hidden mb-4">
+        <View className=" mb-2 relative">
           <Input
             placeholder="Your password"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
-            onChangeText={setPassword}
-            className="text-black px-4 py-3 text-base"
+            onChangeText={(text) => {
+              setPassword(text);
+              setErrorMessage(""); // Clear error when user types
+            }}
+            className="text-black px-4 py-3 text-base pr-12 rounded-full"
             placeholderTextColor="rgba(0,0,0,0.3)"
           />
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={{
+              position: "absolute",
+              right: 16,
+              top: 0,
+              bottom: 0,
+              justifyContent: "center",
+            }}
+          >
+            <Icon6 name={showPassword ? "eye-slash" : "eye"} size={20} color="rgba(0,0,0,0.5)" />
+          </TouchableOpacity>
         </View>
+
+        {/* Error message */}
+        {errorMessage ? (
+          <Text className="text-red-500 text-sm mb-4 px-4">{errorMessage}</Text>
+        ) : (
+          <View className="mb-4" />
+        )}
+
         <TouchableOpacity>
           <Text className="text-[#202020] underline mb-6">Don't know your password?</Text>
         </TouchableOpacity>
@@ -194,6 +256,14 @@ export default function SignInScreen() {
             <Text style={{ color: "#fe885a", fontWeight: "bold" }}>Sign in with Google</Text>
           </TouchableOpacity>
         </LinearGradient>
+
+        {/* Already have an account link */}
+        <View className="flex-row justify-center gap-x-1 mt-6">
+          <Text className="text-[#202020]">Don't have an account?</Text>
+          <TouchableOpacity onPress={() => router.replace("/signUp")}>
+            <Text className="text-[#fe885a] font-medium">Sign Up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
