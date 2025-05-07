@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Phone, X, Hash } from "lucide-react-native";
+import { router } from "expo-router";
 
 export default function KeypadScreen() {
   const insets = useSafeAreaInsets();
@@ -17,9 +18,13 @@ export default function KeypadScreen() {
     setNumber((prev) => prev.slice(0, -1));
   };
 
+  // const handleCall = () => {
+  //   console.log(`Calling ${number}`);
+  //   // Implement actual call functionality
+  // };
+
   const handleCall = () => {
-    console.log(`Calling ${number}`);
-    // Implement actual call functionality
+    router.push(`/request/1/call`);
   };
 
   const renderKey = (digit: string | number, letters?: string) => (

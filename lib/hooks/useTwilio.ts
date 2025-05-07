@@ -2,13 +2,37 @@ import { useEffect, useState } from "react";
 import { Voice, Call } from "@twilio/voice-react-native-sdk";
 import { Platform } from "react-native";
 
+// Log environment variables to check if they're set
+console.log("Environment variables loaded:", {
+  EXPO_PUBLIC_API_URL_PROD: process.env.EXPO_PUBLIC_API_URL_PROD ? "Set" : "Missing",
+  EXPO_PUBLIC_API_URL_DEV_IOS: process.env.EXPO_PUBLIC_API_URL_DEV_IOS ? "Set" : "Missing",
+  EXPO_PUBLIC_API_URL_DEV_ANDROID: process.env.EXPO_PUBLIC_API_URL_DEV_ANDROID ? "Set" : "Missing",
+});
+
+console.log("this: ", process.env.EXPO_PUBLIC_API_URL_PROD);
+console.log(process.env.EXPO_PUBLIC_API_URL_DEV_IOS);
+console.log(process.env.EXPO_PUBLIC_API_URL_DEV_ANDROID);
+
 const API_URL = __DEV__
   ? Platform.select({
-      ios: "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app",
-      android: "http://10.0.2.2:3001",
-      default: "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app",
+      ios: process.env.EXPO_PUBLIC_API_URL_DEV_IOS,
+      android: process.env.EXPO_PUBLIC_API_URL_DEV_ANDROID,
+      default: process.env.EXPO_PUBLIC_API_URL_DEV_IOS,
     })
-  : "https://24c9-2403-4800-3530-1a01-3d83-455e-54cf-ab55.ngrok-free.app";
+  : process.env.EXPO_PUBLIC_API_URL_PROD;
+
+// Log the selected API_URL
+console.log("Selected API_URL:", API_URL || "Not set");
+console.log("Development mode:", __DEV__ ? "Yes" : "No");
+console.log("Platform:", Platform.OS);
+
+// const API_URL = __DEV__
+//   ? Platform.select({
+//       ios: "https://14c7-49-195-80-255.ngrok-free.app",
+//       android: "http://10.0.2.2:3001",
+//       default: "https://14c7-49-195-80-255.ngrok-free.app",
+//     })
+//   : "https://14c7-49-195-80-255.ngrok-free.app";
 
 export function useTwilio(identity: string) {
   const [isConnected, setIsConnected] = useState(false);
