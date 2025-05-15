@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Image, Pressable } from "react-native";
+import { View, ScrollView, Image, Pressable, Clipboard } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileActionButton } from "~/components/ui/profile-action-button";
-import { Settings, HelpCircle, MessageCircle, Pencil, LogOut, User } from "lucide-react-native";
+import { Settings, HelpCircle, MessageCircle, Pencil, LogOut, User, Copy, Check } from "lucide-react-native";
 import { userService } from "~/lib/services/userService";
+import { supabase } from "~/lib/supabase";
 
 import Icon5 from "@expo/vector-icons/FontAwesome5";
 import IconF from "@expo/vector-icons/FontAwesome";
@@ -16,6 +17,8 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const [userProfile, setUserProfile] = useState({ name: "" });
   const [loading, setLoading] = useState(true);
+  const [businessNumber, setBusinessNumber] = useState("");
+  const [copied, setCopied] = useState(false);
 
   // Get user data from session
   useEffect(() => {
@@ -24,8 +27,28 @@ export default function ProfileScreen() {
         try {
           const profile = await userService.getUserProfile(session.user.id);
           setUserProfile(profile);
+
+          // Fetch the assigned business phone number
+          const { data: serviceProvider, error: spError } = await supabase
+            .from("service_providers")
+            .select("id")
+            .eq("auth_user_id", session.user.id)
+            .single();
+
+          if (spError) throw spError;
+
+          const { data: phoneNumbers, error: phoneError } = await supabase
+            .from("twilio_phone_numbers")
+            .select("phone_number")
+            .eq("assigned_to", serviceProvider.id)
+            .not("assigned_at", "is", null)
+            .single();
+
+          if (!phoneError && phoneNumbers) {
+            setBusinessNumber(phoneNumbers.phone_number);
+          }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error("Error fetching user data:", error);
         }
       }
       setLoading(false);
@@ -33,6 +56,27 @@ export default function ProfileScreen() {
 
     fetchUserData();
   }, [session]);
+
+  // Reset copied state after 2 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (copied) {
+      timer = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [copied]);
+
+  // Copy phone number to clipboard
+  const copyToClipboard = () => {
+    if (businessNumber) {
+      Clipboard.setString(businessNumber);
+      setCopied(true);
+    }
+  };
 
   const defaultProfileImage = "https://ui-avatars.com/api/?name=" + userProfile.name.replace(" ", "+");
 
@@ -60,7 +104,19 @@ export default function ProfileScreen() {
 
         {/* User Info */}
         <Text className="text-xl font-semibold mt-4 text-[#495057]">{userProfile.name}</Text>
-        {/* Removed the email display line */}
+
+        {/* Business Phone Number */}
+        {businessNumber ? (
+          <View className="mt-2 items-center">
+            <Text className="text-sm text-gray-500 mb-1">Provided Business Number</Text>
+            <View className="flex-row items-center">
+              <Text className="text-base text-[#fe885a] font-medium">{businessNumber}</Text>
+              <Pressable onPress={copyToClipboard} className="ml-2">
+                {copied ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#fe885a" />}
+              </Pressable>
+            </View>
+          </View>
+        ) : null}
       </View>
 
       {/* Actions List */}
