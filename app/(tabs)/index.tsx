@@ -37,6 +37,19 @@ export default function InboxScreen() {
     setSelectedTypeFilter(option);
   };
 
+  // Filter inquiries based on selected status and job type
+  const filteredInquiries = inquiries.filter((inquiry) => {
+    console.log("selectedStatusFilter.id: ", selectedStatusFilter.id);
+    console.log("inquiry.status: ", inquiry.status);
+    // Filter by status (if not "all")
+    const statusMatch = selectedStatusFilter.id === "all" || inquiry.status === selectedStatusFilter.id;
+
+    // Filter by job type (if not "all")
+    const typeMatch = selectedTypeFilter.id === "all" || inquiry.job_type === selectedTypeFilter.id;
+
+    return statusMatch && typeMatch;
+  });
+
   if (isLoading && inquiries.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
@@ -74,7 +87,7 @@ export default function InboxScreen() {
       </View>
 
       <FlatList
-        data={inquiries}
+        data={filteredInquiries}
         renderItem={({ item }) => (
           <InquiryCard
             item={{

@@ -33,6 +33,7 @@ export const JOB_TYPE_FILTERS: IFilterConfig = {
     { id: "painting", label: "Painting" },
     { id: "carpentry", label: "Carpentry" },
     { id: "cleaning", label: "Cleaning" },
+    { id: "other", label: "Other" },
   ],
 };
 
