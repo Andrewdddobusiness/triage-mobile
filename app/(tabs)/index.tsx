@@ -5,11 +5,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { InquiryCard } from "~/components/ui/InquiryCard";
 import { FilterDropdown } from "~/components/ui/FilterDropdown";
 import { STATUS_FILTERS, IFilterOption, JOB_TYPE_FILTERS } from "~/lib/types/filters";
+import { useSession } from "~/lib/auth/ctx";
 
 import IconIon from "@expo/vector-icons/Ionicons";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading } = useCustomerInquiries();
+  const { session } = useSession();
   const insets = useSafeAreaInsets();
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<IFilterOption>(STATUS_FILTERS.options[0]);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<IFilterOption>(JOB_TYPE_FILTERS.options[0]);
@@ -22,8 +24,10 @@ export default function InboxScreen() {
   });
 
   useEffect(() => {
-    fetchInquiries();
-  }, []);
+    if (session?.user) {
+      fetchInquiries(session.user.id);
+    }
+  }, [session]);
 
   const handleStatusFilterSelect = (option: IFilterOption) => {
     setSelectedStatusFilter(option);
@@ -85,7 +89,9 @@ export default function InboxScreen() {
           paddingVertical: 16,
           paddingBottom: bottomPadding,
         }}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchInquiries} />}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries(session.user.id)} />
+        }
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center p-4">
             <Text className="text-gray-500 text-lg">No inquiries found</Text>
