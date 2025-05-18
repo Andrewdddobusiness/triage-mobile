@@ -168,12 +168,12 @@ export default function AppLayout() {
               switch (route.name) {
                 case "index":
                   return "Inquiries";
-                case "calls":
-                  return "Calls";
-                case "keypad":
-                  return "Keypad";
-                case "contacts":
-                  return "Contacts";
+                // case "calls":
+                //   return "Calls";
+                // case "keypad":
+                //   return "Keypad";
+                // case "contacts":
+                //   return "Contacts";
                 case "profile":
                   return "Profile";
                 default:
@@ -209,6 +209,7 @@ export default function AppLayout() {
             tabBarIcon: ({ color, size }) => <Icon name="inbox" size={size} color={color} />,
           }}
         />
+        {/* Commented out tabs
         <Tabs.Screen
           name="contacts"
           options={{
@@ -230,6 +231,7 @@ export default function AppLayout() {
             tabBarIcon: ({ color, size }) => <Icon name="phone-alt" size={size} color={color} />,
           }}
         />
+        */}
         <Tabs.Screen
           name="profile"
           options={{

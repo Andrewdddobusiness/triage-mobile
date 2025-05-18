@@ -15,7 +15,7 @@ export const userService = {
       const { data, error } = await supabase
         .from("service_providers")
         .select("business_email")
-        .eq("id", userId)
+        .eq("auth_user_id", userId)
         .single();
 
       if (error) {
@@ -55,7 +55,14 @@ export const userService = {
       }
 
       // Use the owner_name from service_providers or default to "User"
-      const name = data?.owner_name || "User";
+      let name = data?.owner_name || "User";
+
+      // Capitalize the first letter of each word in the name
+      name = name
+        .split(" ")
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" ");
+
       return { name };
     } catch (error) {
       console.error("Error fetching user profile:", error);

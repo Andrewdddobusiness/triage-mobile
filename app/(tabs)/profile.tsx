@@ -11,6 +11,8 @@ import { supabase } from "~/lib/supabase";
 import Icon5 from "@expo/vector-icons/FontAwesome5";
 import IconF from "@expo/vector-icons/FontAwesome";
 import IconEn from "@expo/vector-icons/Entypo";
+import IconIon from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { signOut, session } = useSession();
@@ -122,27 +124,25 @@ export default function ProfileScreen() {
       {/* Actions List */}
       <View className="mt-4 space-y-px">
         <ProfileActionButton
-          label="Settings"
-          icon={<Icon5 name={"cog"} size={20} color="#adb5bd" />}
-          onPress={() => console.log("Settings pressed")}
-        />
-
-        <ProfileActionButton
           label="Subscription"
           icon={<Icon5 name={"splotch"} size={20} color="#adb5bd" />}
           onPress={() => console.log("Subscription pressed")}
         />
-
+        <ProfileActionButton
+          label="Account"
+          icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
+          onPress={() => router.push("/account")}
+        />
         <ProfileActionButton
           label="Help & Info"
           icon={<IconEn name={"help-with-circle"} size={20} color="#adb5bd" />}
           onPress={() => console.log("Help pressed")}
         />
-        <ProfileActionButton
+        {/* <ProfileActionButton
           label="Feedback & Support"
           icon={<IconF name={"comment"} size={20} color="#adb5bd" />}
           onPress={() => console.log("Support pressed")}
-        />
+        /> */}
         <ProfileActionButton
           label="Sign Out"
           icon={<IconF name="sign-out" size={20} color="#ef4444" />}
