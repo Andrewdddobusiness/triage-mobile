@@ -78,12 +78,7 @@
       [
         "react-native-permissions",
         {
-          "iosPermissions": [
-            "Microphone",
-            "Camera",
-            "PhotoLibrary",
-            "PhotoLibraryAddOnly"
-          ]
+          "iosPermissions": ["Microphone", "Camera", "PhotoLibrary", "PhotoLibraryAddOnly"]
         }
       ],
       [
