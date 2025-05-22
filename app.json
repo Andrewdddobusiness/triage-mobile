@@ -26,7 +26,9 @@
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
+        "UIBackgroundModes": [],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -36,6 +38,10 @@
       },
       "package": "com.spaak.mobile",
       "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -72,7 +78,12 @@
       [
         "react-native-permissions",
         {
-          "iosPermissions": ["Microphone", "Camera", "PhotoLibrary", "PhotoLibraryAddOnly"]
+          "iosPermissions": [
+            "Microphone",
+            "Camera",
+            "PhotoLibrary",
+            "PhotoLibraryAddOnly"
+          ]
         }
       ],
       [
@@ -85,6 +96,10 @@
     "experiments": {
       "typedRoutes": true
     },
-    "owner": "andrewdddo"
+    "owner": "andrewdddo",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/a8e32c86-9708-4a38-b110-b92d6a29e491"
+    }
   }
 }

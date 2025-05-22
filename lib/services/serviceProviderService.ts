@@ -74,31 +74,45 @@ export const serviceProviderService = {
    * @param businessEmail The business email
    * @returns Boolean indicating if the update was successful
    */
-  async completeOnboarding(
+  async completeOnboardingWithDetails(
     authUserId: string,
     businessName: string,
     ownerName: string,
-    businessEmail: string
+    businessEmail: string,
+    specialty: string[],
+    servicesOffered: string[],
+    serviceArea: string
   ): Promise<boolean> {
     try {
-      const { error } = await supabase
+      // Get the service provider record
+      const { data: serviceProvider, error: spError } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("auth_user_id", authUserId)
+        .single();
+
+      if (spError) throw spError;
+
+      // Update the service provider with all the details
+      const { error: updateError } = await supabase
         .from("service_providers")
         .update({
           business_name: businessName,
           owner_name: ownerName,
-          business_email: [businessEmail], // Convert string to array
-          onboarding_status: "completed",
+          business_email: businessEmail ? [businessEmail] : null,
+          specialty: specialty,
+          services_offered: servicesOffered,
+          service_area: serviceArea,
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString(),
         })
-        .eq("auth_user_id", authUserId);
+        .eq("id", serviceProvider.id);
 
-      if (error) {
-        console.error("Error completing onboarding:", error);
-        return false;
-      }
+      if (updateError) throw updateError;
 
       return true;
     } catch (error) {
-      console.error("Unexpected error completing onboarding:", error);
+      console.error("Error completing onboarding:", error);
       return false;
     }
   },
