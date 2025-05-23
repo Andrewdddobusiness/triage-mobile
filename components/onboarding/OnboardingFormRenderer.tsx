@@ -133,11 +133,12 @@ export const OnboardingFormRenderer: React.FC<OnboardingFormRendererProps> = ({
           />
         );
 
+      // In the renderStepContent function, update the serviceArea case:
       case 5: // serviceArea
         return (
           <ServiceAreaStep
             serviceArea={formData.serviceArea}
-            setServiceArea={(text) => updateFormField("serviceArea", text)}
+            setServiceArea={(areas) => updateFormField("serviceArea", areas)}
             errors={errors}
             setErrors={setErrors}
             validateField={validateField}

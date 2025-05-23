@@ -72,6 +72,9 @@ export const serviceProviderService = {
    * @param businessName The business name
    * @param ownerName The owner name
    * @param businessEmail The business email
+   * @param specialty Array of specialties
+   * @param servicesOffered Array of services offered
+   * @param serviceArea Array of service areas
    * @returns Boolean indicating if the update was successful
    */
   async completeOnboardingWithDetails(
@@ -81,7 +84,7 @@ export const serviceProviderService = {
     businessEmail: string,
     specialty: string[],
     servicesOffered: string[],
-    serviceArea: string
+    serviceArea: string[]
   ): Promise<boolean> {
     try {
       // Get the service provider record
@@ -100,11 +103,10 @@ export const serviceProviderService = {
           business_name: businessName,
           owner_name: ownerName,
           business_email: businessEmail ? [businessEmail] : null,
-          specialty: specialty,
+          specialty,
           services_offered: servicesOffered,
           service_area: serviceArea,
-          onboarding_completed: true,
-          onboarding_completed_at: new Date().toISOString(),
+          onboarding_status: "completed",
         })
         .eq("id", serviceProvider.id);
 

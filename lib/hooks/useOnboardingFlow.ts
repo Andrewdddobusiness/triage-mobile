@@ -14,7 +14,7 @@ export const useOnboardingFlow = () => {
     businessEmail: "",
     specialty: [],
     servicesOffered: [],
-    serviceArea: "",
+    serviceArea: [], // Changed from string to string[]
   });
 
   const [customSpecialty, setCustomSpecialty] = useState("");
@@ -149,7 +149,7 @@ export const useOnboardingFlow = () => {
           formData.businessEmail.trim(),
           finalSpecialties,
           finalServicesOffered,
-          formData.serviceArea.trim()
+          formData.serviceArea
         );
 
         if (success) {

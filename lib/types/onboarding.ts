@@ -10,7 +10,7 @@ export interface OnboardingFormData {
   businessEmail: string;
   specialty: string[];
   servicesOffered: string[];
-  serviceArea: string;
+  serviceArea: string[];
 }
 
 export interface OnboardingFormErrors {
