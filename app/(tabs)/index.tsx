@@ -107,7 +107,7 @@ export default function InboxScreen() {
         }
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center p-4">
-            <Text className="text-gray-500 text-lg">No inquiries found</Text>
+            <Text className="text-gray-500 text-lg">No job inquiries yet!</Text>
           </View>
         }
       />
