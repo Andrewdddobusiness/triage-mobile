@@ -27,6 +27,7 @@ export default function AppLayout() {
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
+  const [hasAssistant, setHasAssistant] = useState(false);
 
   useEffect(() => {
     // Check if the user has completed onboarding
@@ -91,10 +92,58 @@ export default function AppLayout() {
     }
   }, [session, onboardingCompleted]);
 
-  const navigateToPhoneNumber = () => {
+  const navigateToPhoneNumber = async () => {
     // Trigger haptic feedback when button is pressed
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/assignPhoneNumber");
+
+    try {
+      // Get the service provider ID
+      const { data: serviceProvider, error: spError } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("auth_user_id", session?.user.id)
+        .single();
+      console.log("serviceProvider: ", serviceProvider);
+
+      if (spError) throw spError;
+
+      // Check if they have an assistant
+      const { data: assistant, error: assistantError } = await supabase
+        .from("service_provider_assistants")
+        .select("id")
+        .eq("service_provider_id", serviceProvider.id)
+        .single();
+
+      console.log("assistant: ", assistant);
+
+      if (assistantError && assistantError.code !== "PGRST116") throw assistantError;
+
+      // If no assistant, navigate to welcome screen
+      if (!assistant) {
+        router.push("./onboarding-assistant/welcome");
+        return;
+      }
+
+      // Check if they have a phone number
+      const { data: phoneNumber, error: phoneError } = await supabase
+        .from("twilio_phone_numbers")
+        .select("id")
+        .eq("assigned_to", serviceProvider.id)
+        .is("is_active", true)
+        .single();
+
+      if (phoneError && phoneError.code !== "PGRST116") throw phoneError;
+
+      // If no phone number, navigate to phone number assignment
+      if (!phoneNumber) {
+        router.push("./onboarding-assistant/assignPhoneNumber");
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking assistant status:", error);
+      // Default to welcome screen on error
+      router.push("./onboarding-assistant/welcome");
+    }
   };
 
   if (isLoading || checkingOnboarding || (onboardingCompleted && checkingBusinessNumber)) {

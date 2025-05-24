@@ -21,3 +21,20 @@ export interface OnboardingFormErrors {
   servicesOffered: string;
   serviceArea: string;
 }
+
+export interface AISecretaryOnboardingData {
+  assistantPresetId: string;
+  assistantName: string;
+  customGreeting: string;
+  twilioPhoneNumber: string;
+}
+
+export interface AssistantPreset {
+  avatar_url: string | undefined;
+  id: string;
+  name: string;
+  description: string;
+  voicePreviewUrl: string;
+  avatarUrl: string;
+  defaultGreeting: string;
+}

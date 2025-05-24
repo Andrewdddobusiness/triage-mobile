@@ -153,7 +153,7 @@ export const useOnboardingFlow = () => {
         );
 
         if (success) {
-          router.replace("/assignPhoneNumber");
+          router.replace("./onboarding-assistant/welcome");
         } else {
           setFormError("Failed to complete onboarding. Please try again.");
         }
