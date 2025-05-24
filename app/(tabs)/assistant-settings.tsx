@@ -268,9 +268,9 @@ export default function AssistantSettingsScreen() {
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-lg font-semibold">Current Assistant</Text>
             <View className="flex-row items-center">
-              <Pressable onPress={() => setModalVisible(true)} className="mr-2">
+              {/* <Pressable onPress={() => setModalVisible(true)} className="mr-2">
                 <Pencil size={18} color="#fe885a" />
-              </Pressable>
+              </Pressable> */}
               <Bot size={20} />
             </View>
           </View>
