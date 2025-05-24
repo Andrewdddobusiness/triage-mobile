@@ -204,7 +204,7 @@ export default function AppLayout() {
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Let's setup your AI secretary!</Text>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Let's setup your AI assistant!</Text>
           </LinearGradient>
         </TouchableOpacity>
       )}
@@ -223,6 +223,8 @@ export default function AppLayout() {
                 //   return "Keypad";
                 // case "contacts":
                 //   return "Contacts";
+                case "assistant-settings":
+                  return "Assistant Settings";
                 case "profile":
                   return "Profile";
                 default:
@@ -281,6 +283,13 @@ export default function AppLayout() {
           }}
         />
         */}
+        <Tabs.Screen
+          name="assistant-settings"
+          options={{
+            title: "Assistant",
+            tabBarIcon: ({ color, size }) => <Icon name="robot" size={size} color={color} />,
+          }}
+        />
         <Tabs.Screen
           name="profile"
           options={{

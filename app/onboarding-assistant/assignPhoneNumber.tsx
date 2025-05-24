@@ -191,7 +191,7 @@ export default function AssignPhoneNumberScreen() {
             <Text className="text-3xl font-bold text-center text-[#fe885a]">Get a Business Phone Number</Text>
             <View className="flex-row justify-center items-center mt-2">
               <Text className="text-base text-center text-gray-600">
-                We will give you a business phone number hooked up to an AI secretary!
+                We will give you a business phone number hooked up to an AI assistant!
               </Text>
             </View>
           </View>

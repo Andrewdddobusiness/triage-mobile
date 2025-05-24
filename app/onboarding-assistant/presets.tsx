@@ -71,7 +71,7 @@ export default function ChoosePresetScreen() {
     <View className="flex-1 bg-orange-50 pt-12">
       <ScrollView className="pt-16 px-4">
         <Text className="text-3xl font-extrabold text-orange-500 mb-4">Choose Your Assistant</Text>
-        <Text className="text-lg text-orange-500 mb-6">Pick your AI secretary's vibe.</Text>
+        <Text className="text-lg text-orange-500 mb-6">Pick your AI assistant's vibe.</Text>
 
         <View className="flex-row flex-wrap justify-between gap-y-4">
           {presets.map((preset) => {
@@ -104,11 +104,11 @@ export default function ChoosePresetScreen() {
         <TouchableOpacity
           onPress={handleCreateAssistant}
           disabled={loading}
-          className="w-full py-3 rounded-full bg-orange-500 items-center"
+          className="w-full py-5 rounded-full bg-orange-500 items-center mb-4"
         >
           <Text className="text-white font-semibold">{loading ? "Creating..." : "Create Assistant"}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleBack} className="w-full py-3 rounded-full bg-gray-200 items-center">
+        <TouchableOpacity onPress={handleBack} className="w-full py-5 rounded-full bg-gray-200 items-center">
           <Text className="text-gray-700 font-semibold">Back</Text>
         </TouchableOpacity>
       </View>

@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
         resizeMode="contain"
       /> */}
       <Text className="text-3xl font-extrabold text-orange-500 text-center mb-4">
-        Want your own AI secretary to handle calls for you?
+        Want your own AI assistant to handle calls for you?
       </Text>
       <Text className="text-lg text-orange-500 text-center mb-8">
         Let's set up your personal AI assistant to manage your incoming calls.

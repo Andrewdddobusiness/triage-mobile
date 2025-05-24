@@ -28,7 +28,7 @@ export default function SummaryScreen() {
   return (
     <View className="flex-1 bg-orange-50 pt-20 px-4">
       <Text className="text-3xl font-extrabold text-orange-500 mb-4">Ready to Go!</Text>
-      <Text className="text-lg text-orange-500 mb-8">Here's a summary of your AI secretary setup.</Text>
+      <Text className="text-lg text-orange-500 mb-8">Here's a summary of your AI assistant setup.</Text>
 
       <View className="gap-y-4">
         <View className="border border-orange-200 bg-orange-50 rounded-xl p-4">

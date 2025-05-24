@@ -17,21 +17,21 @@ export function Header({ title, onSearchPress, onNotificationPress }: HeaderProp
 
   return (
     <View className="bg-background" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center justify-between px-4 py-3">
+      <View className="flex-row items-center justify-between px-4 py-6">
         {/* Left - Search */}
         {/* <Pressable onPress={onSearchPress}>
           <Search size={24} color="#64748b" />
         </Pressable> */}
 
         {/* Center - Title */}
-        <View className="absolute left-0 right-0 flex-row justify-center">
+        <View className="absolute left-0 right-0 flex-row justify-center ">
           <Text className="text-xl font-bold text-[#fe885a]">{title}</Text>
         </View>
 
         {/* Right - Notifications */}
-        <Pressable onPress={onNotificationPress}>
+        {/* <Pressable onPress={onNotificationPress}>
           <Octicons name="bell-fill" size={24} color="#fe885a" />
-        </Pressable>
+        </Pressable> */}
       </View>
     </View>
   );
