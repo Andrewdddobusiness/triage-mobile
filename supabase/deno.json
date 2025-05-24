@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "serve": "https://deno.land/std@0.168.0/http/server.ts",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js"
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom"],
+    "strict": true
+  },
+  "tasks": {
+    "start": "supabase functions serve"
+  }
+}

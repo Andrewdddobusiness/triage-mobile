@@ -192,7 +192,7 @@ export default function RequestDetailScreen() {
         </ScrollView>
 
         {/* Fixed Bottom Actions */}
-        <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+        {/* <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
           <View className="p-2">
             <View className="flex-row">
               <Pressable
@@ -211,7 +211,7 @@ export default function RequestDetailScreen() {
               </Pressable>
             </View>
           </View>
-        </SafeAreaView>
+        </SafeAreaView> */}
       </View>
     </>
   );

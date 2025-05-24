@@ -27,7 +27,8 @@ export default function AppLayout() {
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
-  const [hasAssistant, setHasAssistant] = useState(false);
+
+  // Remove hasAssistant state and related logic
 
   useEffect(() => {
     // Check if the user has completed onboarding
@@ -38,7 +39,7 @@ export default function AppLayout() {
           setOnboardingCompleted(isCompleted);
         } catch (error) {
           console.error("Error checking onboarding status:", error);
-          setOnboardingCompleted(false); // Default to not completed on error
+          setOnboardingCompleted(false);
         }
       }
       setCheckingOnboarding(false);
@@ -51,6 +52,7 @@ export default function AppLayout() {
     }
   }, [session]);
 
+  // Keep the business number check effect
   useEffect(() => {
     // Check if the user has been assigned a business number
     const checkBusinessNumber = async () => {
@@ -174,41 +176,6 @@ export default function AppLayout() {
 
   return (
     <>
-      {/* Full-width button for Phone Number Assignment - only show if user doesn't have a business number */}
-      {!hasBusinessNumber && (
-        <TouchableOpacity
-          onPress={navigateToPhoneNumber}
-          style={{
-            position: "absolute",
-            bottom: 100, // Position above the tab bar
-            left: 16,
-            right: 16,
-            zIndex: 10,
-            borderRadius: 24,
-            overflow: "hidden",
-            elevation: 5,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-          }}
-        >
-          <LinearGradient
-            colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              width: "100%",
-              paddingVertical: 14,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Let's setup your AI assistant!</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      )}
-
       <Tabs
         screenOptions={{
           headerShown: true,

@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Play, Phone, Bot, Copy, Check, Pencil, CheckCircle2, X } from "lucide-react-native";
 import { supabase } from "~/lib/supabase";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface AssistantPreset {
   id: string;
@@ -28,6 +30,49 @@ export default function AssistantSettingsScreen() {
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
+  const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
+
+  useEffect(() => {
+    checkBusinessNumber();
+  }, [session]);
+
+  const checkBusinessNumber = async () => {
+    if (!session?.user) {
+      setCheckingBusinessNumber(false);
+      return;
+    }
+
+    try {
+      const { data: serviceProvider, error: spError } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("auth_user_id", session.user.id)
+        .single();
+
+      if (spError) throw spError;
+
+      const { data: phoneNumbers, error: phoneError } = await supabase
+        .from("twilio_phone_numbers")
+        .select("*")
+        .eq("assigned_to", serviceProvider.id)
+        .not("assigned_at", "is", null);
+
+      if (phoneError) throw phoneError;
+
+      setHasBusinessNumber(phoneNumbers && phoneNumbers.length > 0);
+    } catch (error) {
+      console.error("Error checking business number:", error);
+      setHasBusinessNumber(false);
+    } finally {
+      setCheckingBusinessNumber(false);
+    }
+  };
+
+  const navigateToPhoneNumber = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/onboarding-assistant/assignPhoneNumber");
+  };
 
   useEffect(() => {
     fetchAssistantData();
@@ -199,6 +244,7 @@ export default function AssistantSettingsScreen() {
       </View>
     );
   }
+  // console.log("currentPreset: ", currentPreset);
 
   return (
     <>
@@ -214,7 +260,7 @@ export default function AssistantSettingsScreen() {
             <Text className="text-lg font-semibold">AI Assistant Status</Text>
             <Switch value={assistantEnabled} onValueChange={toggleAssistant} />
           </View>
-          <Text className="text-md font-normal">Your AI Assistant is {assistantEnabled ? 'Active' : 'Offline'}</Text>
+          <Text className="text-md font-normal">Your AI Assistant is {assistantEnabled ? "Active" : "Offline"}</Text>
         </View>
 
         {/* Assistant Preset Section */}
@@ -247,6 +293,38 @@ export default function AssistantSettingsScreen() {
             )}
           </View>
         </View>
+
+        {!hasBusinessNumber && (
+          <TouchableOpacity
+            onPress={navigateToPhoneNumber}
+            style={{
+              marginLeft: 16,
+              marginRight: 16,
+              marginTop: 16,
+              borderRadius: 24,
+              overflow: "hidden",
+              elevation: 5,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+            }}
+          >
+            <LinearGradient
+              colors={["#ffb351", "#fe885a", "#ffa2a3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                width: "100%",
+                paddingVertical: 14,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Let's setup your AI assistant!</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Preset Selection Modal */}

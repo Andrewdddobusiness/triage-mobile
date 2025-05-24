@@ -33,14 +33,22 @@ export default function AssignPhoneNumberScreen() {
     try {
       setLoading(true);
 
-      // 1. Get the service provider ID for the current user
+      // 1. Get the service provider ID and assistant ID for the current user
       const { data: serviceProvider, error: spError } = await supabase
         .from("service_providers")
-        .select("id")
+        .select(
+          `
+          id,
+          service_provider_assistants!inner(
+            assistant_id
+          )
+        `
+        )
         .eq("auth_user_id", session.user.id)
         .single();
 
       if (spError) throw spError;
+      console.log("serviceProvider: ", serviceProvider);
 
       // 2. Find an available phone number (not assigned to any service provider)
       const { data: availableNumbers, error: numbersError } = await supabase
@@ -68,6 +76,18 @@ export default function AssignPhoneNumberScreen() {
         .eq("id", phoneNumberToAssign.id);
 
       if (updateError) throw updateError;
+
+      // 4. Call the Supabase Edge Function to import the phone number to Vapi
+      const { error: importError } = await supabase.functions.invoke("import-twilio-number", {
+        body: {
+          twilioPhoneNumber: phoneNumberToAssign.phone_number,
+          serviceProviderId: serviceProvider.id,
+        },
+      });
+
+      if (importError) {
+        throw new Error("Sorry! We can't assign you a phone number at this time. Please check back later.");
+      }
 
       // Success!
       setPhoneNumber(phoneNumberToAssign.phone_number);
