@@ -27,8 +27,7 @@ export default function AppLayout() {
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
-
-  // Remove hasAssistant state and related logic
+  const [hasAssistant, setHasAssistant] = useState(false);
 
   useEffect(() => {
     // Check if the user has completed onboarding
@@ -39,7 +38,7 @@ export default function AppLayout() {
           setOnboardingCompleted(isCompleted);
         } catch (error) {
           console.error("Error checking onboarding status:", error);
-          setOnboardingCompleted(false);
+          setOnboardingCompleted(false); // Default to not completed on error
         }
       }
       setCheckingOnboarding(false);
@@ -52,7 +51,6 @@ export default function AppLayout() {
     }
   }, [session]);
 
-  // Keep the business number check effect
   useEffect(() => {
     // Check if the user has been assigned a business number
     const checkBusinessNumber = async () => {

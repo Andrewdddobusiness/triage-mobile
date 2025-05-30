@@ -30,6 +30,7 @@ export interface AISecretaryOnboardingData {
 }
 
 export interface AssistantPreset {
+  assistant_id: any;
   avatar_url: string | undefined;
   id: string;
   name: string;

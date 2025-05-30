@@ -19,7 +19,6 @@ export default function CallScreen() {
   useEffect(() => {
     if (inquiry?.phone) {
       makeCall(inquiry.phone);
-      console.log("this2");
     }
   }, [inquiry?.phone]);
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "spaak",
     "slug": "spaak",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/logo/background/logo-gradient-1.png",
     "scheme": "spaak",
@@ -27,6 +27,7 @@
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
+        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to help users interact with voice features.",
         "UIBackgroundModes": [],
         "ITSAppUsesNonExemptEncryption": false
       }

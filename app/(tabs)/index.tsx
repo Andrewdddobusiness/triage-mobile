@@ -39,8 +39,6 @@ export default function InboxScreen() {
 
   // Filter inquiries based on selected status and job type
   const filteredInquiries = inquiries.filter((inquiry) => {
-    console.log("selectedStatusFilter.id: ", selectedStatusFilter.id);
-    console.log("inquiry.status: ", inquiry.status);
     // Filter by status (if not "all")
     const statusMatch = selectedStatusFilter.id === "all" || inquiry.status === selectedStatusFilter.id;
 

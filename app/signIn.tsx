@@ -87,7 +87,7 @@ export default function SignInScreen() {
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
         const { idToken, user } = response.data;
-        console.log("hi");
+
         router.replace("/(tabs)");
       } else {
         console.log("Google SignIn was cancelled");

@@ -115,7 +115,7 @@ export default function AssistantSettingsScreen() {
         .from("twilio_phone_numbers")
         .select("phone_number")
         .eq("assigned_to", serviceProvider.id)
-        .is("is_active", true)
+        .not("assigned_at", "is", null)
         .single();
 
       if (phoneData) {

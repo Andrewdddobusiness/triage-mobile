@@ -27,29 +27,39 @@ serve(async (req: Request) => {
 
   try {
     const { twilioPhoneNumber, serviceProviderId }: RequestBody = await req.json();
+    console.log("twilioPhoneNumber: ", twilioPhoneNumber);
+    console.log("serviceProviderId: ", serviceProviderId);
 
     if (!twilioPhoneNumber.startsWith("+")) {
       throw new Error("Phone number must be in E.164 format (e.g., +61412345678)");
     }
 
-    // Get the assistant ID for the service provider
-    const { data: providerData, error: providerError } = await supabaseClient
-      .from("service_provider_assistants")
-      .select("assistant_id")
-      .eq("service_provider_id", serviceProviderId)
-      .single();
+    // // Get the assistant ID for the service provider
+    // const { data: providerData, error: providerError } = await supabaseClient
+    //   .from("service_provider_assistants")
+    //   .select("assistant_preset_id")
+    //   .eq("service_provider_id", serviceProviderId)
+    //   .single();
 
-    if (providerError || !providerData) {
-      throw new Error("Failed to fetch assistant ID");
-    }
+    // if (providerError || !providerData) {
+    //   throw new Error("Failed to fetch assistant preset ID");
+    // }
 
     const vapiPayload = {
       provider: "twilio",
       number: twilioPhoneNumber,
       twilioAccountSid: TWILIO_ACCOUNT_SID,
       twilioAuthToken: TWILIO_AUTH_TOKEN,
-      assistantId: providerData.assistant_id,
+      // assistantId: providerData.assistant_id,
+      assistantId: null,
+      server: {
+        url: `https://kiuwkrlaozjfpwwyiqpr.supabase.co/functions/v1/vapi-assistant-selector`,
+        headers: {
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      },
     };
+    console.log("vapiPayload: ", vapiPayload);
 
     const vapiResponse = await fetch(`${VAPI_API_BASE}/phone-number`, {
       method: "POST",
@@ -60,12 +70,16 @@ serve(async (req: Request) => {
       body: JSON.stringify(vapiPayload),
     });
 
+    console.log("vapiResponse: ", vapiResponse);
+
     if (!vapiResponse.ok) {
       const errorText = await vapiResponse.text();
       throw new Error(`Vapi API error: ${errorText}`);
     }
 
     const vapiData = await vapiResponse.json();
+
+    console.log("vapiData: ", vapiData);
 
     // Update your Supabase record
     const { error: updateError } = await supabaseClient

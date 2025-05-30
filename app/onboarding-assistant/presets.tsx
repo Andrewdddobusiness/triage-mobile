@@ -6,7 +6,6 @@ import { useRouter } from "expo-router";
 import { AssistantPreset } from "~/lib/types/onboarding";
 import { CheckCircle2 } from "lucide-react-native";
 import { supabase } from "~/lib/supabase";
-import { v4 as uuidv4 } from "uuid";
 import { SessionProvider, useSession } from "~/lib/auth/ctx";
 
 export default function ChoosePresetScreen() {
@@ -38,6 +37,9 @@ export default function ChoosePresetScreen() {
     setLoading(true);
 
     try {
+      const selectedPreset = presets.find((p) => p.id === selectedPresetId);
+      if (!selectedPreset) throw new Error("Selected preset not found.");
+
       const { data: serviceProvider } = await supabase
         .from("service_providers")
         .select("id")
@@ -49,7 +51,7 @@ export default function ChoosePresetScreen() {
       const { error } = await supabase.from("service_provider_assistants").insert({
         service_provider_id: serviceProvider.id,
         assistant_preset_id: selectedPresetId,
-        assistant_id: uuidv4(), // Using uuid package instead of crypto
+        assistant_id: selectedPreset.assistant_id,
       });
 
       if (error) throw error;
