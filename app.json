@@ -87,6 +87,12 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.244259622983-oc0g6h4n3pamklfcevffjeup6k0pohos"
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.spaak.tradie"
+        }
       ]
     ],
     "experiments": {

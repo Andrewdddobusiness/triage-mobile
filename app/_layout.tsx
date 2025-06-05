@@ -39,7 +39,7 @@ function LoadingScreen() {
 }
 
 function RootLayoutNav() {
-  const { session, isLoading } = useSession();
+  const { session, isLoading, hasActiveSubscription, subscriptionLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 
@@ -69,7 +69,7 @@ function RootLayoutNav() {
     checkOnboardingStatus();
   }, [session]);
 
-  if (isLoading || (session && onboardingCompleted === null)) {
+  if (isLoading || subscriptionLoading || (session && onboardingCompleted === null)) {
     return <LoadingScreen />;
   }
 
@@ -85,6 +85,10 @@ function RootLayoutNav() {
           </>
         ) : !onboardingCompleted ? (
           <Stack.Screen name="onboarding" />
+        ) : !hasActiveSubscription ? (
+          <>
+            <Stack.Screen name="onboarding-assistant/payment" />
+          </>
         ) : (
           <>
             <Stack.Screen name="(tabs)" />

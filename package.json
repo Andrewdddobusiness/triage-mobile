@@ -28,6 +28,7 @@
     "@rn-primitives/slot": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
     "@rneui/themed": "^4.0.0-rc.8",
+    "@stripe/stripe-react-native": "0.38.6",
     "@supabase/supabase-js": "^2.48.1",
     "@twilio/voice-react-native-sdk": "^1.5.0",
     "class-variance-authority": "^0.7.1",

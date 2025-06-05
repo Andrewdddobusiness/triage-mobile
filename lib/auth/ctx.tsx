@@ -9,12 +9,18 @@ const AuthContext = createContext<{
   signOut: () => Promise<void>;
   session: Session | null;
   isLoading: boolean;
+  hasActiveSubscription: boolean;
+  subscriptionLoading: boolean;
+  checkSubscription: () => Promise<void>;
 }>({
   signIn: async () => {},
   signUp: async () => {},
   signOut: async () => {},
   session: null,
   isLoading: true,
+  hasActiveSubscription: false,
+  subscriptionLoading: false,
+  checkSubscription: async () => {},
 });
 
 export function useSession() {
@@ -30,12 +36,40 @@ export function useSession() {
 export function SessionProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+
+  const checkSubscription = async () => {
+    if (!session?.user?.id) return;
+
+    setSubscriptionLoading(true);
+    try {
+      const response = await fetch("https://triage-mobile.vercel.app/stripe-webhook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: session.user.id }),
+      });
+
+      const data = await response.json();
+      setHasActiveSubscription(data.hasActiveSubscription);
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      setHasActiveSubscription(false);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
+      if (session) {
+        checkSubscription();
+      }
     });
 
     // Listen for auth changes
@@ -43,6 +77,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        checkSubscription();
+      } else {
+        setHasActiveSubscription(false);
+      }
     });
 
     return () => {
@@ -79,6 +118,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
         signOut,
         session,
         isLoading,
+        hasActiveSubscription,
+        subscriptionLoading,
+        checkSubscription,
       }}
     >
       {children}
