@@ -75,11 +75,16 @@ serve(async (req: Request) => {
 
         return new Response(
           JSON.stringify({
-            hasActiveSubscription: stripeSubscription.status === "active",
+            hasActiveSubscription: stripeSubscription.status === "active" || stripeSubscription.status === "trialing",
             subscription: {
               status: stripeSubscription.status,
+              current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
               current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
               cancel_at_period_end: stripeSubscription.cancel_at_period_end,
+              canceled_at: stripeSubscription.canceled_at ? new Date(stripeSubscription.canceled_at * 1000).toISOString() : null,
+              trial_end: stripeSubscription.trial_end ? new Date(stripeSubscription.trial_end * 1000).toISOString() : null,
+              plan_name: "Pro Plan",
+              billing_cycle: stripeSubscription.items.data[0]?.price?.recurring?.interval || "month",
             },
           }),
           {

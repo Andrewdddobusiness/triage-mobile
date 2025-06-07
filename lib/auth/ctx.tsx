@@ -1,7 +1,8 @@
-import { useContext, createContext, type PropsWithChildren } from "react";
+import { createContext, useContext, type PropsWithChildren } from "react";
 import { supabase } from "~/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
+import { Alert, Linking } from "react-native";
 
 const AuthContext = createContext<{
   signIn: (email: string, password: string) => Promise<void>;
@@ -12,6 +13,7 @@ const AuthContext = createContext<{
   hasActiveSubscription: boolean;
   subscriptionLoading: boolean;
   checkSubscription: () => Promise<void>;
+  openCustomerPortal: () => Promise<void>;
 }>({
   signIn: async () => {},
   signUp: async () => {},
@@ -21,6 +23,7 @@ const AuthContext = createContext<{
   hasActiveSubscription: false,
   subscriptionLoading: false,
   checkSubscription: async () => {},
+  openCustomerPortal: async () => {},
 });
 
 export function useSession() {
@@ -47,12 +50,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     setSubscriptionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('stripe-check-subscription', {
-        body: { userId: session.user.id }
+      const { data, error } = await supabase.functions.invoke("stripe-check-subscription", {
+        body: { userId: session.user.id },
       });
 
       if (error) {
-        console.error('Error checking subscription:', error);
+        console.error("Error checking subscription:", error);
         setHasActiveSubscription(false);
         return;
       }
@@ -122,6 +125,35 @@ export function SessionProvider({ children }: PropsWithChildren) {
     if (error) throw error;
   };
 
+  const openCustomerPortal = async () => {
+    if (!session?.user?.id) {
+      Alert.alert("Error", "You must be logged in to manage your subscription.");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke("stripe-customer-portal", {
+        body: { userId: session.user.id },
+      });
+
+      if (error) {
+        console.error("Error opening customer portal:", error);
+        Alert.alert("Error", "Failed to open customer portal. Please try again.");
+        return;
+      }
+
+      if (data?.url) {
+        // Open the Stripe customer portal URL
+        await Linking.openURL(data.url);
+      } else {
+        Alert.alert("Error", "No portal URL received. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error opening customer portal:", error);
+      Alert.alert("Error", "Failed to open customer portal. Please try again.");
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -133,6 +165,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         hasActiveSubscription,
         subscriptionLoading,
         checkSubscription,
+        openCustomerPortal,
       }}
     >
       {children}

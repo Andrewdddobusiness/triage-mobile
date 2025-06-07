@@ -73,8 +73,7 @@ function RootLayoutNav() {
   if (isLoading || (session && subscriptionLoading) || (session && onboardingCompleted === null)) {
     return <LoadingScreen />;
   }
-  // console.log("session", session);
-  console.log("hasActiveSubscription", hasActiveSubscription);
+
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />

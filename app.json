@@ -29,7 +29,9 @@
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
         "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to help users interact with voice features.",
         "UIBackgroundModes": [],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIStatusBarStyle": "UIStatusBarStyleDarkContent"
       }
     },
     "android": {

@@ -1,10 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, Image, Pressable, Clipboard } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Image, Pressable, Clipboard, Alert, Linking } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileActionButton } from "~/components/ui/profile-action-button";
-import { Settings, HelpCircle, MessageCircle, Pencil, LogOut, User, Copy, Check } from "lucide-react-native";
+import {
+  Settings,
+  HelpCircle,
+  MessageCircle,
+  Pencil,
+  LogOut,
+  User,
+  Copy,
+  Check,
+  Crown,
+  RefreshCw,
+  Calendar,
+  AlertCircle,
+} from "lucide-react-native";
 import { userService } from "~/lib/services/userService";
 import { supabase } from "~/lib/supabase";
 
@@ -15,7 +28,15 @@ import IconIon from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 
 export default function ProfileScreen() {
-  const { signOut, session } = useSession();
+  const {
+    signOut,
+    session,
+    hasActiveSubscription,
+    subscriptionData,
+    subscriptionLoading,
+    checkSubscription,
+    openCustomerPortal,
+  } = useSession();
   const insets = useSafeAreaInsets();
   const [userProfile, setUserProfile] = useState({ name: "" });
   const [loading, setLoading] = useState(true);
@@ -80,7 +101,47 @@ export default function ProfileScreen() {
     }
   };
 
-  const defaultProfileImage = "https://ui-avatars.com/api/?name=" + userProfile.name.replace(" ", "+");
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getBillingStatus = () => {
+    if (!subscriptionData) return "No Plan";
+
+    switch (subscriptionData.status) {
+      case "active":
+        return subscriptionData.cancel_at_period_end ? "Canceling" : "Active";
+      case "trialing":
+        return "Trialing";
+      case "past_due":
+        return "Past Due";
+      case "canceled":
+        return "Canceled";
+      default:
+        return subscriptionData.status;
+    }
+  };
+
+  const getStatusColor = () => {
+    if (!subscriptionData) return "text-gray-500";
+
+    switch (subscriptionData.status) {
+      case "active":
+        return subscriptionData.cancel_at_period_end ? "text-orange-500" : "text-green-500";
+      case "trialing":
+        return "text-blue-500";
+      case "past_due":
+        return "text-red-500";
+      case "canceled":
+        return "text-gray-500";
+      default:
+        return "text-gray-500";
+    }
+  };
 
   return (
     <ScrollView
@@ -96,20 +157,26 @@ export default function ProfileScreen() {
           <View className="w-24 h-24 rounded-full bg-zinc-100 items-center justify-center">
             <User size={36} color="#adb5bd" />
           </View>
-          {/* <Pressable
-            className="absolute bottom-0 right-0 bg-foreground rounded-full p-1"
-            onPress={() => console.log("Edit profile photo")}
-          >
-            <Pencil size={16} color="white" />
-          </Pressable> */}
         </View>
 
         {/* User Info */}
         <Text className="text-xl font-semibold mt-4 text-[#495057]">{userProfile.name}</Text>
 
+        {/* Subscription Plan */}
+        {hasActiveSubscription ? (
+          <View className="mt-1 px-3 py-1 rounded-full bg-[#fe885a]/10 flex-row items-center">
+            <Crown size={14} color="#fe885a" />
+            <Text className="text-sm font-medium text-[#fe885a] ml-1">Pro Plan</Text>
+          </View>
+        ) : (
+          <View className="mt-1 px-3 py-1 rounded-full bg-gray-100">
+            <Text className="text-sm font-medium text-gray-500">No active plan</Text>
+          </View>
+        )}
+
         {/* Business Phone Number */}
         {businessNumber ? (
-          <View className="mt-2 items-center">
+          <View className="mt-3 items-center">
             <Text className="text-sm text-gray-500 mb-1">Provided Business Number</Text>
             <View className="flex-row items-center">
               <Text className="text-base text-[#fe885a] font-medium">{businessNumber}</Text>
@@ -118,15 +185,40 @@ export default function ProfileScreen() {
               </Pressable>
             </View>
           </View>
-        ) : null}
+        ) : (
+          <View className="mt-3 items-center">
+            <Text className="text-sm text-gray-500">No business number assigned</Text>
+          </View>
+        )}
       </View>
+
+      {/* No Subscription Card */}
+      {!hasActiveSubscription && !subscriptionLoading && (
+        <View className="mt-4 mx-4 bg-white rounded-xl p-6 shadow-sm">
+          <View className="items-center">
+            <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center mb-3">
+              <Crown size={24} color="#adb5bd" />
+            </View>
+            <Text className="text-lg font-semibold text-[#495057] mb-2">No Active Plan</Text>
+            <Text className="text-gray-500 text-center mb-4">
+              Subscribe to Pro to unlock AI-powered call handling and advanced features.
+            </Text>
+            <Pressable
+              onPress={() => router.push("/onboarding-assistant/payment")}
+              className="bg-[#fe885a] rounded-lg py-3 px-6"
+            >
+              <Text className="text-white font-medium">Get Pro Plan</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       {/* Actions List */}
       <View className="mt-4 space-y-px">
         <ProfileActionButton
           label="Subscription"
-          icon={<Icon5 name={"splotch"} size={20} color="#adb5bd" />}
-          onPress={() => console.log("Subscription pressed")}
+          icon={<Crown size={20} color="#adb5bd" />}
+          onPress={() => router.push("/subscription")}
         />
         <ProfileActionButton
           label="Account"
@@ -138,11 +230,6 @@ export default function ProfileScreen() {
           icon={<IconEn name={"help-with-circle"} size={20} color="#adb5bd" />}
           onPress={() => console.log("Help pressed")}
         />
-        {/* <ProfileActionButton
-          label="Feedback & Support"
-          icon={<IconF name={"comment"} size={20} color="#adb5bd" />}
-          onPress={() => console.log("Support pressed")}
-        /> */}
         <ProfileActionButton
           label="Sign Out"
           icon={<IconF name="sign-out" size={20} color="#ef4444" />}

@@ -94,6 +94,7 @@ export default function PaymentScreen() {
 
     try {
       const success = await checkSubscription();
+      console.log("success: ", success);
 
       if (success) {
         setScreenState("success");
