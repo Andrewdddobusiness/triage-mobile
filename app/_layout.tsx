@@ -69,10 +69,12 @@ function RootLayoutNav() {
     checkOnboardingStatus();
   }, [session]);
 
-  if (isLoading || subscriptionLoading || (session && onboardingCompleted === null)) {
+  // Wait for all loading states to complete before rendering navigation
+  if (isLoading || (session && subscriptionLoading) || (session && onboardingCompleted === null)) {
     return <LoadingScreen />;
   }
-
+  // console.log("session", session);
+  console.log("hasActiveSubscription", hasActiveSubscription);
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
@@ -83,16 +85,12 @@ function RootLayoutNav() {
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>
+        ) : !hasActiveSubscription ? (
+          <Stack.Screen name="onboarding-assistant/payment" />
         ) : !onboardingCompleted ? (
           <Stack.Screen name="onboarding" />
-        ) : !hasActiveSubscription ? (
-          <>
-            <Stack.Screen name="onboarding-assistant/payment" />
-          </>
         ) : (
-          <>
-            <Stack.Screen name="(tabs)" />
-          </>
+          <Stack.Screen name="(tabs)" />
         )}
       </Stack>
     </ThemeProvider>

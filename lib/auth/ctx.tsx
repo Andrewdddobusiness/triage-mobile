@@ -40,20 +40,24 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
   const checkSubscription = async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      setSubscriptionLoading(false);
+      return;
+    }
 
     setSubscriptionLoading(true);
     try {
-      const response = await fetch("https://triage-mobile.vercel.app/stripe-webhook", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: session.user.id }),
+      const { data, error } = await supabase.functions.invoke('stripe-check-subscription', {
+        body: { userId: session.user.id }
       });
 
-      const data = await response.json();
-      setHasActiveSubscription(data.hasActiveSubscription);
+      if (error) {
+        console.error('Error checking subscription:', error);
+        setHasActiveSubscription(false);
+        return;
+      }
+
+      setHasActiveSubscription(data?.hasActiveSubscription || false);
     } catch (error) {
       console.error("Error checking subscription:", error);
       setHasActiveSubscription(false);
@@ -67,9 +71,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
-      if (session) {
-        checkSubscription();
-      }
+      // Don't call checkSubscription here - let the next useEffect handle it
     });
 
     // Listen for auth changes
@@ -77,17 +79,27 @@ export function SessionProvider({ children }: PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) {
-        checkSubscription();
-      } else {
+      if (!session) {
         setHasActiveSubscription(false);
+        setSubscriptionLoading(false);
       }
+      // Don't call checkSubscription here either
     });
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Separate useEffect to handle subscription checking when session changes
+  useEffect(() => {
+    if (session) {
+      checkSubscription();
+    } else {
+      setHasActiveSubscription(false);
+      setSubscriptionLoading(false);
+    }
+  }, [session]); // This will run whenever session changes
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
