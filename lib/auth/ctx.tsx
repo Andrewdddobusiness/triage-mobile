@@ -11,6 +11,7 @@ const AuthContext = createContext<{
   session: Session | null;
   isLoading: boolean;
   hasActiveSubscription: boolean;
+  subscriptionData: any;
   subscriptionLoading: boolean;
   checkSubscription: () => Promise<void>;
   openCustomerPortal: () => Promise<void>;
@@ -21,6 +22,7 @@ const AuthContext = createContext<{
   session: null,
   isLoading: true,
   hasActiveSubscription: false,
+  subscriptionData: null,
   subscriptionLoading: false,
   checkSubscription: async () => {},
   openCustomerPortal: async () => {},
@@ -40,6 +42,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
   const checkSubscription = async () => {
@@ -57,13 +60,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
       if (error) {
         console.error("Error checking subscription:", error);
         setHasActiveSubscription(false);
+        setSubscriptionData(null);
         return;
       }
 
       setHasActiveSubscription(data?.hasActiveSubscription || false);
+      setSubscriptionData(data?.subscription || null);
     } catch (error) {
       console.error("Error checking subscription:", error);
       setHasActiveSubscription(false);
+      setSubscriptionData(null);
     } finally {
       setSubscriptionLoading(false);
     }
@@ -84,6 +90,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       setSession(session);
       if (!session) {
         setHasActiveSubscription(false);
+        setSubscriptionData(null);
         setSubscriptionLoading(false);
       }
       // Don't call checkSubscription here either
@@ -100,6 +107,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       checkSubscription();
     } else {
       setHasActiveSubscription(false);
+      setSubscriptionData(null);
       setSubscriptionLoading(false);
     }
   }, [session]); // This will run whenever session changes
@@ -163,6 +171,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         session,
         isLoading,
         hasActiveSubscription,
+        subscriptionData,
         subscriptionLoading,
         checkSubscription,
         openCustomerPortal,

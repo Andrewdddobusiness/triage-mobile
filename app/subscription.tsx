@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Settings,
+  SquareArrowOutUpRight,
   Crown,
   RefreshCw,
   Calendar,
@@ -73,7 +73,7 @@ export default function SubscriptionScreen() {
 
       {/* Loading State */}
       {subscriptionLoading && (
-        <View className="mt-4 mx-4 bg-white rounded-xl p-6 shadow-sm">
+        <View className="mx-4 bg-white rounded-xl shadow-sm">
           <View className="items-center">
             <RefreshCw size={24} color="#adb5bd" className="animate-spin" />
             <Text className="text-gray-500 mt-2">Loading subscription details...</Text>
@@ -84,7 +84,7 @@ export default function SubscriptionScreen() {
       {/* Active Subscription Card */}
       {hasActiveSubscription && !subscriptionLoading && (
         <View className="mt-4 mx-4 bg-white rounded-xl p-6 shadow-sm">
-          <View className="flex-row items-center mb-4">
+          <View className="flex-row">
             <View className="w-12 h-12 rounded-full bg-orange-100 items-center justify-center mr-3">
               <Crown size={24} color="#fe885a" />
             </View>
@@ -97,6 +97,11 @@ export default function SubscriptionScreen() {
                 </Text>
               </View>
             </View>
+            {/* <View className="flex">
+              <Pressable onPress={checkSubscription} className="p-2 rounded-lg border border-gray-300">
+                <RefreshCw size={18} color="#6b7280" />
+              </Pressable>
+            </View> */}
           </View>
 
           {/* Subscription Details */}
@@ -135,22 +140,14 @@ export default function SubscriptionScreen() {
             )}
           </View>
 
-          {/* Action Buttons */}
-          <View className="mt-6 space-y-3">
+          {/* Action Button */}
+          <View className="mt-6">
             <Pressable
               onPress={openCustomerPortal}
               className="bg-[#fe885a] rounded-lg py-3 px-4 flex-row items-center justify-center"
             >
-              <Settings size={18} color="white" />
+              <SquareArrowOutUpRight size={18} color="white" />
               <Text className="text-white font-medium ml-2">Manage Subscription</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={checkSubscription}
-              className="border border-gray-300 rounded-lg mt-3 py-3 px-4 flex-row items-center justify-center"
-            >
-              <RefreshCw size={18} color="#6b7280" />
-              <Text className="text-gray-700 font-medium ml-2">Refresh Status</Text>
             </Pressable>
           </View>
         </View>

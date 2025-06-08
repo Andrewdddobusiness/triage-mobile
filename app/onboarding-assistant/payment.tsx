@@ -186,9 +186,6 @@ export default function PaymentScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-background px-6">
         <View className="items-center">
-          <View className="w-24 h-24 rounded-full bg-red-100 items-center justify-center mb-6">
-            <XCircle size={48} className="text-red-500" />
-          </View>
           <Text className={`text-3xl font-bold text-center mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
             Payment Failed
           </Text>
@@ -196,26 +193,28 @@ export default function PaymentScreen() {
             We couldn't process your payment. Please try again or contact support.
           </Text>
           <View className="w-full bg-red-50 rounded-xl p-4 mb-6">
-            <Text className="text-red-800 font-semibold text-center">❌ Subscription Not Active</Text>
+            <Text className="text-red-800 font-semibold text-center">Subscription Not Active</Text>
             <Text className="text-red-700 text-sm text-center mt-1">Your payment was cancelled or failed</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => setScreenState("payment")}
-            style={{
-              borderRadius: 12,
-              overflow: "hidden",
-              width: "100%",
-            }}
-          >
-            <LinearGradient
-              colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ paddingVertical: 16, alignItems: "center" }}
+          <View className="flex-1">
+            <TouchableOpacity
+              onPress={() => setScreenState("payment")}
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                width: "100%",
+              }}
             >
-              <Text className="text-white text-lg font-semibold">Try Again</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              <LinearGradient
+                colors={["#ffb351", "#fe885a", "#ffa2a3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ paddingVertical: 16, alignItems: "center" }}
+              >
+                <Text className="text-white text-full font-semibold">Try Again</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );

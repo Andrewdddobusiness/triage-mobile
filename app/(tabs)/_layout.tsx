@@ -159,10 +159,10 @@ export default function AppLayout() {
     return <Redirect href="/welcome" />;
   }
 
-  // // Redirect to onboarding if not completed
-  // if (onboardingCompleted === false) {
-  //   return <Redirect href="/onboarding" />;
-  // }
+  // Redirect to onboarding if not completed
+  if (onboardingCompleted === false) {
+    return <Redirect href="/onboarding" />;
+  }
 
   const handleSearch = () => {
     console.log("Search pressed");

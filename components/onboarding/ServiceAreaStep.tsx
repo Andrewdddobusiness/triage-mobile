@@ -84,7 +84,7 @@ export const ServiceAreaStep: React.FC<Props> = ({ serviceArea, setServiceArea, 
   return (
     <View className="relative mt-2">
       <TextInput
-        placeholder="Enter your service area"
+        placeholder="i.e Sydney"
         value={query}
         onChangeText={setQuery}
         className={`h-14 px-4 rounded-full bg-white border ${

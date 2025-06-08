@@ -3,7 +3,7 @@ import { View, ScrollView, Switch, Pressable, Modal, TouchableOpacity, Image, Al
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Play, Phone, Bot, Copy, Check, Pencil, CheckCircle2, X } from "lucide-react-native";
+import { Play, Phone, Bot, Copy, Check, Pencil, CheckCircle2, X, AlertTriangle } from "lucide-react-native";
 import { supabase } from "~/lib/supabase";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -105,7 +105,8 @@ export default function AssistantSettingsScreen() {
         .single();
 
       if (assistant) {
-        setAssistantEnabled(assistant.enabled);
+        // Only set assistant as enabled if they have a business number
+        setAssistantEnabled(assistant.enabled && hasBusinessNumber);
         setGreeting(assistant.greeting);
         setCurrentPreset(assistant.assistant_preset);
       }
@@ -129,7 +130,19 @@ export default function AssistantSettingsScreen() {
   };
 
   const toggleAssistant = async () => {
-    if (!session?.user) return;
+    if (!session?.user || !hasBusinessNumber) {
+      if (!hasBusinessNumber) {
+        Alert.alert(
+          "Business Phone Required",
+          "You need to set up a business phone number before activating your AI assistant.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Set Up Phone", onPress: navigateToPhoneNumber },
+          ]
+        );
+      }
+      return;
+    }
 
     try {
       const { data: serviceProvider } = await supabase
@@ -244,7 +257,6 @@ export default function AssistantSettingsScreen() {
       </View>
     );
   }
-  // console.log("currentPreset: ", currentPreset);
 
   return (
     <>
@@ -254,13 +266,35 @@ export default function AssistantSettingsScreen() {
           paddingBottom: insets.bottom + 20,
         }}
       >
+        {/* Business Phone Number Requirement Notice */}
+        {!hasBusinessNumber && (
+          <View className="bg-amber-50 border border-amber-200 p-4 mt-4 mx-4 rounded-lg">
+            <View className="flex-row items-center mb-2">
+              <AlertTriangle size={20} color="#f59e0b" />
+              <Text className="text-amber-800 font-semibold ml-2">Setup Required</Text>
+            </View>
+            <Text className="text-amber-700">
+              You need to set up a business phone number before you can activate your AI assistant.
+            </Text>
+          </View>
+        )}
+
         {/* Assistant Status */}
         <View className="bg-white p-4 mt-4 mx-4 rounded-lg">
           <View className="flex-row justify-between items-center">
             <Text className="text-lg font-semibold">AI Assistant Status</Text>
-            <Switch value={assistantEnabled} onValueChange={toggleAssistant} />
+            <Switch
+              value={assistantEnabled && hasBusinessNumber}
+              onValueChange={toggleAssistant}
+              disabled={!hasBusinessNumber}
+            />
           </View>
-          <Text className="text-md font-normal">Your AI Assistant is {assistantEnabled ? "Active" : "Offline"}</Text>
+          <Text className="text-md font-normal">
+            Your AI Assistant is {assistantEnabled && hasBusinessNumber ? "Active" : "Offline"}
+          </Text>
+          {!hasBusinessNumber && (
+            <Text className="text-sm text-amber-600 mt-1">Requires business phone number to activate</Text>
+          )}
         </View>
 
         {/* Assistant Preset Section */}
@@ -268,9 +302,6 @@ export default function AssistantSettingsScreen() {
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-lg font-semibold">Current Assistant</Text>
             <View className="flex-row items-center">
-              {/* <Pressable onPress={() => setModalVisible(true)} className="mr-2">
-                <Pencil size={18} color="#fe885a" />
-              </Pressable> */}
               <Bot size={20} />
             </View>
           </View>
@@ -321,7 +352,9 @@ export default function AssistantSettingsScreen() {
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Let's setup your AI assistant!</Text>
+              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
+                Finish setting up your AI assistant!
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         )}

@@ -76,22 +76,37 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, supab
     cancel_at_period_end: subscription.cancel_at_period_end,
   };
 
-  // Check if subscription already exists
-  const { data: existingSub } = await supabaseClient
+  // Check if subscription already exists - handle the error properly
+  const { data: existingSub, error: selectError } = await supabaseClient
     .from("subscriptions")
     .select("service_provider_id")
     .eq("stripe_subscription_id", subscription.id)
-    .single();
+    .maybeSingle(); // Use maybeSingle() instead of single()
+
+  if (selectError) {
+    console.error("Error checking existing subscription:", selectError);
+    return;
+  }
 
   if (existingSub) {
     // Update existing subscription
-    await supabaseClient.from("subscriptions").update(subscriptionData).eq("stripe_subscription_id", subscription.id);
+    const { error: updateError } = await supabaseClient
+      .from("subscriptions")
+      .update(subscriptionData)
+      .eq("stripe_subscription_id", subscription.id);
+
+    if (updateError) {
+      console.error("Error updating subscription:", updateError);
+      return;
+    }
 
     // Update service provider subscription status
     await supabaseClient
       .from("service_providers")
       .update({ subscription_status: subscription.status === "active" ? "active" : "inactive" })
       .eq("id", existingSub.service_provider_id);
+
+    console.log("✅ Updated existing subscription:", subscription.id);
   } else {
     // This is a new subscription - get service provider ID from customer metadata
     const serviceProviderId = (customer as any).metadata?.service_provider_id;
@@ -101,14 +116,19 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, supab
       return;
     }
 
-    // Create new subscription record
-    const { error: insertError } = await supabaseClient.from("subscriptions").insert({
-      ...subscriptionData,
-      service_provider_id: serviceProviderId,
-    });
+    // Use upsert to handle potential race conditions
+    const { error: upsertError } = await supabaseClient.from("subscriptions").upsert(
+      {
+        ...subscriptionData,
+        service_provider_id: serviceProviderId,
+      },
+      {
+        onConflict: "stripe_subscription_id",
+      }
+    );
 
-    if (insertError) {
-      console.error("Error inserting subscription:", insertError);
+    if (upsertError) {
+      console.error("Error upserting subscription:", upsertError);
       return;
     }
 
