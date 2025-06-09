@@ -149,7 +149,7 @@ export default function AppLayout() {
   if (isLoading || checkingOnboarding || (onboardingCompleted && checkingBusinessNumber)) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={"#FFA500"} />
         <Text style={{ marginTop: 10 }}>Loading...</Text>
       </View>
     );

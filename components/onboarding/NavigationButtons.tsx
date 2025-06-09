@@ -86,7 +86,7 @@ export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
             }}
           >
             {loading ? (
-              <ActivityIndicator size="small" color="white" />
+              <ActivityIndicator size="small" color={"#FFA500"} />
             ) : (
               <Text className="text-white font-semibold text-center">{isLastStep ? "Complete" : "Next"}</Text>
             )}

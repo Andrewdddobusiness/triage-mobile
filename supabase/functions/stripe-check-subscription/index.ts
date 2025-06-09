@@ -38,30 +38,34 @@ serve(async (req: Request) => {
       });
     }
 
-    // Get active subscription from Stripe
-    const { data: subscription, error: subError } = await supabaseClient
+    // Get ALL subscriptions for this service provider (not just active ones)
+    const { data: allSubscriptions, error: allSubsError } = await supabaseClient
       .from("subscriptions")
       .select("*")
       .eq("service_provider_id", serviceProvider.id)
-      .eq("status", "active")
-      .single();
+      .order("created_at", { ascending: false });
 
-    if (subError && subError.code !== "PGRST116") {
-      // PGRST116 = no rows returned
-      console.error("Error fetching subscription:", subError);
+    if (allSubsError) {
+      console.error("Error fetching all subscriptions:", allSubsError);
       return new Response(JSON.stringify({ error: "Database error" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
       });
     }
 
-    // If we have a subscription, verify it with Stripe
-    if (subscription) {
-      try {
-        const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id);
+    const hasSubscriptionHistory = allSubscriptions && allSubscriptions.length > 0;
 
-        // Update local subscription status if it differs
-        if (stripeSubscription.status !== subscription.status) {
+    // Find the most recent subscription
+    const latestSubscription = allSubscriptions?.[0];
+
+    if (latestSubscription) {
+      try {
+        const stripeSubscription = await stripe.subscriptions.retrieve(latestSubscription.stripe_subscription_id);
+
+        // Force update local subscription status if it differs
+        if (stripeSubscription.status !== latestSubscription.status) {
+          console.log(`🔄 Syncing subscription status: ${latestSubscription.status} -> ${stripeSubscription.status}`);
+
           await supabaseClient
             .from("subscriptions")
             .update({
@@ -70,90 +74,42 @@ serve(async (req: Request) => {
               current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
               cancel_at_period_end: stripeSubscription.cancel_at_period_end,
             })
-            .eq("id", subscription.id);
+            .eq("id", latestSubscription.id);
+
+          // Also update service provider status
+          const isActive = stripeSubscription.status === "active" || stripeSubscription.status === "trialing";
+          await supabaseClient
+            .from("service_providers")
+            .update({ subscription_status: isActive ? "active" : "inactive" })
+            .eq("id", serviceProvider.id);
         }
 
-        // Add this after line 40 where you query for active subscriptions
-        // Get ALL subscriptions for this service provider (not just active ones)
-        const { data: allSubscriptions, error: allSubsError } = await supabaseClient
-          .from("subscriptions")
-          .select("*")
-          .eq("service_provider_id", serviceProvider.id)
-          .order("created_at", { ascending: false });
-
-        if (allSubsError) {
-          console.error("Error fetching all subscriptions:", allSubsError);
-        }
-
-        // Find the most recent subscription
-        const latestSubscription = allSubscriptions?.[0];
-
-        if (latestSubscription) {
-          try {
-            const stripeSubscription = await stripe.subscriptions.retrieve(latestSubscription.stripe_subscription_id);
-
-            // Force update local subscription status if it differs
-            if (stripeSubscription.status !== latestSubscription.status) {
-              console.log(
-                `🔄 Syncing subscription status: ${latestSubscription.status} -> ${stripeSubscription.status}`
-              );
-
-              await supabaseClient
-                .from("subscriptions")
-                .update({
-                  status: stripeSubscription.status,
-                  current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
-                  current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
-                  cancel_at_period_end: stripeSubscription.cancel_at_period_end,
-                })
-                .eq("id", latestSubscription.id);
-
-              // Also update service provider status
-              const isActive = stripeSubscription.status === "active" || stripeSubscription.status === "trialing";
-              await supabaseClient
-                .from("service_providers")
-                .update({ subscription_status: isActive ? "active" : "inactive" })
-                .eq("id", serviceProvider.id);
-            }
-
-            const hasSubscriptionHistory = allSubscriptions && allSubscriptions.length > 0;
-
-            return new Response(
-              JSON.stringify({
-                hasActiveSubscription:
-                  stripeSubscription.status === "active" || stripeSubscription.status === "trialing",
-                hasSubscriptionHistory: hasSubscriptionHistory,
-                subscription: {
-                  status: stripeSubscription.status,
-                  current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
-                  current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
-                  cancel_at_period_end: stripeSubscription.cancel_at_period_end,
-                  canceled_at: stripeSubscription.canceled_at
-                    ? new Date(stripeSubscription.canceled_at * 1000).toISOString()
-                    : null,
-                  trial_end: stripeSubscription.trial_end
-                    ? new Date(stripeSubscription.trial_end * 1000).toISOString()
-                    : null,
-                  plan_name: "Pro Plan",
-                  billing_cycle: stripeSubscription.items.data[0]?.price?.recurring?.interval || "month",
-                },
-              }),
-              {
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-                status: 200,
-              }
-            );
-          } catch (stripeError) {
-            console.error("Stripe error:", stripeError);
-            return new Response(JSON.stringify({ hasActiveSubscription: false }), {
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-              status: 200,
-            });
+        return new Response(
+          JSON.stringify({
+            hasActiveSubscription: stripeSubscription.status === "active" || stripeSubscription.status === "trialing",
+            hasSubscriptionHistory: hasSubscriptionHistory,
+            subscription: {
+              status: stripeSubscription.status,
+              current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
+              current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
+              cancel_at_period_end: stripeSubscription.cancel_at_period_end,
+              canceled_at: stripeSubscription.canceled_at
+                ? new Date(stripeSubscription.canceled_at * 1000).toISOString()
+                : null,
+              trial_end: stripeSubscription.trial_end
+                ? new Date(stripeSubscription.trial_end * 1000).toISOString()
+                : null,
+              plan_name: "Pro Plan",
+              billing_cycle: stripeSubscription.items.data[0]?.price?.recurring?.interval || "month",
+            },
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
           }
-        }
-
-        // Add this return statement for when latestSubscription is falsy
-        const hasSubscriptionHistory = allSubscriptions && allSubscriptions.length > 0;
+        );
+      } catch (stripeError) {
+        console.error("Stripe error:", stripeError);
         return new Response(
           JSON.stringify({
             hasActiveSubscription: false,
@@ -164,19 +120,14 @@ serve(async (req: Request) => {
             status: 200,
           }
         );
-      } catch (stripeError) {
-        console.error("Stripe error:", stripeError);
-        return new Response(JSON.stringify({ hasActiveSubscription: false }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
       }
     }
 
+    // No subscriptions found at all
     return new Response(
       JSON.stringify({
         hasActiveSubscription: false,
-        hasSubscriptionHistory: false,
+        hasSubscriptionHistory: hasSubscriptionHistory,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

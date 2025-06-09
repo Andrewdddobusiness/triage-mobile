@@ -36,7 +36,8 @@ export default function RequestDetailScreen() {
   if (isLoading || !selectedInquiry) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Text className="mt-4 text-muted-foreground">Loading...</Text>
       </View>
     );
   }

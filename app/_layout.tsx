@@ -32,14 +32,14 @@ export {
 function LoadingScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-background">
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={"#FFA500"} />
       <Text className="mt-4 text-muted-foreground">Loading...</Text>
     </View>
   );
 }
 
 function RootLayoutNav() {
-  const { session, isLoading, hasActiveSubscription, subscriptionLoading } = useSession();
+  const { session, isLoading, hasActiveSubscription, hasSubscriptionHistory, subscriptionLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [hasBusinessNumber, setHasBusinessNumber] = useState<boolean | null>(null);
@@ -123,7 +123,8 @@ function RootLayoutNav() {
   ) {
     return <LoadingScreen />;
   }
-
+  console.log("hasActiveSubscription: ", hasActiveSubscription);
+  console.log("hasSubscriptionHistory: ", hasSubscriptionHistory);
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
@@ -134,7 +135,7 @@ function RootLayoutNav() {
             <Stack.Screen name="signIn" />
             <Stack.Screen name="signUp" />
           </>
-        ) : !hasActiveSubscription ? (
+        ) : !hasActiveSubscription && !hasSubscriptionHistory ? (
           <Stack.Screen name="onboarding-assistant/payment" />
         ) : !onboardingCompleted ? (
           <Stack.Screen name="onboarding" />

@@ -51,7 +51,8 @@ export default function InboxScreen() {
   if (isLoading && inquiries.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Text className="mt-4 text-gray-500">Loading...</Text>
       </View>
     );
   }

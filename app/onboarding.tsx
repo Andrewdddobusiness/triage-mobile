@@ -47,7 +47,7 @@ export default function OnboardingScreen() {
   if (initializing) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={"#FFA500"} />
         <Text className="mt-4 text-muted-foreground">Loading...</Text>
       </View>
     );

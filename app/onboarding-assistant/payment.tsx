@@ -175,7 +175,7 @@ export default function PaymentScreen() {
             <Text className="text-green-800 font-semibold text-center">✅ Subscription Confirmed</Text>
             <Text className="text-green-700 text-sm text-center mt-1">Redirecting to your dashboard...</Text>
           </View>
-          <ActivityIndicator size="small" color="#22c55e" />
+          <ActivityIndicator size="small" color={"#FFA500"} />
         </View>
       </View>
     );
@@ -224,7 +224,7 @@ export default function PaymentScreen() {
   if (screenState === "verifying") {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#f7931e" />
+        <ActivityIndicator size="large" color={"#FFA500"} />
         <Text className={`text-xl font-semibold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}>
           Verifying your subscription…
         </Text>
@@ -276,7 +276,7 @@ export default function PaymentScreen() {
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className={`mx-6 p-6 rounded-2xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
             <View className="items-center">
-              <ActivityIndicator size="large" color="#f7931e" />
+              <ActivityIndicator size="large" color={"#FFA500"} />
               <Text className={`text-lg font-semibold mt-4 text-center ${isDark ? "text-white" : "text-gray-900"}`}>
                 Redirecting to Payment
               </Text>

@@ -108,7 +108,7 @@ export const ServiceAreaStep: React.FC<Props> = ({ serviceArea, setServiceArea, 
         ))}
       </View>
 
-      {loading && <ActivityIndicator className="mt-2" />}
+      {loading && <ActivityIndicator size="large" color={"#FFA500"} className="mt-2" />}
 
       {suggestions.length > 0 && (
         <FlatList
