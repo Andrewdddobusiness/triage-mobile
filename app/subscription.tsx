@@ -1,5 +1,5 @@
-import React from "react";
-import { View, ScrollView, Pressable, Alert, Linking } from "react-native";
+import React, { useEffect } from "react";
+import { View, ScrollView, Pressable, Alert, Linking, AppState } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,6 +19,22 @@ export default function SubscriptionScreen() {
   const { hasActiveSubscription, subscriptionData, subscriptionLoading, checkSubscription, openCustomerPortal } =
     useSession();
   const insets = useSafeAreaInsets();
+
+  // Add AppState listener to refresh subscription when returning from external apps
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === "active") {
+        // Refresh subscription data when app becomes active
+        checkSubscription();
+      }
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      subscription?.remove();
+    };
+  }, [checkSubscription]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
@@ -188,14 +204,6 @@ export default function SubscriptionScreen() {
               className="bg-[#fe885a] rounded-lg py-4 px-8 w-full"
             >
               <Text className="text-white font-semibold text-center text-lg">Get Pro Plan</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={checkSubscription}
-              className="mt-3 border border-gray-300 rounded-lg py-3 px-4 flex-row items-center justify-center w-full"
-            >
-              <RefreshCw size={18} color="#6b7280" />
-              <Text className="text-gray-700 font-medium ml-2">Refresh Status</Text>
             </Pressable>
           </View>
         </View>

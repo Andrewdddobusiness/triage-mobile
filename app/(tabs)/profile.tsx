@@ -192,27 +192,6 @@ export default function ProfileScreen() {
         )}
       </View>
 
-      {/* No Subscription Card */}
-      {!hasActiveSubscription && !subscriptionLoading && (
-        <View className="mt-4 mx-4 bg-white rounded-xl p-6 shadow-sm">
-          <View className="items-center">
-            <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center mb-3">
-              <Crown size={24} color="#adb5bd" />
-            </View>
-            <Text className="text-lg font-semibold text-[#495057] mb-2">No Active Plan</Text>
-            <Text className="text-gray-500 text-center mb-4">
-              Subscribe to Pro to unlock AI-powered call handling and advanced features.
-            </Text>
-            <Pressable
-              onPress={() => router.push("/onboarding-assistant/payment")}
-              className="bg-[#fe885a] rounded-lg py-3 px-6"
-            >
-              <Text className="text-white font-medium">Get Pro Plan</Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
-
       {/* Actions List */}
       <View className="mt-4 space-y-px">
         <ProfileActionButton
