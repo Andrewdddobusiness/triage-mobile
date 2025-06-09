@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { View, ScrollView, Pressable, Alert, Linking, AppState } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
@@ -16,8 +16,14 @@ import {
 import { router } from "expo-router";
 
 export default function SubscriptionScreen() {
-  const { hasActiveSubscription, subscriptionData, subscriptionLoading, checkSubscription, openCustomerPortal } =
-    useSession();
+  const {
+    hasActiveSubscription,
+    hasSubscriptionHistory,
+    subscriptionData,
+    subscriptionLoading,
+    checkSubscription,
+    openCustomerPortal,
+  } = useSession();
   const insets = useSafeAreaInsets();
 
   // Add AppState listener to refresh subscription when returning from external apps
@@ -169,16 +175,20 @@ export default function SubscriptionScreen() {
         </View>
       )}
 
-      {/* No Subscription Card */}
+      {/* No Active Subscription Card */}
       {!hasActiveSubscription && !subscriptionLoading && (
         <View className="mt-4 mx-4 bg-white rounded-xl p-6 shadow-sm">
           <View className="items-center">
             <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center mb-4">
               <Crown size={32} color="#adb5bd" />
             </View>
-            <Text className="text-xl font-semibold text-[#495057] mb-2">No Active Plan</Text>
+            <Text className="text-xl font-semibold text-[#495057] mb-2">
+              {hasSubscriptionHistory ? "Reactivate Your Plan" : "No Active Plan"}
+            </Text>
             <Text className="text-gray-500 text-center mb-6 leading-6">
-              Subscribe to Pro to unlock AI-powered call handling, advanced analytics, and premium features.
+              {hasSubscriptionHistory
+                ? "Welcome back! Manage your subscription or reactivate your Pro plan to continue enjoying premium features."
+                : "Subscribe to Pro to unlock AI-powered call handling, advanced analytics, and premium features."}
             </Text>
 
             {/* Features List */}
@@ -200,10 +210,17 @@ export default function SubscriptionScreen() {
             </View>
 
             <Pressable
-              onPress={() => router.push("/onboarding-assistant/payment")}
+              onPress={
+                hasSubscriptionHistory ? openCustomerPortal : () => router.push("/onboarding-assistant/paymentRenew")
+              }
               className="bg-[#fe885a] rounded-lg py-4 px-8 w-full"
             >
-              <Text className="text-white font-semibold text-center text-lg">Get Pro Plan</Text>
+              <View className="flex-row items-center justify-center">
+                {hasSubscriptionHistory && <SquareArrowOutUpRight size={18} color="white" />}
+                <Text className="text-white font-semibold text-center text-lg ml-2">
+                  {hasSubscriptionHistory ? "Manage Subscription" : "Get Pro Plan"}
+                </Text>
+              </View>
             </Pressable>
           </View>
         </View>

@@ -11,6 +11,7 @@ const AuthContext = createContext<{
   session: Session | null;
   isLoading: boolean;
   hasActiveSubscription: boolean;
+  hasSubscriptionHistory: boolean;
   subscriptionData: any;
   subscriptionLoading: boolean;
   checkSubscription: () => Promise<void>;
@@ -22,6 +23,7 @@ const AuthContext = createContext<{
   session: null,
   isLoading: true,
   hasActiveSubscription: false,
+  hasSubscriptionHistory: false,
   subscriptionData: null,
   subscriptionLoading: false,
   checkSubscription: async () => {},
@@ -42,6 +44,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [hasSubscriptionHistory, setHasSubscriptionHistory] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
@@ -52,6 +55,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
 
     setSubscriptionLoading(true);
+
     try {
       const { data, error } = await supabase.functions.invoke("stripe-check-subscription", {
         body: { userId: session.user.id },
@@ -60,15 +64,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
       if (error) {
         console.error("Error checking subscription:", error);
         setHasActiveSubscription(false);
+        setHasSubscriptionHistory(false);
         setSubscriptionData(null);
-        return;
+      } else {
+        setHasActiveSubscription(data?.hasActiveSubscription || false);
+        setHasSubscriptionHistory(data?.hasSubscriptionHistory || false);
+        setSubscriptionData(data?.subscription || null);
       }
-
-      setHasActiveSubscription(data?.hasActiveSubscription || false);
-      setSubscriptionData(data?.subscription || null);
     } catch (error) {
       console.error("Error checking subscription:", error);
       setHasActiveSubscription(false);
+      setHasSubscriptionHistory(false);
       setSubscriptionData(null);
     } finally {
       setSubscriptionLoading(false);
@@ -171,6 +177,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         session,
         isLoading,
         hasActiveSubscription,
+        hasSubscriptionHistory,
         subscriptionData,
         subscriptionLoading,
         checkSubscription,

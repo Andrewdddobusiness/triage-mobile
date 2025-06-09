@@ -10,10 +10,10 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { SessionProvider, useSession } from "~/lib/auth/ctx";
 import { Text } from "~/components/ui/text";
 import { SplashScreenProvider } from "./splash-screen";
-
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useEffect, useState } from "react";
 import { serviceProviderService } from "~/lib/services/serviceProviderService";
+import { supabase } from "~/lib/supabase";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -42,35 +42,85 @@ function RootLayoutNav() {
   const { session, isLoading, hasActiveSubscription, subscriptionLoading } = useSession();
   const { isDarkColorScheme } = useColorScheme();
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [hasBusinessNumber, setHasBusinessNumber] = useState<boolean | null>(null);
+  const [hasAssistant, setHasAssistant] = useState<boolean | null>(null);
 
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: "244259622983-d8hokavl2edb0gl050f40rkeak1otq6n.apps.googleusercontent.com",
       iosClientId: "244259622983-oc0g6h4n3pamklfcevffjeup6k0pohos.apps.googleusercontent.com",
-      offlineAccess: true, // if you need refresh tokens
-      forceCodeForRefreshToken: true, // Add this line
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
     });
   }, []);
 
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
+    const checkUserStatus = async () => {
       if (session?.user) {
-        // First ensure the service provider record exists
-        await serviceProviderService.createServiceProvider(session.user.id);
+        try {
+          // First ensure the service provider record exists
+          await serviceProviderService.createServiceProvider(session.user.id);
 
-        // Then check if onboarding is completed
-        const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
-        setOnboardingCompleted(isCompleted);
+          // Check if onboarding is completed
+          const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
+          setOnboardingCompleted(isCompleted);
+
+          if (isCompleted) {
+            // Get the service provider ID
+            const { data: serviceProvider, error: spError } = await supabase
+              .from("service_providers")
+              .select("id")
+              .eq("auth_user_id", session.user.id)
+              .single();
+
+            if (spError) throw spError;
+
+            // Check if they have an assistant
+            const { data: assistant, error: assistantError } = await supabase
+              .from("service_provider_assistants")
+              .select("id")
+              .eq("service_provider_id", serviceProvider.id)
+              .single();
+
+            setHasAssistant(!!assistant && !assistantError);
+
+            // Check if they have an assigned phone number
+            const { data: phoneNumbers, error: phoneError } = await supabase
+              .from("twilio_phone_numbers")
+              .select("*")
+              .eq("assigned_to", serviceProvider.id)
+              .not("assigned_at", "is", null);
+
+            if (phoneError) throw phoneError;
+
+            setHasBusinessNumber(phoneNumbers && phoneNumbers.length > 0);
+          } else {
+            setHasAssistant(null);
+            setHasBusinessNumber(null);
+          }
+        } catch (error) {
+          console.error("Error checking user status:", error);
+          setOnboardingCompleted(false);
+          setHasAssistant(false);
+          setHasBusinessNumber(false);
+        }
       } else {
         setOnboardingCompleted(null);
+        setHasAssistant(null);
+        setHasBusinessNumber(null);
       }
     };
 
-    checkOnboardingStatus();
+    checkUserStatus();
   }, [session]);
 
   // Wait for all loading states to complete before rendering navigation
-  if (isLoading || (session && subscriptionLoading) || (session && onboardingCompleted === null)) {
+  if (
+    isLoading ||
+    (session && subscriptionLoading) ||
+    (session && onboardingCompleted === null) ||
+    (session && onboardingCompleted && hasBusinessNumber === null)
+  ) {
     return <LoadingScreen />;
   }
 
@@ -88,6 +138,10 @@ function RootLayoutNav() {
           <Stack.Screen name="onboarding-assistant/payment" />
         ) : !onboardingCompleted ? (
           <Stack.Screen name="onboarding" />
+        ) : !hasAssistant ? (
+          <Stack.Screen name="onboarding-assistant/welcome" />
+        ) : !hasBusinessNumber ? (
+          <Stack.Screen name="onboarding-assistant/assignPhoneNumber" />
         ) : (
           <Stack.Screen name="(tabs)" />
         )}
@@ -107,16 +161,11 @@ export default function RootLayout() {
     }
 
     if (Platform.OS === "web") {
-      // Adds the background color to the html element to prevent white background on overscroll.
       document.documentElement.classList.add("bg-background");
     }
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
-
-  // if (!isColorSchemeLoaded) {
-  //   return <LoadingScreen />;
-  // }
 
   return (
     <SplashScreenProvider>
