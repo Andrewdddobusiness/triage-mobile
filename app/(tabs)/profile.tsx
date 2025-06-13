@@ -207,7 +207,7 @@ export default function ProfileScreen() {
         <ProfileActionButton
           label="Help & Info"
           icon={<IconEn name={"help-with-circle"} size={20} color="#adb5bd" />}
-          onPress={() => console.log("Help pressed")}
+          onPress={() => router.push("/help")}
         />
         <ProfileActionButton
           label="Sign Out"

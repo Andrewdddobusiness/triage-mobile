@@ -86,7 +86,7 @@ export default function SubscriptionScreen() {
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row items-center">
-          <Pressable onPress={() => router.back()} className="mr-3">
+          <Pressable onPress={() => router.replace("/(tabs)/profile")} className="mr-3">
             <ArrowLeft size={24} color="#495057" />
           </Pressable>
           <Text className="text-xl font-semibold text-[#495057]">Subscription</Text>

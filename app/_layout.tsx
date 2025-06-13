@@ -137,6 +137,8 @@ function RootLayoutNav() {
           </>
         ) : !hasActiveSubscription && !hasSubscriptionHistory ? (
           <Stack.Screen name="onboarding-assistant/payment" />
+        ) : !hasActiveSubscription && hasSubscriptionHistory ? (
+          <Stack.Screen name="subscription" />
         ) : !onboardingCompleted ? (
           <Stack.Screen name="onboarding" />
         ) : !hasAssistant ? (
