@@ -10,12 +10,6 @@ import { supabase } from "~/lib/supabase";
 import { X } from "lucide-react-native";
 import Icon6 from "@expo/vector-icons/FontAwesome6";
 
-import {
-  GoogleSignin,
-  isSuccessResponse,
-  isErrorWithCode,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
 
 import { useGoogleSignIn } from "~/hooks/useGoogleSignIn";
 
@@ -83,34 +77,12 @@ export default function SignInScreen() {
       setIsSubmitting(true);
       setErrorMessage(""); // Clear any previous errors
 
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      if (isSuccessResponse(response)) {
-        const { idToken, user } = response.data;
-
-        router.replace("/(tabs)");
-      } else {
-        console.log("Google SignIn was cancelled");
-      }
-      setIsSubmitting(false);
+      await signInWithGoogle();
+      // signInWithGoogle already handles navigation to /(tabs)
     } catch (error) {
-      if (isErrorWithCode(error)) {
-        switch (error.code) {
-          case statusCodes.IN_PROGRESS:
-            console.log("Google SignIn in progress");
-            break;
-          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            console.log("Play services are not available");
-            setErrorMessage("Google Play services are not available. Please try another sign-in method.");
-            break;
-          default:
-            setErrorMessage("Error signing in with Google. Please try again.");
-            break;
-        }
-      } else {
-        console.log("An error occurred");
-        setErrorMessage("Error signing in with Google. Please try again.");
-      }
+      console.error("Google Sign-in error:", error);
+      setErrorMessage("Error signing in with Google. Please try again.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -239,7 +211,7 @@ export default function SignInScreen() {
           }}
         >
           <TouchableOpacity
-            onPress={signInWithGoogle}
+            onPress={handleGoogleSignIn}
             disabled={isSubmitting}
             activeOpacity={0.8}
             style={{

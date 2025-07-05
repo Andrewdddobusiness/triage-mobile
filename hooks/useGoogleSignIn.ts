@@ -35,7 +35,6 @@ export function useGoogleSignIn() {
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: "google",
         token: idToken,
-        nonce: undefined,
       });
 
       if (error) throw error;
