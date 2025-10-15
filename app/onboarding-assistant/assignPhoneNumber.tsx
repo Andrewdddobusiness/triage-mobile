@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Dimensions, TouchableOpacity, ActivityIndicator, Alert, Clipboard } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -6,7 +6,6 @@ import { router } from "expo-router";
 import { useSession } from "~/lib/auth/ctx";
 import { supabase } from "~/lib/supabase";
 import * as Haptics from "expo-haptics";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from "react-native-reanimated";
 import { Phone, Copy, Check } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
@@ -21,8 +20,6 @@ export default function AssignPhoneNumberScreen() {
   const [copied, setCopied] = useState(false);
 
   // Animation values
-  const progress = useSharedValue(0);
-
   // Function to find and assign an available phone number
   const findAndAssignPhoneNumber = async () => {
     if (!session?.user?.id) {
@@ -32,66 +29,24 @@ export default function AssignPhoneNumberScreen() {
 
     try {
       setLoading(true);
+      setError("");
 
-      // 1. Get the service provider ID and assistant ID for the current user
-      const { data: serviceProvider, error: spError } = await supabase
-        .from("service_providers")
-        .select(
-          `
-          id,
-          service_provider_assistants!inner(
-            assistant_id
-          )
-        `
-        )
-        .eq("auth_user_id", session.user.id)
-        .single();
+      const { data, error: functionError } = await supabase.functions.invoke<{
+        success: boolean;
+        phoneNumber?: string;
+        message?: string;
+        error?: string;
+      }>("assign-phone-number");
 
-      if (spError) throw spError;
-      console.log("serviceProvider: ", serviceProvider);
-
-      // 2. Find an available phone number (not assigned to any service provider)
-      const { data: availableNumbers, error: numbersError } = await supabase
-        .from("twilio_phone_numbers")
-        .select("*")
-        .is("assigned_to", null)
-        .eq("is_active", true)
-        .limit(1);
-
-      if (numbersError) throw numbersError;
-
-      if (!availableNumbers || availableNumbers.length === 0) {
-        throw new Error("Sorry! We can't assign you a phone number at this time. Please check back later.");
+      if (functionError) {
+        throw functionError;
       }
 
-      const phoneNumberToAssign = availableNumbers[0];
-
-      // 3. Assign the phone number to the service provider
-      const { error: updateError } = await supabase
-        .from("twilio_phone_numbers")
-        .update({
-          assigned_to: serviceProvider.id,
-          assigned_at: new Date().toISOString(),
-          is_active: false,
-        })
-        .eq("id", phoneNumberToAssign.id);
-
-      if (updateError) throw updateError;
-
-      // 4. Call the Supabase Edge Function to import the phone number to Vapi
-      const { error: importError } = await supabase.functions.invoke("import-twilio-number", {
-        body: {
-          twilioPhoneNumber: phoneNumberToAssign.phone_number,
-          serviceProviderId: serviceProvider.id,
-        },
-      });
-
-      if (importError) {
-        throw new Error("Sorry! We can't assign you a phone number at this time. Please check back later.");
+      if (!data?.success) {
+        throw new Error(data?.error || "Sorry! We can't assign you a phone number at this time. Please check back later.");
       }
 
-      // Success!
-      setPhoneNumber(phoneNumberToAssign.phone_number);
+      setPhoneNumber(data.phoneNumber || "");
       setAssigned(true);
 
       // Trigger success haptic feedback
@@ -104,7 +59,6 @@ export default function AssignPhoneNumberScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
-      progress.value = withTiming(0, { duration: 300 });
     }
   };
 

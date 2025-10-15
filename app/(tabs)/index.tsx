@@ -25,7 +25,7 @@ export default function InboxScreen() {
 
   useEffect(() => {
     if (session?.user) {
-      fetchInquiries(session.user.id);
+      fetchInquiries();
     }
   }, [session]);
 
@@ -101,9 +101,7 @@ export default function InboxScreen() {
           paddingVertical: 16,
           paddingBottom: bottomPadding,
         }}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries(session.user.id)} />
-        }
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries()} />}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center p-4">
             <Text className="text-gray-500 text-lg">No job inquiries yet!</Text>

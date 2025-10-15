@@ -2,6 +2,10 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Supabase backend
+
+The web and mobile apps share a single Supabase workspace at the repository root (`supabase/`). Run Supabase CLI commands (migrations, Edge Functions, local stack) from that directory so both apps stay in sync.
+
 ## Get started
 
 1. Install dependencies

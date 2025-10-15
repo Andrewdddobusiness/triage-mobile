@@ -1,6 +1,9 @@
-# CLAUDE.md
+# Spaak Mobile Application - AI Voice Secretary Platform
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Overview
+Spaak Mobile is the companion mobile app for the AI voice secretary platform, designed specifically for tradies (tradespeople) in Australia. Built with React Native and Expo, it enables tradies to manage their AI voice secretary, handle customer inquiries, and maintain business operations on mobile devices.
+
+This file provides comprehensive guidance to Claude Code when working with this repository.
 
 ## Development Commands
 
