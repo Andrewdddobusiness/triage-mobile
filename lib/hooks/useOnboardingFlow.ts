@@ -5,9 +5,11 @@ import { useSession } from "~/lib/auth/ctx";
 import { serviceProviderService } from "~/lib/services/serviceProviderService";
 import { OnboardingFormData, OnboardingFormErrors, OnboardingStepConfig } from "~/lib/types/onboarding";
 import { useAnimatedGradient } from "./useAnimatedGradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const useOnboardingFlow = () => {
   const { session } = useSession();
+  const STORAGE_KEY = "onboarding:form";
   const [formData, setFormData] = useState<OnboardingFormData>({
     businessName: "",
     ownerName: "",
@@ -85,6 +87,13 @@ export const useOnboardingFlow = () => {
 
   const { transition, colorTransition, animatedStyles, animatedBackgroundStyle } = useAnimatedGradient(gradientColors);
 
+  // Prefill business email from session if available and field is empty
+  useEffect(() => {
+    if (session?.user?.email && !formData.businessEmail) {
+      setFormData((prev) => ({ ...prev, businessEmail: session.user!.email! }));
+    }
+  }, [session?.user?.email]);
+
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (session?.user) {
@@ -92,6 +101,25 @@ export const useOnboardingFlow = () => {
           await serviceProviderService.createServiceProvider(session.user.id);
           const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
           if (isCompleted) router.replace("/(tabs)");
+          // Load any saved progress if not completed
+          const stored = await AsyncStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored);
+              setFormData((prev) => ({ ...prev, ...(parsed.formData || {}) }));
+              if (typeof parsed.currentStep === "number") {
+                setCurrentStep(parsed.currentStep);
+                setAnimatedStep(parsed.currentStep);
+              }
+              if (parsed.customSpecialty) setCustomSpecialty(parsed.customSpecialty);
+              if (parsed.customService) setCustomService(parsed.customService);
+              if (typeof parsed.showCustomSpecialty === "boolean") setShowCustomSpecialty(parsed.showCustomSpecialty);
+              if (typeof parsed.showCustomService === "boolean") setShowCustomService(parsed.showCustomService);
+            } catch (err) {
+              console.warn("Failed to parse stored onboarding data", err);
+              await AsyncStorage.removeItem(STORAGE_KEY);
+            }
+          }
         } catch (error) {
           setFormError("Failed to check onboarding status. Please try again.");
         }
@@ -153,6 +181,7 @@ export const useOnboardingFlow = () => {
         );
 
         if (success) {
+          await clearPersisted();
           router.replace("./onboarding-assistant/welcome");
         } else {
           setFormError("Failed to complete onboarding. Please try again.");
@@ -267,6 +296,41 @@ export const useOnboardingFlow = () => {
     }
   };
 
+  // Persist progress locally to allow resume after app kill
+  useEffect(() => {
+    const persist = async () => {
+      try {
+        await AsyncStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            formData,
+            currentStep,
+            customSpecialty,
+            customService,
+            showCustomSpecialty,
+            showCustomService,
+          })
+        );
+      } catch (err) {
+        console.warn("Failed to persist onboarding data", err);
+      }
+    };
+
+    // Avoid saving while initializing to prevent overwriting restored data
+    if (!initializing) {
+      persist();
+    }
+  }, [formData, currentStep, customSpecialty, customService, showCustomSpecialty, showCustomService, initializing]);
+
+  // Clear persisted data when onboarding completes successfully
+  const clearPersisted = async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      console.warn("Failed to clear onboarding data", err);
+    }
+  };
+
   return {
     formData,
     updateFormField,
@@ -296,5 +360,6 @@ export const useOnboardingFlow = () => {
     handleBack,
     toggleService,
     toggleSpecialty,
+    clearPersisted,
   };
 };

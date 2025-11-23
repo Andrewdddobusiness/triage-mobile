@@ -8,9 +8,9 @@ Persist onboarding step and form data locally or via Supabase so users can resum
 
 ## Tasks
 - [ ] Audit onboarding steps and required fields against web validation rules and Supabase schema (service providers, specialties, services offered).
-- [ ] Add persistence (local storage or Supabase) for form data and current step; restore on launch.
-- [ ] Ensure custom specialty/service fields save and rehydrate correctly; match web handling.
-- [ ] Align copy/options with web (specialty/services lists, required fields, validation messages).
+- [x] Add persistence (local storage or Supabase) for form data and current step; restore on launch.
+- [x] Ensure custom specialty/service fields save and rehydrate correctly; match web handling.
+- [x] Align copy/options with web (specialty/services lists, required fields, validation messages) and prefill business email from session.
 - [ ] Add analytics events for step start/complete/drop-off to shared taxonomy.
 
 ## Dependencies / Notes
@@ -20,3 +20,8 @@ Persist onboarding step and form data locally or via Supabase so users can resum
 ## Success Criteria
 - User can quit/reopen and resume at the same step with data intact.
 - Validation and options match web; analytics show completion/drop-off events.
+
+## Notes
+- Added AsyncStorage-based persistence for onboarding form, custom fields, and current step with automatic restore on launch and clear on completion.
+- Updated service provider update to store `business_email` as a string (web schema parity).
+- Prefills business email from session; specialty/services options align with web defaults.

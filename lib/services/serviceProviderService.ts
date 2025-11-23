@@ -102,7 +102,7 @@ export const serviceProviderService = {
         .update({
           business_name: businessName,
           owner_name: ownerName,
-          business_email: businessEmail ? [businessEmail] : null,
+          business_email: businessEmail || null,
           specialty,
           services_offered: servicesOffered,
           service_area: serviceArea,
