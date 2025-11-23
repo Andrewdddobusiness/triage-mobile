@@ -12,6 +12,7 @@ Allow non-subscribed users to browse key screens in a read-only/preview mode (in
 - [ ] Add inline upsell CTAs on assistant settings, number assignment, and profile to explain Pro benefits; keep price set to 59 AUD/month and “cancel anytime”.
 - [ ] Ensure upgrade entry points are consistent: onboarding payment, subscription screen, gated action modals.
 - [ ] Sync copy/benefits with triage-web and update pricing displays in mobile (payment screen already at 59 AUD).
+- [x] Provide a preview exit on paywalls so new users can continue without subscribing (skip CTA on payment/paymentRenew screens).
 
 ## Dependencies / Notes
 - Uses subscription state from `useSession` (`hasActiveSubscription`, `hasSubscriptionHistory`) and routing in `_layout.tsx`.

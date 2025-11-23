@@ -319,6 +319,11 @@ export default function PaymentScreen() {
             Everything you need to run your trade business professionally
           </Text>
         </View>
+        <TouchableOpacity onPress={() => router.replace("/(tabs)")} className="absolute right-4 top-24">
+          <Text className={`${isDark ? "text-white/80" : "text-gray-600"} underline font-semibold`}>
+            Continue without Pro
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Pricing Card */}
@@ -327,8 +332,8 @@ export default function PaymentScreen() {
           <View className="items-center rounded-2xl">
             <Text className="text-white text-lg font-medium mb-2">Pro Plan</Text>
             <View className="flex-row items-baseline mb-4">
-              <Text className="text-white text-5xl font-bold">$49</Text>
-              <Text className="text-white/80 text-lg ml-2">/month</Text>
+              <Text className="text-white text-5xl font-bold">$59</Text>
+              <Text className="text-white/80 text-lg ml-2">AUD / month</Text>
             </View>
             <Text className="text-white/90 text-center text-base">Everything included • Cancel anytime</Text>
           </View>

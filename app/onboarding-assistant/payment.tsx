@@ -300,6 +300,11 @@ export default function PaymentScreen() {
             Everything you need to run your trade business professionally
           </Text>
         </View>
+        <TouchableOpacity onPress={() => router.replace("/(tabs)")} className="absolute right-4 top-24">
+          <Text className={`${isDark ? "text-white/80" : "text-gray-600"} underline font-semibold`}>
+            Continue without Pro
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Pricing Card */}
