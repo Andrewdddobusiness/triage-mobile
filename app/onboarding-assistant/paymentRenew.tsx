@@ -198,7 +198,7 @@ export default function PaymentScreen() {
             <Text className="text-red-800 font-semibold text-center">Subscription Not Active</Text>
             <Text className="text-red-700 text-sm text-center mt-1">Your payment was cancelled or failed</Text>
           </View>
-          <View className="flex-1">
+          <View className="flex-1 w-full space-y-3">
             <TouchableOpacity
               onPress={() => setScreenState("payment")}
               style={{
@@ -374,35 +374,38 @@ export default function PaymentScreen() {
           paddingBottom: insets.bottom,
         }}
       >
-        <TouchableOpacity
-          onPress={handleSubscribe}
-          disabled={isLoading}
-          style={{
-            alignSelf: "center",
-            borderRadius: 9999,
-            overflow: "hidden",
-            width: "100%",
-            opacity: isLoading ? 0.7 : 1,
-          }}
-        >
-          <LinearGradient
-            colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ paddingVertical: 16, alignItems: "center" }}
+        <View className="space-y-3">
+          <TouchableOpacity
+            onPress={handleSubscribe}
+            disabled={isLoading}
+            style={{
+              alignSelf: "center",
+              borderRadius: 9999,
+              overflow: "hidden",
+              width: "100%",
+              opacity: isLoading ? 0.7 : 1,
+            }}
           >
-            <View className="flex-row items-center justify-center">
-              {isLoading ? (
-                <>
-                  <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />
-                  <Text className="text-white text-lg font-semibold">Processing...</Text>
-                </>
-              ) : (
-                <Text className="text-white text-lg font-semibold">Continue with Payment</Text>
-              )}
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={["#ffb351", "#fe885a", "#ffa2a3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ paddingVertical: 16, alignItems: "center" }}
+            >
+              <View className="flex-row items-center justify-center">
+                {isLoading ? (
+                  <>
+                    <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />
+                    <Text className="text-white text-lg font-semibold">Processing...</Text>
+                  </>
+                ) : (
+                  <Text className="text-white text-lg font-semibold">Continue with Payment</Text>
+                )}
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+
+        </View>
 
         <Text className={`text-center text-xs mt-3 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
           By continuing, you agree to our Terms of Service and Privacy Policy

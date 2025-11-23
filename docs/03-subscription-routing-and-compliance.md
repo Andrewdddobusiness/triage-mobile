@@ -7,14 +7,21 @@ Navigation depends on `hasActiveSubscription/hasSubscriptionHistory`, but routin
 Define and implement a routing matrix for new, trialing, lapsed, and active users; ensure payment success updates state consistently; document the compliance stance (IAP vs allowed external payments) with reviewer notes.
 
 ## Tasks
-- [ ] Map and codify navigation states in `_layout.tsx` and onboarding payment screens with tests.
+- [x] Map and codify navigation states in `_layout.tsx` and onboarding payment screens with tests.
 - [x] Ensure `checkSubscription` (or equivalent) returns a status consumed consistently by payment and routing.
-- [ ] Handle lapsed/failed payments with clear retry messaging; surface subscription history appropriately.
+- [x] Handle lapsed/failed payments with clear retry messaging; surface subscription history appropriately.
 - [ ] Document payment compliance choice and add reviewer note template if external payments are used.
 
 ## Notes
 - `checkSubscription` now returns structured status (`hasActiveSubscription`, `hasSubscriptionHistory`, `subscription`) and callers (payment/paymentRenew) branch on that value instead of assuming a boolean.
 - Added simple in-flight dedupe in `checkSubscription` to avoid overlapping calls from app state/deep link listeners.
+- Added retry/“I already paid — check status” actions to payment and paymentRenew screens so lapsed/returning users can manually verify without re-paying.
+- Routing matrix: unauth → welcome/signIn/signUp; new w/out history → onboarding-assistant/payment; lapsed (history, inactive) → subscription screen with CTA to paymentRenew/portal; active → tabs. `_layout.tsx` gates accordingly.
+
+## Payment compliance (to document)
+- Current flow uses external Stripe checkout. Decide/record App Review stance (external payments for business SaaS) and include a reviewer note template:
+  - “Payments are for B2B SaaS (assistant/telephony). Purchase flow uses Stripe-hosted checkout in the browser; no digital goods for consumers. To verify: sign in with test account, start subscription, complete checkout, return to app and tap ‘I already paid — check status’ if needed.”
+
 
 ## Dependencies / Notes
 - Stripe + Supabase functions; align naming/typing with triage-web subscription handling.
