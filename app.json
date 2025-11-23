@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
-      "googleClientId": "244259622983-d8hokavl2edb0gl050f40rkeak1otq6n.apps.googleusercontent.com",
+      "googleClientIdWeb": "244259622983-d8hokavl2edb0gl050f40rkeak1otq6n.apps.googleusercontent.com",
+      "googleClientIdIos": "244259622983-oc0g6h4n3pamklfcevffjeup6k0pohos.apps.googleusercontent.com",
       "router": {
         "origin": false,
         "initialRouteName": "welcome"
@@ -30,7 +31,7 @@
         "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to help users interact with voice features.",
         "UIBackgroundModes": [],
         "ITSAppUsesNonExemptEncryption": false,
-        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIViewControllerBasedStatusBarAppearance": false,
         "UIStatusBarStyle": "UIStatusBarStyleDarkContent"
       }
     },

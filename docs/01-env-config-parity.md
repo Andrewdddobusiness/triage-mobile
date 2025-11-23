@@ -17,6 +17,7 @@ Audit and document all required environment values and EAS secrets; align bundle
 - Added `.env.example` with required public runtime variables and clearly separated server-side-only secrets that must not ship in mobile builds.
 - Added `npm run env:check` to validate required public variables; it loads `.env.local` if present, otherwise `.env`.
 - README now documents required variables and the safety note about keeping service-role/Twilio secrets out of mobile builds.
+- Set `UIViewControllerBasedStatusBarAppearance` to `false` in `app.json` to satisfy RN StatusBar requirements on iOS builds.
 
 ## Dependencies / Notes
 - Coordinate with Supabase project at repo root; ensure no per-app overrides.

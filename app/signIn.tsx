@@ -167,9 +167,8 @@ export default function SignInScreen() {
           <View className="mb-4" />
         )}
 
-        <TouchableOpacity>
-          <Text className="text-[#202020] underline mb-6">Don't know your password?</Text>
-        </TouchableOpacity>
+        {/* Reset password temporarily disabled on mobile; use web flow if needed */}
+        <View className="mb-6" />
         <TouchableOpacity
           disabled={loading}
           className="mb-4"
