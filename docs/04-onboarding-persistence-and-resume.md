@@ -7,9 +7,10 @@ Onboarding progress and form data may be lost on app kill/background, forcing us
 Persist onboarding step and form data locally or via Supabase so users can resume where they left off; align validation rules and options with triage-web.
 
 ## Tasks
-- [ ] Audit onboarding steps and required fields against web validation rules.
+- [ ] Audit onboarding steps and required fields against web validation rules and Supabase schema (service providers, specialties, services offered).
 - [ ] Add persistence (local storage or Supabase) for form data and current step; restore on launch.
-- [ ] Ensure custom specialty/service fields save and rehydrate correctly.
+- [ ] Ensure custom specialty/service fields save and rehydrate correctly; match web handling.
+- [ ] Align copy/options with web (specialty/services lists, required fields, validation messages).
 - [ ] Add analytics events for step start/complete/drop-off to shared taxonomy.
 
 ## Dependencies / Notes
@@ -19,4 +20,3 @@ Persist onboarding step and form data locally or via Supabase so users can resum
 ## Success Criteria
 - User can quit/reopen and resume at the same step with data intact.
 - Validation and options match web; analytics show completion/drop-off events.
-
