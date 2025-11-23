@@ -4,6 +4,12 @@ import { Session } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { Alert, Linking } from "react-native";
 
+type SubscriptionStatus = {
+  hasActiveSubscription: boolean;
+  hasSubscriptionHistory: boolean;
+  subscription: any;
+};
+
 const AuthContext = createContext<{
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -14,7 +20,7 @@ const AuthContext = createContext<{
   hasSubscriptionHistory: boolean;
   subscriptionData: any;
   subscriptionLoading: boolean;
-  checkSubscription: () => Promise<void>;
+  checkSubscription: () => Promise<SubscriptionStatus>;
   openCustomerPortal: () => Promise<void>;
 }>({
   signIn: async () => {},
@@ -26,7 +32,11 @@ const AuthContext = createContext<{
   hasSubscriptionHistory: false,
   subscriptionData: null,
   subscriptionLoading: false,
-  checkSubscription: async () => {},
+  checkSubscription: async () => ({
+    hasActiveSubscription: false,
+    hasSubscriptionHistory: false,
+    subscription: null,
+  }),
   openCustomerPortal: async () => {},
 });
 
@@ -47,38 +57,72 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [hasSubscriptionHistory, setHasSubscriptionHistory] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [inFlightCheck, setInFlightCheck] = useState<Promise<SubscriptionStatus> | null>(null);
 
-  const checkSubscription = async () => {
+  const checkSubscription = async (): Promise<SubscriptionStatus> => {
     if (!session?.user?.id) {
       setSubscriptionLoading(false);
-      return;
+      return {
+        hasActiveSubscription: false,
+        hasSubscriptionHistory: false,
+        subscription: null,
+      };
+    }
+
+    // Deduplicate concurrent calls by returning the same promise
+    if (inFlightCheck) {
+      return inFlightCheck;
     }
 
     setSubscriptionLoading(true);
 
-    try {
-      const { data, error } = await supabase.functions.invoke("stripe-check-subscription", {
-        body: { userId: session.user.id },
-      });
+    const promise = (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("stripe-check-subscription", {
+          body: { userId: session.user.id },
+        });
 
-      if (error) {
+        if (error) {
+          console.error("Error checking subscription:", error);
+          setHasActiveSubscription(false);
+          setHasSubscriptionHistory(false);
+          setSubscriptionData(null);
+          return {
+            hasActiveSubscription: false,
+            hasSubscriptionHistory: false,
+            subscription: null,
+          };
+        }
+
+        const status: SubscriptionStatus = {
+          hasActiveSubscription: data?.hasActiveSubscription || false,
+          hasSubscriptionHistory: data?.hasSubscriptionHistory || false,
+          subscription: data?.subscription || null,
+        };
+
+        setHasActiveSubscription(status.hasActiveSubscription);
+        setHasSubscriptionHistory(status.hasSubscriptionHistory);
+        setSubscriptionData(status.subscription);
+
+        return status;
+      } catch (error) {
         console.error("Error checking subscription:", error);
         setHasActiveSubscription(false);
         setHasSubscriptionHistory(false);
         setSubscriptionData(null);
-      } else {
-        setHasActiveSubscription(data?.hasActiveSubscription || false);
-        setHasSubscriptionHistory(data?.hasSubscriptionHistory || false);
-        setSubscriptionData(data?.subscription || null);
+        return {
+          hasActiveSubscription: false,
+          hasSubscriptionHistory: false,
+          subscription: null,
+        };
+      } finally {
+        setSubscriptionLoading(false);
+        setInFlightCheck(null);
       }
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-      setHasActiveSubscription(false);
-      setHasSubscriptionHistory(false);
-      setSubscriptionData(null);
-    } finally {
-      setSubscriptionLoading(false);
-    }
+    })();
+
+    setInFlightCheck(promise);
+    return promise;
   };
 
   useEffect(() => {

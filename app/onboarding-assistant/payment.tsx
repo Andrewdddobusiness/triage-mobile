@@ -93,8 +93,9 @@ export default function PaymentScreen() {
     setScreenState("verifying");
 
     try {
-      const success = await checkSubscription();
-      console.log("success: ", success);
+      const status = await checkSubscription();
+      const success = status?.hasActiveSubscription;
+      console.log("subscription status: ", status);
 
       if (success) {
         setScreenState("success");
@@ -132,7 +133,8 @@ export default function PaymentScreen() {
         // User returned to app while payment was in progress
         setTimeout(async () => {
           try {
-            const success = await checkSubscription();
+            const status = await checkSubscription();
+            const success = status?.hasActiveSubscription;
             if (success) {
               setScreenState("success");
               setTimeout(() => {
