@@ -17,7 +17,7 @@ interface AssistantPreset {
 }
 
 export default function AssistantSettingsScreen() {
-  const { session } = useSession();
+  const { session, hasActiveSubscription } = useSession();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [assistantEnabled, setAssistantEnabled] = useState(false);
@@ -32,6 +32,7 @@ export default function AssistantSettingsScreen() {
   const [copied, setCopied] = useState(false);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
+  const isGated = !hasActiveSubscription;
 
   useEffect(() => {
     checkBusinessNumber();
@@ -106,9 +107,10 @@ export default function AssistantSettingsScreen() {
 
       if (assistant) {
         // Only set assistant as enabled if they have a business number
-        setAssistantEnabled(assistant.enabled && hasBusinessNumber);
+        setAssistantEnabled(assistant.enabled && hasBusinessNumber && !isGated);
         setGreeting(assistant.greeting);
         setCurrentPreset(assistant.assistant_preset);
+        setSelectedPresetId(assistant.assistant_preset?.id || null);
       }
 
       // Get phone number
@@ -278,22 +280,39 @@ export default function AssistantSettingsScreen() {
             </Text>
           </View>
         )}
+        {isGated && (
+          <View className="bg-amber-50 border border-amber-200 p-4 mt-4 mx-4 rounded-lg">
+            <View className="flex-row items-center mb-2">
+              <AlertTriangle size={20} color="#f59e0b" />
+              <Text className="text-amber-800 font-semibold ml-2">Upgrade Required</Text>
+            </View>
+            <Text className="text-amber-700">
+              Upgrade to Pro to enable and customize your AI assistant. You can still view your current setup.
+            </Text>
+            <TouchableOpacity onPress={() => router.replace("/onboarding-assistant/payment")} className="mt-3">
+              <Text className="text-orange-500 font-semibold">Upgrade to Pro</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Assistant Status */}
         <View className="bg-white p-4 mt-4 mx-4 rounded-lg">
           <View className="flex-row justify-between items-center">
             <Text className="text-lg font-semibold">AI Assistant Status</Text>
             <Switch
-              value={assistantEnabled && hasBusinessNumber}
+              value={assistantEnabled && hasBusinessNumber && !isGated}
               onValueChange={toggleAssistant}
-              disabled={!hasBusinessNumber}
+              disabled={!hasBusinessNumber || isGated}
             />
           </View>
           <Text className="text-md font-normal">
-            Your AI Assistant is {assistantEnabled && hasBusinessNumber ? "Active" : "Offline"}
+            Your AI Assistant is {assistantEnabled && hasBusinessNumber && !isGated ? "Active" : "Offline"}
           </Text>
           {!hasBusinessNumber && (
             <Text className="text-sm text-amber-600 mt-1">Requires business phone number to activate</Text>
+          )}
+          {isGated && (
+            <Text className="text-sm text-amber-600 mt-1">Requires Pro subscription to activate</Text>
           )}
         </View>
 
@@ -306,7 +325,9 @@ export default function AssistantSettingsScreen() {
             </View>
           </View>
           <Text className="text-zinc-800 text-lg mb-1">{currentPreset?.name || "No assistant selected"}</Text>
-          <Text className="text-zinc-600 mb-3">{currentPreset?.description || ""}</Text>
+          <Text className="text-zinc-600 mb-3">
+            {currentPreset?.description || (isGated ? "Preview available assistants." : "")}
+          </Text>
         </View>
 
         {/* Phone Number Section */}
@@ -340,6 +361,39 @@ export default function AssistantSettingsScreen() {
               shadowOpacity: 0.25,
               shadowRadius: 3.84,
             }}
+            >
+              <LinearGradient
+                colors={["#ffb351", "#fe885a", "#ffa2a3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  width: "100%",
+                  paddingVertical: 14,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
+                Finish setting up your AI assistant!
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        {isGated && (
+          <TouchableOpacity
+            onPress={() => router.replace("/onboarding-assistant/payment")}
+            style={{
+              marginLeft: 16,
+              marginRight: 16,
+              marginTop: hasBusinessNumber ? 16 : 8,
+              borderRadius: 24,
+              overflow: "hidden",
+              elevation: 5,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+            }}
           >
             <LinearGradient
               colors={["#ffb351", "#fe885a", "#ffa2a3"]}
@@ -352,9 +406,7 @@ export default function AssistantSettingsScreen() {
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
-                Finish setting up your AI assistant!
-              </Text>
+              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Upgrade to enable AI assistant</Text>
             </LinearGradient>
           </TouchableOpacity>
         )}

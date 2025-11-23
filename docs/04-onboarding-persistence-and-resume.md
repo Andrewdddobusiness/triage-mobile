@@ -11,7 +11,7 @@ Persist onboarding step and form data locally or via Supabase so users can resum
 - [x] Add persistence (local storage or Supabase) for form data and current step; restore on launch.
 - [x] Ensure custom specialty/service fields save and rehydrate correctly; match web handling.
 - [x] Align copy/options with web (specialty/services lists, required fields, validation messages) and prefill business email from session.
-- [ ] Add analytics events for step start/complete/drop-off to shared taxonomy.
+ - [x] Add analytics events for step start/complete/drop-off to shared taxonomy.
 
 ## Dependencies / Notes
 - Coordinate with web onboarding fields for consistency.

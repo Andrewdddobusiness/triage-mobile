@@ -7,9 +7,10 @@ Assistant preset selection and enablement are dependent on having a business num
 Ensure preset catalog matches triage-web, selection persists to Supabase, and assistant toggles remain disabled until prerequisites (business number) are met with clear copy.
 
 ## Tasks
-- [ ] Load assistant preset list from Supabase and render parity with web (name/description/avatar).
-- [ ] Update assistant preset selection to persist `assistant_preset_id` and confirm state on reload.
-- [ ] Gate the assistant enable toggle on having an assigned business number; show informative messaging.
+- [x] Load assistant preset list from Supabase and render parity with web (name/description/avatar).
+- [x] Update assistant preset selection to persist `assistant_preset_id` and confirm state on reload.
+- [x] Gate the assistant enable toggle on having an assigned business number; show informative messaging.
+- [x] Add upgrade gate: disable toggle when no active subscription with upsell CTA.
 - [ ] Add confirmation/success feedback and error handling for preset updates and toggle changes.
 
 ## Dependencies / Notes
@@ -19,4 +20,3 @@ Ensure preset catalog matches triage-web, selection persists to Supabase, and as
 ## Success Criteria
 - Preset changes are reflected in Supabase and persist across app restarts.
 - Assistant cannot be enabled without a business number; users see clear guidance.
-

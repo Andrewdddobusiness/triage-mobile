@@ -48,11 +48,17 @@ export default function ChoosePresetScreen() {
 
       if (!serviceProvider) throw new Error("No service provider found for current user.");
 
-      const { error } = await supabase.from("service_provider_assistants").insert({
-        service_provider_id: serviceProvider.id,
-        assistant_preset_id: selectedPresetId,
-        assistant_id: selectedPreset.assistant_id,
-      });
+      // Upsert to avoid duplicates
+      const { error } = await supabase.from("service_provider_assistants").upsert(
+        {
+          service_provider_id: serviceProvider.id,
+          assistant_preset_id: selectedPresetId,
+          assistant_id: selectedPreset.assistant_id,
+        },
+        {
+          onConflict: "service_provider_id",
+        }
+      );
 
       if (error) throw error;
 
