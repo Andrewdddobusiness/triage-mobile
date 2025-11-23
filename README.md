@@ -6,6 +6,21 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 The web and mobile apps share a single Supabase workspace at the repository root (`supabase/`). Run Supabase CLI commands (migrations, Edge Functions, local stack) from that directory so both apps stay in sync.
 
+## Environment setup
+
+1) Copy the sample env and fill in values (public keys only for mobile builds):
+
+```bash
+cp .env.example .env.local
+```
+
+Required values:
+- `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `EXPO_PUBLIC_API_URL_PROD`, `EXPO_PUBLIC_API_URL_DEV_IOS`, `EXPO_PUBLIC_API_URL_DEV_ANDROID`
+- `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`, `EXPO_PUBLIC_GOOGLE_CLIENT_ID`
+
+Optional server-side variables (Twilio, Supabase service role, VAPI) are for local backend use only—never ship them in mobile builds. Run `npm run env:check` to verify required values are present.
+
 ## Get started
 
 1. Install dependencies
