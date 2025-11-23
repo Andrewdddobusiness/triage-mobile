@@ -25,3 +25,4 @@ Tracking docs for getting the Expo app production-ready and App Store compliant.
 | [19](./19-data-deletion-and-account-lifecycle.md) | Data deletion/export and account lifecycle | Compliance |
 | [20](./20-pii-handling-and-secure-storage.md) | PII handling, redaction, and secure storage | Security |
 | [21](./21-feature-flags-and-kill-switch.md) | Remote feature flags and kill switch | Reliability |
+| [22](./22-read-only-preview-and-upsells.md) | Read-only preview mode with inline upsells | Growth |
