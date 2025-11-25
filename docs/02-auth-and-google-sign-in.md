@@ -17,6 +17,11 @@ Polish sign-in/up UX, add forgot-password entry, harden Google sign-in (iOS sche
 - Removed reset route from the unauth stack to avoid surfacing it until we revisit.
 - Google config validation and session persistence soak test remain TODO.
 
+## Remaining to close
+- Validate Google Sign-In on a TestFlight build with the current bundle ID/scheme and confirm fallback copy on error.
+- Run a 24h session persistence soak (background/kill) to ensure `startAutoRefresh` + SecureStore survive.
+- Add user-facing error copy for auth failures/network issues (parity with web) and decide whether to surface/reset route in-app or keep web-only.
+
 ## Dependencies / Notes
 - Google OAuth client IDs already in `app.json` extra; confirm against Google Console for prod.
 - Consider adding minimal analytics events for auth success/failure to align with web taxonomy.

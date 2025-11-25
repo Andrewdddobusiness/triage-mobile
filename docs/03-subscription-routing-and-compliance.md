@@ -20,6 +20,10 @@ Define and implement a routing matrix for new, trialing, lapsed, and active user
 - Routing matrix: unauth → welcome/signIn/signUp; new w/out history → onboarding-assistant/payment; lapsed (history, inactive) → subscription screen with CTA to paymentRenew/portal; active → tabs. `_layout.tsx` gates accordingly.
 - Add activation feedback loop (parity with web Ticket 19): show “activating…” with attempt counts, back off after ~20–30s, then surface retry checkout and support CTA instead of reloading the app; log poll attempts/timeouts for support/analytics.
 
+## Remaining to close
+- Build the activation-progress UX (backoff, timeout, retry checkout + support CTA) and log poll attempts/timeouts; remove any reload loops.
+- Document payment compliance stance and add the reviewer note template for App Review.
+
 ## Payment compliance (to document)
 - Current flow uses external Stripe checkout. Decide/record App Review stance (external payments for business SaaS) and include a reviewer note template:
   - “Payments are for B2B SaaS (assistant/telephony). Purchase flow uses Stripe-hosted checkout in the browser; no digital goods for consumers. To verify: sign in with test account, start subscription, complete checkout, return to app and tap ‘I already paid — check status’ if needed.”
