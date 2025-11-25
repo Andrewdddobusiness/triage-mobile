@@ -8,8 +8,8 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 
 ## Tasks
 - [ ] Create a quick visual audit comparing key screens (welcome, onboarding, inbox, assistant, subscription, profile) to web branding.
-- [x] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles (token file added; applied to profile/actions).
-- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly (in progress: profile/action buttons and inbox cards updated).
+- [x] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles (token file added; applied to profile/actions/inbox cards).
+- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly (in progress: profile/action buttons, inbox cards, request actions using shared button).
 - [ ] Add micro-interactions (press scale, toasts for success) and haptics aligned with a11y.
 - [ ] Capture before/after screenshots for approval and App Store assets reuse.
 

@@ -21,6 +21,7 @@ import IconM from "@expo/vector-icons/MaterialCommunityIcons";
 import IconEn from "@expo/vector-icons/Entypo";
 import { trackEvent } from "~/lib/utils/analytics";
 import type CustomerInquiry from "~/stores/customerInquiries";
+import { Button } from "~/components/ui/button";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -265,27 +266,24 @@ export default function RequestDetailScreen() {
 
         {/* Fixed Bottom Actions */}
         <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-          <View className="p-2">
-            <View className="flex-row space-x-3">
-              <Pressable
-                className="flex-1 py-3 px-4 rounded-full flex-row items-center justify-center bg-gray-200"
-                onPress={() =>
-                  Alert.alert(
-                    "Messaging coming soon",
-                    "Mobile messaging will arrive in a future update. For now, use the web dashboard."
-                  )
-                }
-              >
-                <IconEn name="message" size={20} color={"#4b5563"} />
-                <Text className="text-gray-700 font-medium ml-2 text-lg">Message</Text>
-              </Pressable>
-              <Pressable
-                onPress={handleCall}
-                className="flex-1 py-3 px-4 rounded-full flex-row items-center justify-center bg-green-500 group-pressed:bg-green-600"
-              >
-                <Icon6 name="phone" size={18} color={"white"} />
-                <Text className="text-white font-medium ml-2 text-lg">Call Customer</Text>
-              </Pressable>
+          <View className="p-4">
+            <View className="flex-row space-x-12">
+              <View className="flex-1">
+                <Button
+                  variant="secondary"
+                  onPress={() =>
+                    Alert.alert(
+                      "Messaging coming soon",
+                      "Mobile messaging will arrive in a future update. For now, use the web dashboard."
+                    )
+                  }
+                >
+                  Message
+                </Button>
+              </View>
+              <View className="flex-1">
+                <Button onPress={handleCall}>Call Customer</Button>
+              </View>
             </View>
           </View>
         </SafeAreaView>
