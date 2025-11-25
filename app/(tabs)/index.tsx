@@ -137,15 +137,7 @@ export default function InboxScreen() {
       ) : (
         <FlatList
           data={filteredInquiries}
-          renderItem={({ item }) => (
-            <InquiryCard
-              item={{
-                ...item,
-                job_description: item.job_description || undefined,
-                location: item.location || undefined,
-              }}
-            />
-          )}
+          renderItem={({ item }) => <InquiryCard item={item} />}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
             paddingVertical: 16,

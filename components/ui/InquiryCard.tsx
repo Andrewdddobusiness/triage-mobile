@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Wrench, Paintbrush, Zap, Hammer, Construction, Home, Scissors, Truck, HelpCircle } from "lucide-react-native";
+import { palette, radii, shadows } from "~/lib/theme";
 
 type InquiryCardProps = {
   item: {
@@ -81,7 +82,19 @@ export function InquiryCard({ item }: InquiryCardProps) {
       onPress={() => {
         router.push(`/request/${item.id}`);
       }}
-      className="bg-white mb-2 mx-4 rounded-lg shadow-sm overflow-hidden"
+      style={({ pressed }) => [
+        {
+          backgroundColor: palette.surface,
+          marginHorizontal: 16,
+          marginBottom: 12,
+          borderRadius: radii.card,
+          borderWidth: 1,
+          borderColor: palette.border,
+          overflow: "hidden",
+          transform: [{ scale: pressed ? 0.99 : 1 }],
+        },
+        shadows.card,
+      ]}
     >
       <View className="flex-row">
         {/* Left orange accent bar */}
@@ -91,8 +104,15 @@ export function InquiryCard({ item }: InquiryCardProps) {
           {/* Top row: Name and Status */}
           <View className="flex-row justify-between items-center">
             <Text className="text-lg font-bold text-black">{item.name}</Text>
-            <View className={`px-2 py-1 rounded-full ${statusColors.bg}`}>
-              <Text className={`${statusColors.text} text-xs font-medium capitalize`}>{item.status}</Text>
+            <View
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderRadius: radii.pill,
+                backgroundColor: palette.surfaceMuted,
+              }}
+            >
+              <Text className="text-xs font-medium capitalize text-gray-700">{item.status}</Text>
             </View>
           </View>
 
@@ -101,7 +121,19 @@ export function InquiryCard({ item }: InquiryCardProps) {
 
           {/* Job type and date */}
           <View className="flex-row items-center">
-            <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-3">
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: palette.surfaceMuted,
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 12,
+                borderWidth: 1,
+                borderColor: palette.border,
+              }}
+            >
               <Icon size={20} color={color} />
             </View>
             <View className="flex-1">
