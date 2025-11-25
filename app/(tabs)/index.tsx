@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, Platform, TouchableOpacity } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  Platform,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { useCustomerInquiries } from "~/stores/customerInquiries";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { InquiryCard } from "~/components/ui/InquiryCard";
@@ -8,13 +17,15 @@ import { STATUS_FILTERS, IFilterOption, JOB_TYPE_FILTERS } from "~/lib/types/fil
 import { useSession } from "~/lib/auth/ctx";
 
 import IconIon from "@expo/vector-icons/Ionicons";
+import { trackEvent } from "~/lib/utils/analytics";
 
 export default function InboxScreen() {
-  const { inquiries, fetchInquiries, isLoading } = useCustomerInquiries();
+  const { inquiries, fetchInquiries, isLoading, error } = useCustomerInquiries();
   const { session } = useSession();
   const insets = useSafeAreaInsets();
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<IFilterOption>(STATUS_FILTERS.options[0]);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<IFilterOption>(JOB_TYPE_FILTERS.options[0]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Calculate bottom padding to account for tab bar and safe area
   const bottomPadding = Platform.select({
@@ -37,16 +48,23 @@ export default function InboxScreen() {
     setSelectedTypeFilter(option);
   };
 
-  // Filter inquiries based on selected status and job type
-  const filteredInquiries = inquiries.filter((inquiry) => {
-    // Filter by status (if not "all")
-    const statusMatch = selectedStatusFilter.id === "all" || inquiry.status === selectedStatusFilter.id;
+  // Filter inquiries based on selected status, job type, and search
+  const filteredInquiries = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return inquiries.filter((inquiry) => {
+      const statusMatch = selectedStatusFilter.id === "all" || inquiry.status === selectedStatusFilter.id;
+      const typeMatch = selectedTypeFilter.id === "all" || inquiry.job_type === selectedTypeFilter.id;
+      const searchMatch =
+        !query ||
+        inquiry.name.toLowerCase().includes(query) ||
+        inquiry.phone.toLowerCase().includes(query) ||
+        (inquiry.email || "").toLowerCase().includes(query) ||
+        (inquiry.job_description || "").toLowerCase().includes(query) ||
+        (inquiry.location || "").toLowerCase().includes(query);
 
-    // Filter by job type (if not "all")
-    const typeMatch = selectedTypeFilter.id === "all" || inquiry.job_type === selectedTypeFilter.id;
-
-    return statusMatch && typeMatch;
-  });
+      return statusMatch && typeMatch && searchMatch;
+    });
+  }, [inquiries, selectedStatusFilter, selectedTypeFilter, searchQuery]);
 
   if (isLoading && inquiries.length === 0) {
     return (
@@ -59,55 +77,86 @@ export default function InboxScreen() {
 
   return (
     <View className="flex-1 bg-gray-100">
-      {/* Filter Header */}
-      <View className="flex-row bg-white  px-4 py-2 space-x-4">
-        <View className="flex-1">
-          <FilterDropdown
-            options={STATUS_FILTERS.options}
-            selectedOption={selectedStatusFilter}
-            onSelect={handleStatusFilterSelect}
-          />
+      {/* Filters + search */}
+      <View className="bg-white px-4 py-3">
+        <View className="flex-row space-x-4 items-center mb-3">
+          <View className="flex-1">
+            <FilterDropdown
+              options={STATUS_FILTERS.options}
+              selectedOption={selectedStatusFilter}
+              onSelect={handleStatusFilterSelect}
+            />
+          </View>
+          <View className="flex-1">
+            <FilterDropdown
+              options={JOB_TYPE_FILTERS.options}
+              selectedOption={selectedTypeFilter}
+              onSelect={handleTypeFilterSelect}
+            />
+          </View>
         </View>
-        <View className="flex-1">
-          <FilterDropdown
-            options={JOB_TYPE_FILTERS.options}
-            selectedOption={selectedTypeFilter}
-            onSelect={handleTypeFilterSelect}
+        <View className="flex-row items-center px-3 py-2 rounded-full border border-gray-200 bg-gray-50">
+          <IconIon name="search" size={18} color="#6b7280" />
+          <TextInput
+            placeholder="Search name, phone, email, job"
+            placeholderTextColor="#9ca3af"
+            className="flex-1 ml-2 text-gray-800"
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              trackEvent("inbox_search_change");
+            }}
+            returnKeyType="search"
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <IconIon name="close" size={18} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
         </View>
-        <TouchableOpacity
-          className="p-2 rounded-full border border-gray-300"
-          onPress={() => {
-            console.log("Search pressed");
-          }}
-        >
-          <IconIon name="search" size={20} color="#374151" />
-        </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={filteredInquiries}
-        renderItem={({ item }) => (
-          <InquiryCard
-            item={{
-              ...item,
-              job_description: item.job_description || undefined,
-              location: item.location || undefined,
-            }}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          paddingVertical: 16,
-          paddingBottom: bottomPadding,
-        }}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries()} />}
-        ListEmptyComponent={
-          <View className="flex-1 items-center justify-center p-4">
-            <Text className="text-gray-500 text-lg">No job inquiries yet!</Text>
-          </View>
-        }
-      />
+      {error && filteredInquiries.length === 0 ? (
+        <View className="flex-1 items-center justify-center p-6">
+          <Text className="text-red-500 font-semibold mb-2">Couldn’t load inbox.</Text>
+          <Text className="text-gray-600 mb-4 text-center">Pull to refresh or tap retry below.</Text>
+          <TouchableOpacity
+            onPress={() => session?.user && fetchInquiries(true)}
+            className="px-4 py-2 rounded-full bg-orange-500"
+          >
+            <Text className="text-white font-semibold">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredInquiries}
+          renderItem={({ item }) => (
+            <InquiryCard
+              item={{
+                ...item,
+                job_description: item.job_description || undefined,
+                location: item.location || undefined,
+              }}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{
+            paddingVertical: 16,
+            paddingBottom: bottomPadding,
+          }}
+          refreshControl={
+            <RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries(true)} />
+          }
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center p-4">
+              <Text className="text-gray-700 text-lg font-semibold">No inquiries yet</Text>
+              <Text className="text-gray-500 text-center mt-2">
+                Share your business number to start capturing calls. Pull to refresh anytime.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }

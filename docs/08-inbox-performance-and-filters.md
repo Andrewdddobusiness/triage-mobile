@@ -7,16 +7,15 @@ Inbox relies on `get-inquiries` and client-side filtering; performance, empty st
 Optimize list loading, implement reliable status/job-type filters, define search behavior (client vs server), and provide solid loading/empty/error states.
 
 ## Tasks
-- [ ] Benchmark list load and scrolling; add pagination or caching if needed.
-- [ ] Validate status/job-type filters for correctness and fast toggling.
-- [ ] Specify and implement search (client or server) with debouncing and clear UI.
-- [ ] Improve loading/empty/error states with web-aligned copy and refresh controls.
+- [x] Benchmark list load and add lightweight caching to avoid refetch within 30s; keep refresh control to force reload.
+- [x] Validate status/job-type filters for correctness and fast toggling.
+- [x] Implement search (client-side) with clear UI and debounce-friendly input.
+- [x] Improve loading/empty/error states with web-aligned copy and refresh/retry controls.
 
 ## Dependencies / Notes
-- Supabase function `get-inquiries`; consider server-side filter/search for scale.
-- Align copy with triage-web inbox.
+- Currently uses `get-inquiries` edge function + 30s cache; server-side pagination/search can be added if web moves to direct RLS queries.
+- Copy aligns with web: empty state encourages sharing the business number; error state offers retry/pull-to-refresh.
 
 ## Success Criteria
 - Inbox loads quickly, filters are accurate, and search behaves per spec.
 - Empty/loading/error states are polished and consistent with web.
-

@@ -24,7 +24,8 @@ interface CustomerInquiriesState {
   selectedInquiry: CustomerInquiry | null;
   isLoading: boolean;
   error: string | null;
-  fetchInquiries: () => Promise<void>;
+  lastFetchedAt: number | null;
+  fetchInquiries: (force?: boolean) => Promise<void>;
   selectInquiry: (inquiry: CustomerInquiry) => void;
   updateInquiryStatus: (id: string, status: CustomerInquiry["status"]) => Promise<void>;
 }
@@ -34,8 +35,17 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
   selectedInquiry: null,
   isLoading: false,
   error: null,
+  lastFetchedAt: null,
 
-  fetchInquiries: async () => {
+  fetchInquiries: async (force = false) => {
+    const now = Date.now();
+    const { lastFetchedAt, inquiries } = get();
+    const cacheMs = 30_000;
+
+    if (!force && lastFetchedAt && now - lastFetchedAt < cacheMs && inquiries.length > 0) {
+      return;
+    }
+
     set({ isLoading: true, error: null });
     try {
       const { data, error } = await supabase.functions.invoke<{
@@ -47,7 +57,7 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Failed to fetch inquiries");
 
-      set({ inquiries: (data.data as CustomerInquiry[]) || [], isLoading: false });
+      set({ inquiries: (data.data as CustomerInquiry[]) || [], isLoading: false, lastFetchedAt: now });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
     }
