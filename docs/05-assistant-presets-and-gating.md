@@ -12,6 +12,7 @@ Ensure preset catalog matches triage-web, selection persists to Supabase, and as
 - [x] Gate the assistant enable toggle on having an assigned business number; show informative messaging.
 - [x] Add upgrade gate: disable toggle when no active subscription with upsell CTA.
 - [ ] Add confirmation/success feedback and error handling for preset updates and toggle changes.
+- [ ] Instrument preset/toggle changes and gated-action upsell CTAs (impression/click/error) to match web empty/gated analytics.
 
 ## Dependencies / Notes
 - Supabase tables: `assistant_presets`, `service_provider_assistants`, `twilio_phone_numbers`.

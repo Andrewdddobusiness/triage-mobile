@@ -10,6 +10,7 @@ Define and implement a routing matrix for new, trialing, lapsed, and active user
 - [x] Map and codify navigation states in `_layout.tsx` and onboarding payment screens with tests.
 - [x] Ensure `checkSubscription` (or equivalent) returns a status consumed consistently by payment and routing.
 - [x] Handle lapsed/failed payments with clear retry messaging; surface subscription history appropriately.
+- [ ] Replace the “reload until active” loop with a visible activation state (progress/backoff, timeout) and provide retry checkout + “contact support” CTAs while polling Stripe.
 - [ ] Document payment compliance choice and add reviewer note template if external payments are used.
 
 ## Notes
@@ -17,6 +18,7 @@ Define and implement a routing matrix for new, trialing, lapsed, and active user
 - Added simple in-flight dedupe in `checkSubscription` to avoid overlapping calls from app state/deep link listeners.
 - Added retry/“I already paid — check status” actions to payment and paymentRenew screens so lapsed/returning users can manually verify without re-paying.
 - Routing matrix: unauth → welcome/signIn/signUp; new w/out history → onboarding-assistant/payment; lapsed (history, inactive) → subscription screen with CTA to paymentRenew/portal; active → tabs. `_layout.tsx` gates accordingly.
+- Add activation feedback loop (parity with web Ticket 19): show “activating…” with attempt counts, back off after ~20–30s, then surface retry checkout and support CTA instead of reloading the app; log poll attempts/timeouts for support/analytics.
 
 ## Payment compliance (to document)
 - Current flow uses external Stripe checkout. Decide/record App Review stance (external payments for business SaaS) and include a reviewer note template:
