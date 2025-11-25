@@ -20,7 +20,7 @@ import IconIon from "@expo/vector-icons/Ionicons";
 import { trackEvent } from "~/lib/utils/analytics";
 
 export default function InboxScreen() {
-  const { inquiries, fetchInquiries, isLoading, error } = useCustomerInquiries();
+  const { inquiries, fetchInquiries, isLoading, error, isOffline } = useCustomerInquiries();
   const { session } = useSession();
   const insets = useSafeAreaInsets();
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<IFilterOption>(STATUS_FILTERS.options[0]);
@@ -77,6 +77,13 @@ export default function InboxScreen() {
 
   return (
     <View className="flex-1 bg-gray-100">
+      {isOffline && (
+        <View className="bg-amber-50 border-b border-amber-200 px-4 py-2">
+          <Text className="text-amber-800 font-semibold">You’re offline</Text>
+          <Text className="text-amber-700 text-sm">Reconnect and pull to refresh to see new inquiries.</Text>
+        </View>
+      )}
+
       {/* Filters + search */}
       <View className="bg-white px-4 py-3">
         <View className="flex-row space-x-4 items-center mb-3">

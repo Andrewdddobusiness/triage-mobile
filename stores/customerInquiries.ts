@@ -25,6 +25,7 @@ interface CustomerInquiriesState {
   isLoading: boolean;
   error: string | null;
   lastFetchedAt: number | null;
+  isOffline: boolean;
   fetchInquiries: (force?: boolean) => Promise<void>;
   selectInquiry: (inquiry: CustomerInquiry) => void;
   updateInquiryStatus: (id: string, status: CustomerInquiry["status"]) => Promise<void>;
@@ -36,6 +37,7 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
   isLoading: false,
   error: null,
   lastFetchedAt: null,
+  isOffline: false,
 
   fetchInquiries: async (force = false) => {
     const now = Date.now();
@@ -48,18 +50,36 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
 
     set({ isLoading: true, error: null });
     try {
-      const { data, error } = await supabase.functions.invoke<{
+      const fetchPromise = supabase.functions.invoke<{
         success: boolean;
         data?: CustomerInquiry[];
         error?: string;
       }>("get-inquiries");
 
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out. Check your connection and retry.")), 10_000)
+      );
+
+      const { data, error } = (await Promise.race([fetchPromise, timeoutPromise])) as Awaited<
+        ReturnType<typeof supabase.functions.invoke>
+      >;
+
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Failed to fetch inquiries");
 
-      set({ inquiries: (data.data as CustomerInquiry[]) || [], isLoading: false, lastFetchedAt: now });
+      set({
+        inquiries: (data.data as CustomerInquiry[]) || [],
+        isLoading: false,
+        lastFetchedAt: now,
+        isOffline: false,
+      });
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      const message = (error as Error).message;
+      const offline =
+        message?.toLowerCase().includes("network") ||
+        message?.toLowerCase().includes("fetch") ||
+        message?.toLowerCase().includes("timed out");
+      set({ error: message, isLoading: false, isOffline: offline });
     }
   },
 

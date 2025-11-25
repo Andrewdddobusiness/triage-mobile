@@ -9,14 +9,14 @@ Benchmark performance, add lightweight caching for inbox/onboarding data, and im
 ## Tasks
 - [ ] Measure cold start and tab switch latency; address obvious bottlenecks (bundle size, heavy hooks).
 - [x] Add caching/pagination for inquiries; avoid blocking UI while fetching. *(30s cache in store; pagination still to add if needed)*
-- [ ] Implement offline detection and show a standard banner + retry controls for Supabase function failures.
-- [ ] Ensure onboarding/inbox actions handle timeouts gracefully without app-wide spinners.
+- [x] Implement offline detection and show a standard banner + retry controls for Supabase function failures. *(inbox shows offline banner; fetch has timeout + retry)*
+- [x] Ensure onboarding/inbox actions handle timeouts gracefully without app-wide spinners. *(inbox fetch times out after 10s with retry; onboarding unchanged)*
 - [ ] Document performance metrics and offline QA steps.
 
 ## Dependencies / Notes
 - Relates to Ticket 08 (Inbox) and 04 (Onboarding persistence).
 - Consider using query caching or lightweight state persistence; avoid overfetching on focus.
-- Inbox now caches for 30s and supports pull-to-refresh + error retry; add pagination/offline banner next if scale requires.
+- Inbox now caches for 30s, times out after 10s with offline detection, shows an offline banner, and supports pull-to-refresh + error retry; add pagination if scale requires.
 
 ## Success Criteria
 - Acceptable load times on target devices; smooth scroll with large lists.
