@@ -132,7 +132,7 @@ export default function AssistantSettingsScreen() {
   };
 
   const toggleAssistant = async () => {
-    if (!session?.user || !hasBusinessNumber) {
+    if (!session?.user || !hasBusinessNumber || isGated) {
       if (!hasBusinessNumber) {
         Alert.alert(
           "Business Phone Required",
@@ -140,6 +140,15 @@ export default function AssistantSettingsScreen() {
           [
             { text: "Cancel", style: "cancel" },
             { text: "Set Up Phone", onPress: navigateToPhoneNumber },
+          ]
+        );
+      } else if (isGated) {
+        Alert.alert(
+          "Upgrade Required",
+          "Upgrade to Pro to activate your AI assistant.",
+          [
+            { text: "Not now", style: "cancel" },
+            { text: "Upgrade", onPress: () => router.replace("/onboarding-assistant/payment") },
           ]
         );
       }
@@ -162,9 +171,12 @@ export default function AssistantSettingsScreen() {
 
       if (!error) {
         setAssistantEnabled(!assistantEnabled);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert("Assistant updated", !assistantEnabled ? "AI assistant enabled." : "AI assistant disabled.");
       }
     } catch (error) {
       console.error("Error toggling assistant:", error);
+      Alert.alert("Error", "Could not update assistant status. Please try again.");
     }
   };
 
@@ -244,6 +256,7 @@ export default function AssistantSettingsScreen() {
       await fetchAssistantData();
       setModalVisible(false);
       Alert.alert("Success", "Assistant updated successfully");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       console.error("Failed to update assistant:", error);
       Alert.alert("Error", "Could not update assistant. Please try again.");
@@ -452,13 +465,23 @@ export default function AssistantSettingsScreen() {
             <View className="p-4 border-t border-zinc-200">
               <TouchableOpacity
                 onPress={handleUpdateAssistant}
-                disabled={!selectedPresetId || updating}
+                disabled={!selectedPresetId || updating || isGated || !hasBusinessNumber}
                 className={`w-full py-4 rounded-full ${
-                  !selectedPresetId || updating ? "bg-zinc-200" : "bg-orange-500"
+                  !selectedPresetId || updating || isGated || !hasBusinessNumber ? "bg-zinc-200" : "bg-orange-500"
                 } items-center`}
               >
-                <Text className={`font-semibold ${!selectedPresetId || updating ? "text-zinc-500" : "text-white"}`}>
-                  {updating ? "Updating..." : "Update Assistant"}
+                <Text
+                  className={`font-semibold ${
+                    !selectedPresetId || updating || isGated || !hasBusinessNumber ? "text-zinc-500" : "text-white"
+                  }`}
+                >
+                  {updating
+                    ? "Updating..."
+                    : isGated
+                      ? "Upgrade to change"
+                      : !hasBusinessNumber
+                        ? "Assign number first"
+                        : "Update Assistant"}
                 </Text>
               </TouchableOpacity>
             </View>
