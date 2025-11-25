@@ -20,3 +20,5 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 - UI visually matches web tone; reviewers and stakeholders agree it looks production-ready.
 - Screenshots from the app are acceptable for App Store submission.
 
+## Notes
+- No visual audit or token cleanup done yet; gradients/buttons remain ad-hoc across onboarding/assistant/inbox. Requires design pass.

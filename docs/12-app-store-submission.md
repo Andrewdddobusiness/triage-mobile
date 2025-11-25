@@ -13,6 +13,13 @@ Prepare all submission artifacts: metadata, screenshots, privacy responses, revi
 - [ ] Draft reviewer notes including demo credentials, call/recording behavior, and payment compliance stance.
 - [ ] Validate production EAS build (bundle id/team id/merchant id) and upload to App Store Connect.
 
+## Reviewer notes draft (to finalize)
+- Purpose: B2B SaaS for tradies. Calls open the native dialer; no in-app VoIP. Recordings are not playable in-app; they are viewed via the web dashboard.
+- Payments: external Stripe checkout for business SaaS (no in-app purchases). Price: 59 AUD/month. After checkout, tap “I already paid — check status” if needed.
+- Test account: \<provide email/pass> (Pro) and \<provide email/pass> (no subscription) for reviewer use.
+- Flows to verify: sign in → onboarding → assistant preset (gated until business number) → assign number (waitlist shown if none) → enable assistant (requires subscription + number) → inbox read-only + call via native dialer → profile shows plan badge/number.
+- Permissions: microphone/camera requested but no background modes; no call recording in-app. No ads. Encryption non-exempt.
+
 ## Dependencies / Notes
 - Relies on Ticket 07 for call/recording behavior and Ticket 03 for payment compliance.
 - Use `ios-app-store-submission.md` (root docs) as a reference checklist.
@@ -20,4 +27,3 @@ Prepare all submission artifacts: metadata, screenshots, privacy responses, revi
 ## Success Criteria
 - Submission-ready metadata/assets complete and reviewed.
 - App Store Connect binary uploaded and passes initial validation; reviewer notes prepared.
-

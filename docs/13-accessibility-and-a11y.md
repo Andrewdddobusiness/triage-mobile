@@ -21,3 +21,7 @@ Audit and fix accessibility for critical screens, ensure gradients/buttons meet 
 - VoiceOver can navigate and activate all primary flows with meaningful labels.
 - Contrast/haptic guidance passes manual QA; no accessibility-related App Review blockers.
 
+## Notes / current state
+- Haptics added on key flows (assistant toggle/preset, phone assignment, call gating) but not yet standardized app-wide.
+- No explicit accessibility labels audit has been done; gradients/buttons need contrast review across onboarding, assistant, subscription, inbox.
+- Add a11y checklist to regression suite once audit fixes land.
