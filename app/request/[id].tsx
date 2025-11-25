@@ -1,7 +1,7 @@
 // /app/request/[id].ts - Updated with Hardcoded Call Button Functionality
 
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Clipboard, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Clipboard, Alert, Linking } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MapPin, ArrowLeft, Copy, Check } from "lucide-react-native";
@@ -10,6 +10,7 @@ import { useCustomerInquiries } from "../../stores/customerInquiries";
 import Icon6 from "@expo/vector-icons/FontAwesome6";
 import IconM from "@expo/vector-icons/MaterialCommunityIcons";
 import IconEn from "@expo/vector-icons/Entypo";
+import { trackEvent } from "~/lib/utils/analytics";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -59,8 +60,25 @@ export default function RequestDetailScreen() {
     });
   };
 
-  const handleCall = () => {
-    router.push(`/request/${id}/call`);
+  const handleCall = async () => {
+    if (!selectedInquiry.phone) {
+      Alert.alert("No phone number", "This request does not include a phone number.");
+      return;
+    }
+    const telUrl = `tel:${selectedInquiry.phone}`;
+    trackEvent("request_call_attempt", { requestId: id });
+    try {
+      const canOpen = await Linking.canOpenURL(telUrl);
+      if (!canOpen) {
+        throw new Error("Cannot open dialer");
+      }
+      await Linking.openURL(telUrl);
+      trackEvent("request_call_opened", { requestId: id });
+    } catch (err) {
+      console.error("Failed to open dialer", err);
+      trackEvent("request_call_error", { requestId: id, message: (err as Error)?.message });
+      Alert.alert("Unable to place call", "Please try again or call from your phone app.");
+    }
   };
 
   const copyToClipboard = (text: string, field: string) => {
@@ -187,22 +205,17 @@ export default function RequestDetailScreen() {
                 <Text className="text-xl font-semibold">Call Recording</Text>
                 <Icon6 name="robot" size={18} color={"#fe885a"} />
               </View>
-              <Text className="text-gray-600 text-lg">Call recording available</Text>
+              <Text className="text-gray-600 text-lg">
+                Recording available in the dashboard. Mobile playback coming soon.
+              </Text>
             </View>
           )}
         </ScrollView>
 
         {/* Fixed Bottom Actions */}
-        {/* <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+        <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
           <View className="p-2">
             <View className="flex-row">
-              <Pressable
-                className="flex-1 bg-blue-500 py-3 px-4 rounded-full mr-2 flex-row items-center justify-center"
-                onPress={() => router.push(`/request/${id}/messages`)}
-              >
-                <IconEn name="message" size={24} color={"white"} />
-                <Text className="text-white font-medium ml-2 text-lg">Message Customer</Text>
-              </Pressable>
               <Pressable
                 onPress={handleCall}
                 className="flex-1 py-3 px-4 rounded-full flex-row items-center justify-center bg-green-500 group-pressed:bg-green-600"
@@ -212,7 +225,7 @@ export default function RequestDetailScreen() {
               </Pressable>
             </View>
           </View>
-        </SafeAreaView> */}
+        </SafeAreaView>
       </View>
     </>
   );
