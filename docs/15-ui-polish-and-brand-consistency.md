@@ -8,8 +8,8 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 
 ## Tasks
 - [ ] Create a quick visual audit comparing key screens (welcome, onboarding, inbox, assistant, subscription, profile) to web branding.
-- [ ] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles.
-- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly.
+- [x] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles (token file added; applied to profile/actions).
+- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly (in progress: profile/action buttons updated).
 - [ ] Add micro-interactions (press scale, toasts for success) and haptics aligned with a11y.
 - [ ] Capture before/after screenshots for approval and App Store assets reuse.
 
@@ -22,6 +22,6 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 - Screenshots from the app are acceptable for App Store submission.
 
 ## Notes
-- No visual audit or token cleanup done yet; gradients/buttons remain ad-hoc across onboarding/assistant/inbox. Requires design pass.
-- Awaiting design direction to apply shared tokens and capture before/after screenshots; all tasks remain open.
+- Tokens added (`lib/theme.ts`) with palette/radii/shadows; profile + action buttons now use the shared surface/border/shadow and press-scale micro-interaction.
+- Remaining: apply tokens to inbox/assistant/onboarding, unify empty states, and capture before/after screens.
 - Proposed direction: sturdy palette (charcoal base, orange primary, amber accent, cool grays), single typeface (e.g., Sora/Manrope), 8px spacing grid, consistent radii (12/24), subtle shadows, limited gradients for hero CTAs, consistent card/button/input styles, and small motion (press scale, toast on success). Empty states should use a unified card pattern with CTA; inbox/assistant/profile to adopt shared card/button components first.

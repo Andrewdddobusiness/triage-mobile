@@ -26,6 +26,7 @@ import IconF from "@expo/vector-icons/FontAwesome";
 import IconEn from "@expo/vector-icons/Entypo";
 import IconIon from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
+import { palette, radii, shadows } from "~/lib/theme";
 
 export default function ProfileScreen() {
   const {
@@ -147,33 +148,65 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-zinc-100"
+      className="flex-1"
       contentContainerStyle={{
         paddingBottom: insets.bottom + 80,
+        backgroundColor: palette.surfaceMuted,
       }}
     >
       {/* Profile Header */}
-      <View className="bg-white p-6 items-center">
+      <View
+        className="items-center"
+        style={[
+          {
+            backgroundColor: palette.surface,
+            padding: 24,
+            marginHorizontal: 16,
+            marginTop: 16,
+            borderRadius: radii.card,
+            borderWidth: 1,
+            borderColor: palette.border,
+          },
+          shadows.card,
+        ]}
+      >
         {/* Profile Image with Edit Button */}
         <View className="relative">
-          <View className="w-24 h-24 rounded-full bg-zinc-100 items-center justify-center">
+          <View
+            className="items-center justify-center"
+            style={{
+              width: 96,
+              height: 96,
+              borderRadius: 48,
+              backgroundColor: palette.surfaceMuted,
+              borderWidth: 1,
+              borderColor: palette.border,
+            }}
+          >
             <User size={36} color="#adb5bd" />
           </View>
         </View>
 
         {/* User Info */}
-        <Text className="text-xl font-semibold mt-4 text-[#495057]">{userProfile.name}</Text>
+        <Text className="text-xl font-semibold mt-4 text-[#111827]">{userProfile.name}</Text>
 
         {/* Subscription Plan */}
         {hasActiveSubscription ? (
-          <View className="mt-1 px-3 py-1 rounded-full bg-[#fe885a]/10 flex-row items-center">
+          <View
+            className="flex-row items-center"
+            style={{
+              marginTop: 4,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: radii.pill,
+              backgroundColor: "#fe885a1a",
+            }}
+          >
             <Crown size={14} color="#fe885a" />
             <Text className="text-sm font-medium text-[#fe885a] ml-1">Pro Plan</Text>
           </View>
         ) : (
-          <View className="mt-1 px-3 py-1 rounded-full bg-gray-100">
-            <Text className="text-sm font-medium text-gray-500">No active plan</Text>
-          </View>
+          <Text className="text-sm font-medium text-gray-500 mt-1">No active plan</Text>
         )}
 
         {/* Business Phone Number */}
@@ -182,7 +215,11 @@ export default function ProfileScreen() {
             <Text className="text-sm text-gray-500 mb-1">Provided Business Number</Text>
             <View className="flex-row items-center">
               <Text className="text-base text-[#fe885a] font-medium">{businessNumber}</Text>
-              <Pressable onPress={copyToClipboard} className="ml-2">
+              <Pressable
+                onPress={copyToClipboard}
+                className="ml-2"
+                style={{ padding: 6, borderRadius: radii.button, backgroundColor: palette.surfaceMuted }}
+              >
                 {copied ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#fe885a" />}
               </Pressable>
             </View>
@@ -195,7 +232,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Actions List */}
-      <View className="mt-4 space-y-px">
+      <View className="mt-4 space-y-3 px-4">
         <ProfileActionButton
           label="Subscription"
           icon={<Crown size={20} color="#adb5bd" />}
