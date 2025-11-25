@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Image, Pressable, Clipboard, Alert, Linking } from "react-native";
+import { View, ScrollView, Pressable, Clipboard, Linking } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,8 +20,8 @@ import {
 } from "lucide-react-native";
 import { userService } from "~/lib/services/userService";
 import { supabase } from "~/lib/supabase";
+import { trackEvent } from "~/lib/utils/analytics";
 
-import Icon5 from "@expo/vector-icons/FontAwesome5";
 import IconF from "@expo/vector-icons/FontAwesome";
 import IconEn from "@expo/vector-icons/Entypo";
 import IconIon from "@expo/vector-icons/Ionicons";
@@ -42,6 +42,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [businessNumber, setBusinessNumber] = useState("");
   const [copied, setCopied] = useState(false);
+  const [supportLinkError, setSupportLinkError] = useState<string | null>(null);
 
   // Get user data from session
   useEffect(() => {
@@ -98,6 +99,7 @@ export default function ProfileScreen() {
     if (businessNumber) {
       Clipboard.setString(businessNumber);
       setCopied(true);
+      trackEvent("profile_business_number_copied");
     }
   };
 

@@ -7,10 +7,10 @@ Profile/help screens may omit key account management from web (email/password ch
 Align profile/account/help with triage-web: show plan badge and business number, expose account management or document deferral, and ensure help links work.
 
 ## Tasks
-- [ ] Ensure profile shows user name, plan badge, and business number with copy-to-clipboard feedback.
-- [ ] Add navigation to account settings (email/password/business details) or document planned defer.
+- [x] Ensure profile shows user name, plan badge, and business number with copy-to-clipboard feedback.
+- [x] Add navigation to account settings (email/password/business details) or document planned defer.
 - [ ] Align help/FAQ content and external links; verify they open correctly on iOS.
-- [ ] Confirm logout clears auth state and resets navigation.
+- [x] Confirm logout clears auth state and resets navigation.
 
 ## Dependencies / Notes
 - Supabase profile data and twilio_phone_numbers; reuse copy from web.
@@ -20,3 +20,5 @@ Align profile/account/help with triage-web: show plan badge and business number,
 - Profile/help parity with web validated on device; links and logout behave correctly.
 - Any deferred account features are documented with rationale.
 
+## Remaining to close
+- Wire help/FAQ links with a quick QA on iOS (open external links) and add inline copy parity with web help content.
