@@ -8,6 +8,7 @@ import { supabase } from "~/lib/supabase";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { trackEvent } from "~/lib/utils/analytics";
 
 interface AssistantPreset {
   id: string;
@@ -29,6 +30,7 @@ export default function AssistantSettingsScreen() {
   const [presets, setPresets] = useState<AssistantPreset[]>([]);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [togglingAssistant, setTogglingAssistant] = useState(false);
   const [copied, setCopied] = useState(false);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
@@ -78,7 +80,20 @@ export default function AssistantSettingsScreen() {
   useEffect(() => {
     fetchAssistantData();
     fetchPresets();
+    trackEvent("assistant_settings_viewed", { hasActiveSubscription, hasBusinessNumber });
   }, [session]);
+
+  useEffect(() => {
+    if (!checkingBusinessNumber && !hasBusinessNumber) {
+      trackEvent("assistant_gate_impression", { reason: "missing_business_number" });
+    }
+  }, [checkingBusinessNumber, hasBusinessNumber]);
+
+  useEffect(() => {
+    if (isGated) {
+      trackEvent("assistant_gate_impression", { reason: "subscription" });
+    }
+  }, [isGated]);
 
   const fetchAssistantData = async () => {
     if (!session?.user) return;
@@ -134,6 +149,7 @@ export default function AssistantSettingsScreen() {
   const toggleAssistant = async () => {
     if (!session?.user || !hasBusinessNumber || isGated) {
       if (!hasBusinessNumber) {
+        trackEvent("assistant_toggle_blocked", { reason: "missing_business_number" });
         Alert.alert(
           "Business Phone Required",
           "You need to set up a business phone number before activating your AI assistant.",
@@ -143,6 +159,7 @@ export default function AssistantSettingsScreen() {
           ]
         );
       } else if (isGated) {
+        trackEvent("assistant_toggle_blocked", { reason: "subscription" });
         Alert.alert(
           "Upgrade Required",
           "Upgrade to Pro to activate your AI assistant.",
@@ -154,6 +171,9 @@ export default function AssistantSettingsScreen() {
       }
       return;
     }
+
+    if (togglingAssistant) return;
+    setTogglingAssistant(true);
 
     try {
       const { data: serviceProvider } = await supabase
@@ -169,14 +189,19 @@ export default function AssistantSettingsScreen() {
         .update({ enabled: !assistantEnabled })
         .eq("service_provider_id", serviceProvider.id);
 
-      if (!error) {
-        setAssistantEnabled(!assistantEnabled);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert("Assistant updated", !assistantEnabled ? "AI assistant enabled." : "AI assistant disabled.");
-      }
+      if (error) throw error;
+
+      const nextEnabled = !assistantEnabled;
+      setAssistantEnabled(nextEnabled);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      trackEvent("assistant_toggle_success", { enabled: nextEnabled });
+      Alert.alert("Assistant updated", nextEnabled ? "AI assistant enabled." : "AI assistant disabled.");
     } catch (error) {
       console.error("Error toggling assistant:", error);
+      trackEvent("assistant_toggle_error", { message: (error as Error)?.message });
       Alert.alert("Error", "Could not update assistant status. Please try again.");
+    } finally {
+      setTogglingAssistant(false);
     }
   };
 
@@ -235,7 +260,9 @@ export default function AssistantSettingsScreen() {
   const handleUpdateAssistant = async () => {
     if (!selectedPresetId || !session?.user) return;
 
+    const previousPresetId = currentPreset?.id || null;
     setUpdating(true);
+    trackEvent("assistant_preset_update_attempt", { presetId: selectedPresetId });
     try {
       const { data: serviceProvider } = await supabase
         .from("service_providers")
@@ -252,13 +279,23 @@ export default function AssistantSettingsScreen() {
 
       if (error) throw error;
 
-      // Refresh assistant data
+      // Optimistically update current preset before refetching
+      const nextPreset = presets.find((p) => p.id === selectedPresetId) || currentPreset;
+      setCurrentPreset(nextPreset || null);
+
       await fetchAssistantData();
       setModalVisible(false);
       Alert.alert("Success", "Assistant updated successfully");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      trackEvent("assistant_preset_update_success", { presetId: selectedPresetId });
     } catch (error) {
       console.error("Failed to update assistant:", error);
+      setSelectedPresetId(previousPresetId);
+      if (previousPresetId) {
+        const previousPreset = presets.find((p) => p.id === previousPresetId);
+        setCurrentPreset(previousPreset || null);
+      }
+      trackEvent("assistant_preset_update_error", { presetId: selectedPresetId, message: (error as Error)?.message });
       Alert.alert("Error", "Could not update assistant. Please try again.");
     } finally {
       setUpdating(false);
@@ -302,7 +339,13 @@ export default function AssistantSettingsScreen() {
             <Text className="text-amber-700">
               Upgrade to Pro to enable and customize your AI assistant. You can still view your current setup.
             </Text>
-            <TouchableOpacity onPress={() => router.replace("/onboarding-assistant/payment")} className="mt-3">
+            <TouchableOpacity
+              onPress={() => {
+                trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription_banner" });
+                router.replace("/onboarding-assistant/payment");
+              }}
+              className="mt-3"
+            >
               <Text className="text-orange-500 font-semibold">Upgrade to Pro</Text>
             </TouchableOpacity>
           </View>
@@ -315,7 +358,7 @@ export default function AssistantSettingsScreen() {
             <Switch
               value={assistantEnabled && hasBusinessNumber && !isGated}
               onValueChange={toggleAssistant}
-              disabled={!hasBusinessNumber || isGated}
+              disabled={!hasBusinessNumber || isGated || togglingAssistant}
             />
           </View>
           <Text className="text-md font-normal">
@@ -341,6 +384,18 @@ export default function AssistantSettingsScreen() {
           <Text className="text-zinc-600 mb-3">
             {currentPreset?.description || (isGated ? "Preview available assistants." : "")}
           </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(true);
+              trackEvent("assistant_preset_modal_opened");
+            }}
+            className="mt-2 self-start px-4 py-2 rounded-full bg-zinc-100 border border-zinc-200"
+            disabled={isGated}
+          >
+            <Text className={`font-semibold ${isGated ? "text-zinc-400" : "text-orange-500"}`}>
+              {isGated ? "Upgrade to change" : "Change assistant"}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Phone Number Section */}
@@ -361,7 +416,10 @@ export default function AssistantSettingsScreen() {
 
         {!hasBusinessNumber && (
           <TouchableOpacity
-            onPress={navigateToPhoneNumber}
+            onPress={() => {
+              trackEvent("assistant_gated_cta_click", { cta: "assign_phone" });
+              navigateToPhoneNumber();
+            }}
             style={{
               marginLeft: 16,
               marginRight: 16,
@@ -394,7 +452,10 @@ export default function AssistantSettingsScreen() {
           )}
         {isGated && (
           <TouchableOpacity
-            onPress={() => router.replace("/onboarding-assistant/payment")}
+            onPress={() => {
+              trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription" });
+              router.replace("/onboarding-assistant/payment");
+            }}
             style={{
               marginLeft: 16,
               marginRight: 16,
@@ -443,15 +504,18 @@ export default function AssistantSettingsScreen() {
                   return (
                     <TouchableOpacity
                       key={preset.id}
-                      onPress={() => setSelectedPresetId(preset.id)}
+                      onPress={() => {
+                        setSelectedPresetId(preset.id);
+                        trackEvent("assistant_preset_selected", { presetId: preset.id });
+                      }}
                       className={`w-[48%] aspect-square rounded-xl border-2 ${
                         isSelected ? "border-orange-500" : "border-zinc-200"
                       } relative items-center justify-center py-4 bg-zinc-50`}
                     >
                       {isSelected && (
-                        <View className="absolute top-2 right-2">
-                          <CheckCircle2 size={20} color="#f97316" />
-                        </View>
+                    <View className="absolute top-2 right-2">
+                      <CheckCircle2 size={20} color="#f97316" />
+                    </View>
                       )}
                       <Image source={{ uri: preset.avatar_url }} className="w-20 h-20 mb-2" />
                       <Text className="text-base font-bold text-zinc-800">{preset.name}</Text>
