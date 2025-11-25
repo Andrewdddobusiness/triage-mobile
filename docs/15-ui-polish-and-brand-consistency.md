@@ -8,8 +8,9 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 
 ## Tasks
 - [ ] Create a quick visual audit comparing key screens (welcome, onboarding, inbox, assistant, subscription, profile) to web branding.
-- [ ] Apply shared design tokens for colors/typography and reduce ad-hoc inline styles.
-- [ ] Standardize button styles, cards, and empty states; ensure backgrounds/gradients feel intentional.
+- [ ] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles.
+- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly.
+- [ ] Add micro-interactions (press scale, toasts for success) and haptics aligned with a11y.
 - [ ] Capture before/after screenshots for approval and App Store assets reuse.
 
 ## Dependencies / Notes
@@ -22,3 +23,5 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 
 ## Notes
 - No visual audit or token cleanup done yet; gradients/buttons remain ad-hoc across onboarding/assistant/inbox. Requires design pass.
+- Awaiting design direction to apply shared tokens and capture before/after screenshots; all tasks remain open.
+- Proposed direction: sturdy palette (charcoal base, orange primary, amber accent, cool grays), single typeface (e.g., Sora/Manrope), 8px spacing grid, consistent radii (12/24), subtle shadows, limited gradients for hero CTAs, consistent card/button/input styles, and small motion (press scale, toast on success). Empty states should use a unified card pattern with CTA; inbox/assistant/profile to adopt shared card/button components first.
