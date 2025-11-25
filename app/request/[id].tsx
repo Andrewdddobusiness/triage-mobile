@@ -1,7 +1,16 @@
 // /app/request/[id].ts - Updated with Hardcoded Call Button Functionality
 
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Clipboard, Alert, Linking } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  Clipboard,
+  Alert,
+  Linking,
+} from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MapPin, ArrowLeft, Copy, Check } from "lucide-react-native";
@@ -11,11 +20,19 @@ import Icon6 from "@expo/vector-icons/FontAwesome6";
 import IconM from "@expo/vector-icons/MaterialCommunityIcons";
 import IconEn from "@expo/vector-icons/Entypo";
 import { trackEvent } from "~/lib/utils/analytics";
+import type CustomerInquiry from "~/stores/customerInquiries";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
-  const { selectedInquiry, selectInquiry, inquiries, isLoading } = useCustomerInquiries();
+  const { selectedInquiry, selectInquiry, inquiries, isLoading, updateInquiryStatus, error } = useCustomerInquiries();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const statusOptions: { id: CustomerInquiry["status"]; label: string }[] = [
+    { id: "new", label: "New" },
+    { id: "contacted", label: "Contacted" },
+    { id: "scheduled", label: "Scheduled" },
+    { id: "completed", label: "Completed" },
+    { id: "cancelled", label: "Cancelled" },
+  ];
 
   useEffect(() => {
     const inquiry = inquiries.find((inq) => inq.id === id);
@@ -78,6 +95,18 @@ export default function RequestDetailScreen() {
       console.error("Failed to open dialer", err);
       trackEvent("request_call_error", { requestId: id, message: (err as Error)?.message });
       Alert.alert("Unable to place call", "Please try again or call from your phone app.");
+    }
+  };
+
+  const handleStatusChange = async (nextStatus: CustomerInquiry["status"]) => {
+    if (!selectedInquiry || selectedInquiry.status === nextStatus) return;
+    trackEvent("request_status_change_attempt", { requestId: id, nextStatus });
+    try {
+      await updateInquiryStatus(selectedInquiry.id, nextStatus);
+      trackEvent("request_status_change_success", { requestId: id, nextStatus });
+    } catch (err) {
+      trackEvent("request_status_change_error", { requestId: id, nextStatus, message: (err as Error)?.message });
+      Alert.alert("Could not update status", "Please try again.");
     }
   };
 
@@ -160,6 +189,28 @@ export default function RequestDetailScreen() {
             )}
           </View>
 
+          {/* Status controls */}
+          <View className="bg-white p-4 mb-2">
+            <Text className="text-xl font-semibold mb-3">Status</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {statusOptions.map((opt) => {
+                const isActive = selectedInquiry.status === opt.id;
+                return (
+                  <Pressable
+                    key={opt.id}
+                    onPress={() => handleStatusChange(opt.id)}
+                    className={`px-4 py-2 rounded-full border ${
+                      isActive ? "bg-orange-100 border-orange-400" : "bg-gray-100 border-gray-200"
+                    }`}
+                  >
+                    <Text className={isActive ? "text-orange-700 font-semibold" : "text-gray-700"}>{opt.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {error ? <Text className="text-red-600 mt-2">Could not update. Pull to refresh and try again.</Text> : null}
+          </View>
+
           {/* Project Details Section */}
           <View className="bg-white p-4 mb-2">
             <Text className="text-xl font-semibold mb-3">Details</Text>
@@ -215,7 +266,19 @@ export default function RequestDetailScreen() {
         {/* Fixed Bottom Actions */}
         <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
           <View className="p-2">
-            <View className="flex-row">
+            <View className="flex-row space-x-3">
+              <Pressable
+                className="flex-1 py-3 px-4 rounded-full flex-row items-center justify-center bg-gray-200"
+                onPress={() =>
+                  Alert.alert(
+                    "Messaging coming soon",
+                    "Mobile messaging will arrive in a future update. For now, use the web dashboard."
+                  )
+                }
+              >
+                <IconEn name="message" size={20} color={"#4b5563"} />
+                <Text className="text-gray-700 font-medium ml-2 text-lg">Message</Text>
+              </Pressable>
               <Pressable
                 onPress={handleCall}
                 className="flex-1 py-3 px-4 rounded-full flex-row items-center justify-center bg-green-500 group-pressed:bg-green-600"

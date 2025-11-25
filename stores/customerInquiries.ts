@@ -68,7 +68,20 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
   },
 
   updateInquiryStatus: async (id, status) => {
-    set({ isLoading: true, error: null });
+    const previousInquiries = get().inquiries;
+    const previousSelected = get().selectedInquiry;
+
+    // Optimistically update UI
+    const optimistic = previousInquiries.map((inquiry) =>
+      inquiry.id === id ? { ...inquiry, status, updated_at: new Date().toISOString() } : inquiry
+    );
+    set({
+      isLoading: true,
+      error: null,
+      inquiries: optimistic,
+      selectedInquiry: previousSelected && previousSelected.id === id ? { ...previousSelected, status } : previousSelected,
+    });
+
     try {
       const { data, error } = await supabase
         .from("customer_inquiries")
@@ -82,9 +95,19 @@ export const useCustomerInquiries = create<CustomerInquiriesState>((set, get) =>
       // Update the inquiries list with the updated inquiry
       const inquiries = get().inquiries.map((inquiry) => (inquiry.id === id ? (data as CustomerInquiry) : inquiry));
 
-      set({ inquiries, isLoading: false });
+      set({
+        inquiries,
+        isLoading: false,
+        selectedInquiry: get().selectedInquiry?.id === id ? (data as CustomerInquiry) : get().selectedInquiry,
+      });
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      // Roll back optimistic update on error
+      set({
+        error: (error as Error).message,
+        isLoading: false,
+        inquiries: previousInquiries,
+        selectedInquiry: previousSelected,
+      });
     }
   },
 }));
