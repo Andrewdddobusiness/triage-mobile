@@ -15,6 +15,8 @@ export function ProfileActionButton({ label, onPress, icon, variant = "default" 
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
       style={({ pressed }) => [
         {
           backgroundColor: palette.surface,

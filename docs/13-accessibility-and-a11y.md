@@ -7,7 +7,7 @@ Key flows (auth, onboarding, inbox, assistant setup) may lack VoiceOver labels, 
 Audit and fix accessibility for critical screens, ensure gradients/buttons meet contrast, add meaningful accessibility labels, and standardize haptics where appropriate.
 
 ## Tasks
-- [ ] Run VoiceOver audit on sign-in, onboarding, inbox, request detail, assistant settings, subscription; add accessibilityLabel/hint where missing.
+- [ ] Run VoiceOver audit on sign-in, onboarding, inbox, request detail, assistant settings, subscription; add accessibilityLabel/hint where missing (added labels to shared buttons/cards/filters/inquiry cards).
 - [ ] Ensure focus order and keyboard navigation (where applicable) are logical; avoid trapping focus inside modals.
 - [ ] Check color contrast on gradients/buttons/text; adjust tokens or add alternate styles for dark/light modes.
 - [ ] Standardize haptics: use consistent feedback for success, errors, and toggles; allow disable if needed.
@@ -24,4 +24,5 @@ Audit and fix accessibility for critical screens, ensure gradients/buttons meet 
 ## Notes / current state
 - Haptics added on key flows (assistant toggle/preset, phone assignment, call gating) but not yet standardized app-wide.
 - No explicit accessibility labels audit has been done; gradients/buttons need contrast review across onboarding, assistant, subscription, inbox.
+- Added accessibilityRole/labels to shared Button, ProfileActionButton, FilterDropdown, and InquiryCard; still need a broader audit and contrast pass.
 - Add a11y checklist to regression suite once audit fixes land.

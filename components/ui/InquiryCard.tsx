@@ -82,6 +82,8 @@ export function InquiryCard({ item }: InquiryCardProps) {
       onPress={() => {
         router.push(`/request/${item.id}`);
       }}
+      accessibilityRole="button"
+      accessibilityLabel={`Inquiry from ${item.name}, status ${item.status}`}
       style={({ pressed }) => [
         {
           backgroundColor: palette.surface,

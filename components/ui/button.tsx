@@ -11,14 +11,18 @@ interface ButtonProps {
   loading?: boolean;
   variant?: Variant;
   style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
-export function Button({ children, onPress, disabled, loading, variant = "primary", style }: ButtonProps) {
+export function Button({ children, onPress, disabled, loading, variant = "primary", style, accessibilityLabel }: ButtonProps) {
   const isDisabled = disabled || loading;
   return (
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || (typeof children === "string" ? children : undefined)}
+      accessible
       style={({ pressed }) => [
         styles.base,
         variantStyles[variant],
