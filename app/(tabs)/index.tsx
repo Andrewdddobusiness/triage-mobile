@@ -18,6 +18,7 @@ import { useSession } from "~/lib/auth/ctx";
 
 import IconIon from "@expo/vector-icons/Ionicons";
 import { trackEvent } from "~/lib/utils/analytics";
+import { EmptyState } from "~/components/ui/empty-state";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading, error, isOffline } = useCustomerInquiries();
@@ -147,11 +148,11 @@ export default function InboxScreen() {
             <RefreshControl refreshing={isLoading} onRefresh={() => session?.user && fetchInquiries(true)} />
           }
           ListEmptyComponent={
-            <View className="flex-1 items-center justify-center p-4">
-              <Text className="text-gray-700 text-lg font-semibold">No inquiries yet</Text>
-              <Text className="text-gray-500 text-center mt-2">
-                Share your business number to start capturing calls. Pull to refresh anytime.
-              </Text>
+            <View className="flex-1 p-4">
+              <EmptyState
+                title="No inquiries yet"
+                description="Share your business number to start capturing calls. Pull to refresh anytime."
+              />
             </View>
           }
         />

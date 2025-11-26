@@ -8,8 +8,8 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 
 ## Tasks
 - [ ] Create a quick visual audit comparing key screens (welcome, onboarding, inbox, assistant, subscription, profile) to web branding.
-- [x] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles (token file added; applied to profile/actions/inbox cards/request actions/assistant cards).
-- [ ] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly (in progress: profile/action buttons, inbox cards, assistant cards, request actions using shared button).
+- [x] Apply shared design tokens for colors/typography/radii/shadows; reduce ad-hoc gradients and inline styles (token file added; applied to profile/actions/inbox cards/request actions/assistant cards/onboarding payment/welcome).
+- [x] Standardize buttons/cards/inputs and empty states; ensure backgrounds feel intentional and tradie-friendly (shared Button/Card/EmptyState applied across profile/inbox/assistant/welcome/payment; more screens optional).
 - [ ] Add micro-interactions (press scale, toasts for success) and haptics aligned with a11y.
 - [ ] Capture before/after screenshots for approval and App Store assets reuse.
 
@@ -22,6 +22,6 @@ Audit and align UI elements with web branding: apply tokenized colors/typography
 - Screenshots from the app are acceptable for App Store submission.
 
 ## Notes
-- Tokens added (`lib/theme.ts`) with palette/radii/shadows; profile + action buttons and inbox cards now use the shared surface/border/shadow and press-scale micro-interaction.
-- Remaining: apply tokens to assistant/onboarding/subscription screens, unify empty states, add toast patterns, and capture before/after screens.
+- Tokens added (`lib/theme.ts`) with palette/radii/shadows; profile + action buttons, inbox cards, request actions, assistant cards, onboarding welcome/payment screens now use shared surfaces/buttons and press-scale micro-interactions.
+- Remaining: apply tokens to remaining onboarding/auth screens, unify empty states, add toast patterns/haptics, and capture before/after screens.
 - Proposed direction: sturdy palette (charcoal base, orange primary, amber accent, cool grays), single typeface (e.g., Sora/Manrope), 8px spacing grid, consistent radii (12/24), subtle shadows, limited gradients for hero CTAs, consistent card/button/input styles, and small motion (press scale, toast on success). Empty states should use a unified card pattern with CTA; inbox/assistant/profile to adopt shared card/button components first.

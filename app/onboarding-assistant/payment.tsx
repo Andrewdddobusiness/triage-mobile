@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  BackHandler,
-  ActivityIndicator,
-  Modal,
-  AppState,
-} from "react-native";
+import { View, ScrollView, StatusBar, BackHandler, ActivityIndicator, Modal, AppState } from "react-native";
 import { Text } from "~/components/ui/text";
 import * as Linking from "expo-linking";
 import { useSession } from "~/lib/auth/ctx";
 import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Check, Phone, FileText, Mic, Users, Clock, Shield, CheckCircle, XCircle } from "lucide-react-native";
 import { useColorScheme } from "~/hooks/useColorScheme";
 import { supabase } from "~/lib/supabase";
+import { palette, radii } from "~/lib/theme";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 
 type ScreenState = "payment" | "verifying" | "success" | "failed";
 
@@ -186,36 +179,18 @@ export default function PaymentScreen() {
   // Failed Screen
   if (screenState === "failed") {
     return (
-      <View className="flex-1 justify-center items-center bg-background px-6">
-        <View className="items-center">
-          <Text className={`text-3xl font-bold text-center mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
-            Payment Failed
-          </Text>
-          <Text className={`text-lg text-center mb-8 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+      <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: palette.surfaceMuted }}>
+        <View className="items-center w-full">
+          <Text className="text-3xl font-bold text-center mb-4 text-gray-900">Payment Failed</Text>
+          <Text className="text-lg text-center mb-8 text-gray-600">
             We couldn't process your payment. Please try again or contact support.
           </Text>
-          <View className="w-full bg-red-50 rounded-xl p-4 mb-6">
+          <Card style={{ width: "100%", backgroundColor: "#fef2f2", borderColor: "#fecaca" }}>
             <Text className="text-red-800 font-semibold text-center">Subscription Not Active</Text>
             <Text className="text-red-700 text-sm text-center mt-1">Your payment was cancelled or failed</Text>
-          </View>
-          <View className="flex-1 w-full space-y-3">
-            <TouchableOpacity
-              onPress={() => setScreenState("payment")}
-              style={{
-                borderRadius: 12,
-                overflow: "hidden",
-                width: "100%",
-              }}
-            >
-              <LinearGradient
-                colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ paddingVertical: 16, alignItems: "center" }}
-              >
-                <Text className="text-white text-full font-semibold">Try Again</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+          </Card>
+          <View className="w-full mt-6">
+            <Button onPress={() => setScreenState("payment")}>Try Again</Button>
           </View>
         </View>
       </View>
@@ -225,14 +200,10 @@ export default function PaymentScreen() {
   // Verifying Screen
   if (screenState === "verifying") {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color={"#FFA500"} />
-        <Text className={`text-xl font-semibold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}>
-          Verifying your subscription…
-        </Text>
-        <Text className={`text-sm mt-2 text-center px-8 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
-          Please wait while we confirm your payment
-        </Text>
+      <View className="flex-1 justify-center items-center" style={{ backgroundColor: palette.surfaceMuted }}>
+        <ActivityIndicator size="large" color={palette.primary} />
+        <Text className="text-xl font-semibold mt-4 text-gray-900">Verifying your subscription…</Text>
+        <Text className="text-sm mt-2 text-center px-8 text-gray-600">Please wait while we confirm your payment</Text>
       </View>
     );
   }
@@ -272,7 +243,7 @@ export default function PaymentScreen() {
 
   // Main Payment Screen
   return (
-    <View className="flex-1">
+      <View className="flex-1" style={{ backgroundColor: palette.surfaceMuted }}>
       {/* Redirect Modal */}
       <Modal visible={showRedirectModal} transparent animationType="fade">
         <View className="flex-1 justify-center items-center bg-black/50">
@@ -308,17 +279,15 @@ export default function PaymentScreen() {
       </View>
 
       {/* Pricing Card */}
-      <View className="mx-6 mb-8 rounded-2xl">
-        <LinearGradient colors={["#FFA787", "#f7931e"]} style={{ borderRadius: 20, overflow: "hidden", padding: 10 }}>
-          <View className="items-center rounded-2xl">
-            <Text className="text-white text-lg font-medium mb-2">Pro Plan</Text>
-            <View className="flex-row items-baseline mb-4">
-              <Text className="text-white text-5xl font-bold">$59</Text>
-              <Text className="text-white/80 text-lg ml-2">AUD / month</Text>
-            </View>
-            <Text className="text-white/90 text-center text-base">Everything included • Cancel anytime</Text>
+      <View className="mx-6 mb-8">
+        <Card style={{ alignItems: "center" }}>
+          <Text className="text-lg font-medium text-gray-900 mb-2">Pro Plan</Text>
+          <View className="flex-row items-baseline mb-4">
+            <Text className="text-5xl font-bold text-gray-900">$59</Text>
+            <Text className="text-lg ml-2 text-gray-600">AUD / month</Text>
           </View>
-        </LinearGradient>
+          <Text className="text-center text-base text-gray-700">Everything included • Cancel anytime</Text>
+        </Card>
       </View>
 
       {/* Features */}
@@ -361,39 +330,12 @@ export default function PaymentScreen() {
         }}
       >
         <View className="space-y-3">
-          <TouchableOpacity
-            onPress={handleSubscribe}
-            disabled={isLoading}
-            style={{
-              alignSelf: "center",
-              borderRadius: 9999,
-              overflow: "hidden",
-              width: "100%",
-              opacity: isLoading ? 0.7 : 1,
-            }}
-          >
-            <LinearGradient
-              colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ paddingVertical: 16, alignItems: "center" }}
-            >
-              <View className="flex-row items-center justify-center">
-                {isLoading ? (
-                  <>
-                    <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />
-                    <Text className="text-white text-lg font-semibold">Processing...</Text>
-                  </>
-                ) : (
-                  <Text className="text-white text-lg font-semibold">Continue with Payment</Text>
-                )}
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-
+          <Button onPress={handleSubscribe} loading={isLoading} disabled={isLoading}>
+            {isLoading ? "Processing..." : "Continue with Payment"}
+          </Button>
         </View>
 
-        <Text className={`text-center text-xs mt-3 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+        <Text className="text-center text-xs mt-3 text-gray-500">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </Text>
       </View>
