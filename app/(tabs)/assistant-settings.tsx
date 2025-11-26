@@ -7,8 +7,10 @@ import { Play, Phone, Bot, Copy, Check, Pencil, CheckCircle2, X, AlertTriangle }
 import { supabase } from "~/lib/supabase";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { trackEvent } from "~/lib/utils/analytics";
+import { palette, radii, shadows } from "~/lib/theme";
+import { Card } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
 
 interface AssistantPreset {
   id: string;
@@ -313,9 +315,10 @@ export default function AssistantSettingsScreen() {
   return (
     <>
       <ScrollView
-        className="flex-1 bg-zinc-100"
+        className="flex-1"
         contentContainerStyle={{
           paddingBottom: insets.bottom + 20,
+          backgroundColor: palette.surfaceMuted,
         }}
       >
         {/* Business Phone Number Requirement Notice */}
@@ -352,16 +355,16 @@ export default function AssistantSettingsScreen() {
         )}
 
         {/* Assistant Status */}
-        <View className="bg-white p-4 mt-4 mx-4 rounded-lg">
+        <Card style={{ marginHorizontal: 16, marginTop: 16 }}>
           <View className="flex-row justify-between items-center">
-            <Text className="text-lg font-semibold">AI Assistant Status</Text>
+            <Text className="text-lg font-semibold text-gray-900">AI Assistant Status</Text>
             <Switch
               value={assistantEnabled && hasBusinessNumber && !isGated}
               onValueChange={toggleAssistant}
               disabled={!hasBusinessNumber || isGated || togglingAssistant}
             />
           </View>
-          <Text className="text-md font-normal">
+          <Text className="text-md font-normal text-gray-700">
             Your AI Assistant is {assistantEnabled && hasBusinessNumber && !isGated ? "Active" : "Offline"}
           </Text>
           {!hasBusinessNumber && (
@@ -370,12 +373,12 @@ export default function AssistantSettingsScreen() {
           {isGated && (
             <Text className="text-sm text-amber-600 mt-1">Requires Pro subscription to activate</Text>
           )}
-        </View>
+        </Card>
 
         {/* Assistant Preset Section */}
-        <View className="bg-white p-4 mt-4 mx-4 rounded-lg">
+        <Card style={{ marginHorizontal: 16, marginTop: 12 }}>
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-lg font-semibold">Current Assistant</Text>
+            <Text className="text-lg font-semibold text-gray-900">Current Assistant</Text>
             <View className="flex-row items-center">
               <Bot size={20} />
             </View>
@@ -384,24 +387,23 @@ export default function AssistantSettingsScreen() {
           <Text className="text-zinc-600 mb-3">
             {currentPreset?.description || (isGated ? "Preview available assistants." : "")}
           </Text>
-          <TouchableOpacity
+          <Button
+            variant={isGated ? "secondary" : "primary"}
             onPress={() => {
               setModalVisible(true);
               trackEvent("assistant_preset_modal_opened");
             }}
-            className="mt-2 self-start px-4 py-2 rounded-full bg-zinc-100 border border-zinc-200"
             disabled={isGated}
+            style={{ alignSelf: "flex-start", marginTop: 8, shadowOpacity: 0 }}
           >
-            <Text className={`font-semibold ${isGated ? "text-zinc-400" : "text-orange-500"}`}>
-              {isGated ? "Upgrade to change" : "Change assistant"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {isGated ? "Upgrade to change" : "Change assistant"}
+          </Button>
+        </Card>
 
         {/* Phone Number Section */}
-        <View className="bg-white p-4 mt-4 mx-4 rounded-lg">
+        <Card style={{ marginHorizontal: 16, marginTop: 12 }}>
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-lg font-semibold">Business Phone Number</Text>
+            <Text className="text-lg font-semibold text-gray-900">Business Phone Number</Text>
             <Phone size={20} />
           </View>
           <View className="flex-row items-center">
@@ -412,77 +414,31 @@ export default function AssistantSettingsScreen() {
               </Pressable>
             )}
           </View>
-        </View>
+        </Card>
 
         {!hasBusinessNumber && (
-          <TouchableOpacity
-            onPress={() => {
-              trackEvent("assistant_gated_cta_click", { cta: "assign_phone" });
-              navigateToPhoneNumber();
-            }}
-            style={{
-              marginLeft: 16,
-              marginRight: 16,
-              marginTop: 16,
-              borderRadius: 24,
-              overflow: "hidden",
-              elevation: 5,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-            }}
-            >
-              <LinearGradient
-                colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                  width: "100%",
-                  paddingVertical: 14,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
-                Finish setting up your AI assistant!
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          )}
-        {isGated && (
-          <TouchableOpacity
-            onPress={() => {
-              trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription" });
-              router.replace("/onboarding-assistant/payment");
-            }}
-            style={{
-              marginLeft: 16,
-              marginRight: 16,
-              marginTop: hasBusinessNumber ? 16 : 8,
-              borderRadius: 24,
-              overflow: "hidden",
-              elevation: 5,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-            }}
-          >
-            <LinearGradient
-              colors={["#ffb351", "#fe885a", "#ffa2a3"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{
-                width: "100%",
-                paddingVertical: 14,
-                justifyContent: "center",
-                alignItems: "center",
+          <View style={{ marginHorizontal: 16, marginTop: 16 }}>
+            <Button
+              onPress={() => {
+                trackEvent("assistant_gated_cta_click", { cta: "assign_phone" });
+                navigateToPhoneNumber();
               }}
             >
-              <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Upgrade to enable AI assistant</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              Finish setting up your AI assistant!
+            </Button>
+          </View>
+        )}
+        {isGated && (
+          <View style={{ marginHorizontal: 16, marginTop: hasBusinessNumber ? 16 : 8 }}>
+            <Button
+              onPress={() => {
+                trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription" });
+                router.replace("/onboarding-assistant/payment");
+              }}
+            >
+              Upgrade to enable AI assistant
+            </Button>
+          </View>
         )}
       </ScrollView>
 
