@@ -1,7 +1,7 @@
 import "~/global.css";
 
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform, View, ActivityIndicator } from "react-native";
@@ -14,6 +14,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useEffect, useState } from "react";
 import { serviceProviderService } from "~/lib/services/serviceProviderService";
 import { supabase } from "~/lib/supabase";
+import { registerForPushNotifications, addNotificationResponseListener } from "~/lib/notifications";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -44,6 +45,8 @@ function RootLayoutNav() {
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [hasBusinessNumber, setHasBusinessNumber] = useState<boolean | null>(null);
   const [hasAssistant, setHasAssistant] = useState<boolean | null>(null);
+  const [serviceProviderId, setServiceProviderId] = useState<string | null>(null);
+  const [pushRegistered, setPushRegistered] = useState(false);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -74,6 +77,7 @@ function RootLayoutNav() {
               .single();
 
             if (spError) throw spError;
+            setServiceProviderId(serviceProvider.id);
 
             // Check if they have an assistant
             const { data: assistant, error: assistantError } = await supabase
@@ -113,6 +117,25 @@ function RootLayoutNav() {
 
     checkUserStatus();
   }, [session]);
+
+  useEffect(() => {
+    if (session?.user && serviceProviderId && !pushRegistered) {
+      registerForPushNotifications({ serviceProviderId, authUserId: session.user.id }).finally(() => {
+        setPushRegistered(true);
+      });
+    }
+  }, [session?.user, serviceProviderId, pushRegistered]);
+
+  useEffect(() => {
+    const unsubscribe = addNotificationResponseListener((data) => {
+      if (data?.type === "inquiry" && data.requestId) {
+        router.push(`/request/${data.requestId}`);
+      } else if (data?.type === "assistant") {
+        router.push("/(tabs)/assistant-settings");
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   // Wait for all loading states to complete before rendering navigation
   if (
