@@ -7,7 +7,7 @@ Limited automated coverage and no enforced lint/test gates risk regressions befo
 Add targeted tests (stores, hooks, components), lint/format checks, and QA scripts; wire them into CI to block regressions.
 
 ## Tasks
-- [ ] Add jest-expo unit tests for stores/hooks: `useCustomerInquiries`, onboarding flow, subscription logic.
+- [x] Add jest-expo unit tests for stores/hooks: `useCustomerInquiries` (happy/offline). Onboarding/subscription logic still TODO.
 - [ ] Add component interaction/snapshot tests for filters, InquiryCard, onboarding forms, and assistant settings.
 - [ ] Enable lint/format scripts and ensure they pass on CI; document local commands.
 - [ ] Add manual QA scripts for critical flows (auth, subscription, onboarding, number assignment, inbox actions) and include in README.
@@ -21,3 +21,6 @@ Add targeted tests (stores, hooks, components), lint/format checks, and QA scrip
 - CI pipeline runs lint + tests and blocks on failure.
 - Key flows have automated coverage; QA scripts are available for release validation.
 
+## Notes / Remaining
+- Added jest tests for `useCustomerInquiries` (success + offline) with moduleNameMapper for `~/*` imports. Expand coverage to onboarding/subscription logic and UI components.
+- CI workflow not set up yet; lint/format gating pending. Add manual QA checklist for auth/subscription/onboarding/number assignment/inbox.
