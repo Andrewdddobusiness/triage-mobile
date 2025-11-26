@@ -11,6 +11,7 @@ import { trackEvent } from "~/lib/utils/analytics";
 import { palette, radii, shadows } from "~/lib/theme";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { notify } from "~/lib/utils/notify";
 
 interface AssistantPreset {
   id: string;
@@ -197,7 +198,7 @@ export default function AssistantSettingsScreen() {
       setAssistantEnabled(nextEnabled);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       trackEvent("assistant_toggle_success", { enabled: nextEnabled });
-      Alert.alert("Assistant updated", nextEnabled ? "AI assistant enabled." : "AI assistant disabled.");
+      notify(nextEnabled ? "AI assistant enabled." : "AI assistant disabled.");
     } catch (error) {
       console.error("Error toggling assistant:", error);
       trackEvent("assistant_toggle_error", { message: (error as Error)?.message });
@@ -287,7 +288,7 @@ export default function AssistantSettingsScreen() {
 
       await fetchAssistantData();
       setModalVisible(false);
-      Alert.alert("Success", "Assistant updated successfully");
+      notify("Assistant updated");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       trackEvent("assistant_preset_update_success", { presetId: selectedPresetId });
     } catch (error) {
