@@ -24,11 +24,11 @@
       "bundleIdentifier": "com.spaak.mobile",
       "appleTeamId": "4Z2P93PN92",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls",
-        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
-        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to help users interact with voice features.",
+        "NSMicrophoneUsageDescription": "Spaak uses your microphone to place and receive calls you initiate.",
+        "NSCameraUsageDescription": "Spaak can use your camera for future video/photo uploads (not required for calls).",
+        "NSPhotoLibraryUsageDescription": "Spaak can access your photos for profile or document uploads.",
+        "NSPhotoLibraryAddUsageDescription": "Spaak can save images you choose to export.",
+        "NSSpeechRecognitionUsageDescription": "Spaak uses speech recognition to support voice interactions where enabled.",
         "UIBackgroundModes": [],
         "ITSAppUsesNonExemptEncryption": false,
         "UIViewControllerBasedStatusBarAppearance": false,
@@ -43,13 +43,7 @@
       "package": "com.spaak.mobile",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
