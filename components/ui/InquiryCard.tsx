@@ -36,13 +36,13 @@ const formatCurrency = (amount: number | null) => {
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, { bg: string; text: string }> = {
-    new: { bg: "bg-blue-100", text: "text-blue-800" },
-    contacted: { bg: "bg-yellow-100", text: "text-yellow-800" },
-    scheduled: { bg: "bg-purple-100", text: "text-purple-800" },
-    completed: { bg: "bg-green-100", text: "text-green-800" },
-    cancelled: { bg: "bg-red-100", text: "text-red-800" },
+    new: { bg: "#e0f2fe", text: "#075985" },
+    contacted: { bg: "#fef9c3", text: "#854d0e" },
+    scheduled: { bg: "#ede9fe", text: "#5b21b6" },
+    completed: { bg: "#dcfce7", text: "#166534" },
+    cancelled: { bg: "#fee2e2", text: "#991b1b" },
   };
-  return colors[status] || { bg: "bg-gray-100", text: "text-gray-800" };
+  return colors[status] || { bg: palette.surfaceMuted, text: palette.text };
 };
 
 // Function to get job type icon
@@ -99,27 +99,33 @@ export function InquiryCard({ item }: InquiryCardProps) {
       ]}
     >
       <View className="flex-row">
-        {/* Left orange accent bar */}
-        <View className="w-2 bg-[#fe885a] h-full" />
+        {/* Left accent bar */}
+        <View style={{ width: 2, backgroundColor: palette.primary, height: "100%" }} />
 
         <View className="flex-1 p-4">
           {/* Top row: Name and Status */}
           <View className="flex-row justify-between items-center">
-            <Text className="text-lg font-bold text-black">{item.name}</Text>
+            <Text className="text-lg font-bold" style={{ color: palette.text }}>
+              {item.name}
+            </Text>
             <View
               style={{
                 paddingHorizontal: 10,
                 paddingVertical: 6,
                 borderRadius: radii.pill,
-                backgroundColor: palette.surfaceMuted,
+                backgroundColor: statusColors.bg,
               }}
             >
-              <Text className="text-xs font-medium capitalize text-gray-700">{item.status}</Text>
+              <Text className="text-xs font-medium capitalize" style={{ color: statusColors.text }}>
+                {item.status}
+              </Text>
             </View>
           </View>
 
           {/* Budget - Large and prominent */}
-          <Text className="text-2xl font-bold text-[#fe885a] mb-1">{formatCurrency(item.budget)}</Text>
+          <Text className="text-2xl font-bold mb-1" style={{ color: palette.primary }}>
+            {formatCurrency(item.budget)}
+          </Text>
 
           {/* Job type and date */}
           <View className="flex-row items-center">
@@ -139,8 +145,12 @@ export function InquiryCard({ item }: InquiryCardProps) {
               <Icon size={20} color={color} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-medium text-gray-800">{item.job_type || "General Inquiry"}</Text>
-              <Text className="text-sm text-gray-500">{formatDate(item.inquiry_date)}</Text>
+              <Text className="text-base font-medium" style={{ color: palette.text }}>
+                {item.job_type || "General Inquiry"}
+              </Text>
+              <Text className="text-sm" style={{ color: palette.textMuted }}>
+                {formatDate(item.inquiry_date)}
+              </Text>
             </View>
           </View>
         </View>

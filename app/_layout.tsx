@@ -16,6 +16,7 @@ import { serviceProviderService } from "~/lib/services/serviceProviderService";
 import { supabase } from "~/lib/supabase";
 import { registerForPushNotifications, addNotificationResponseListener } from "~/lib/notifications";
 import { FeatureFlagProvider, useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
+import { initSentry } from "~/lib/telemetry/sentry";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -49,6 +50,10 @@ function RootLayoutNav() {
   const [serviceProviderId, setServiceProviderId] = useState<string | null>(null);
   const [pushRegistered, setPushRegistered] = useState(false);
   const { flags, loading: flagsLoading, refresh: refreshFlags } = useFeatureFlags();
+
+  useEffect(() => {
+    initSentry();
+  }, []);
 
   useEffect(() => {
     GoogleSignin.configure({

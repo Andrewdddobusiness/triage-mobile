@@ -7,7 +7,8 @@ Key flows (auth, onboarding, inbox, assistant setup) may lack VoiceOver labels, 
 Audit and fix accessibility for critical screens, ensure gradients/buttons meet contrast, add meaningful accessibility labels, and standardize haptics where appropriate.
 
 ## Tasks
-- [ ] Run VoiceOver audit on sign-in, onboarding, inbox, request detail, assistant settings, subscription; add accessibilityLabel/hint where missing (added labels to shared buttons/cards/filters/inquiry cards).
+- [x] Add accessibility labels to shared components (Button, ProfileActionButton, FilterDropdown, InquiryCard) and key flows (sign-in, request detail call/copy buttons).
+- [ ] Run full VoiceOver audit on sign-in, onboarding, inbox, assistant settings, subscription; add hints where missing.
 - [ ] Ensure focus order and keyboard navigation (where applicable) are logical; avoid trapping focus inside modals.
 - [ ] Check color contrast on gradients/buttons/text; adjust tokens or add alternate styles for dark/light modes.
 - [ ] Standardize haptics: use consistent feedback for success, errors, and toggles; allow disable if needed.
