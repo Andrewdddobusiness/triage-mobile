@@ -11,6 +11,7 @@ import { supabase } from "~/lib/supabase";
 import { palette, radii } from "~/lib/theme";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
+import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 
 type ScreenState = "payment" | "verifying" | "success" | "failed";
 
@@ -19,6 +20,7 @@ export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { flags, loading: flagLoading } = useFeatureFlags();
 
   // State management
   const [isLoading, setIsLoading] = useState(false);
@@ -151,6 +153,37 @@ export default function PaymentScreen() {
       subscription?.remove();
     };
   }, [isLoading]);
+
+  if (flagLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={palette.primary} />
+        <Text className="mt-4 text-muted-foreground">Loading billing settings…</Text>
+      </View>
+    );
+  }
+
+  if (flags.killSwitch || !flags.payments) {
+    return (
+      <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: palette.surfaceMuted }}>
+        <View className="items-center w-full">
+          <Text className="text-3xl font-bold text-center mb-4 text-gray-900">Payments Unavailable</Text>
+          <Text className="text-lg text-center mb-8 text-gray-600">
+            {flags.safeModeMessage || "Billing is temporarily disabled while we investigate an issue."}
+          </Text>
+          <Card style={{ width: "100%", backgroundColor: "#fff7ed", borderColor: "#fed7aa" }}>
+            <Text className="text-amber-800 font-semibold text-center">Please try again later</Text>
+            <Text className="text-amber-700 text-sm text-center mt-1">
+              You can keep using the app without upgrading for now.
+            </Text>
+          </Card>
+          <View className="w-full mt-6">
+            <Button onPress={() => router.replace("/(tabs)")}>Continue without Pro</Button>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   // Success Screen
   if (screenState === "success") {

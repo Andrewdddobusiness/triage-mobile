@@ -15,11 +15,13 @@ import type CustomerInquiry from "~/stores/customerInquiries";
 import { Button } from "~/components/ui/button";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskEmail, maskPhone } from "~/lib/utils/pii";
+import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
   const { selectedInquiry, selectInquiry, inquiries, isLoading, updateInquiryStatus, error } = useCustomerInquiries();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const { flags } = useFeatureFlags();
   const statusOptions: { id: CustomerInquiry["status"]; label: string }[] = [
     { id: "new", label: "New" },
     { id: "contacted", label: "Contacted" },
@@ -72,6 +74,11 @@ export default function RequestDetailScreen() {
   };
 
   const handleCall = async () => {
+    if (flags.killSwitch || !flags.telephony) {
+      Alert.alert("Calls unavailable", flags.safeModeMessage || "Telephony is temporarily disabled.");
+      trackEvent("request_call_blocked_flag", { requestId: id, reason: flags.killSwitch ? "kill_switch" : "telephony" });
+      return;
+    }
     if (!selectedInquiry.phone) {
       Alert.alert("No phone number", "This request does not include a phone number.");
       return;

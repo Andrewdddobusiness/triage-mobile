@@ -6,12 +6,14 @@ import { Pause, Volume2, MicOff, PhoneOff, UserSquare2, MessageSquare, Clipboard
 import { useSession } from "~/lib/auth/ctx";
 import { useCustomerInquiries } from "~/stores/customerInquiries";
 import { maskPhone } from "~/lib/utils/pii";
+import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 
 export default function CallScreen() {
   const { id } = useLocalSearchParams();
   const { session } = useSession();
   const { inquiries } = useCustomerInquiries();
   const inquiry = inquiries.find((i) => i.id === id);
+  const { flags } = useFeatureFlags();
 
   const { makeCall, hangup, isConnected, callStatus, toggleMute, toggleSpeaker, toggleHold } = useTwilio(
     session?.user?.email || "anonymous"
@@ -31,6 +33,17 @@ export default function CallScreen() {
       .join("")
       .toUpperCase();
   };
+
+  if (flags.killSwitch || !flags.telephony) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Calls unavailable</Text>
+          <Text style={styles.subHeaderText}>{flags.safeModeMessage || "Telephony is temporarily disabled."}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

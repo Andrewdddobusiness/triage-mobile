@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Check, Phone, FileText, Mic, Users, Clock, Shield, CheckCircle, XCircle, X } from "lucide-react-native";
 import { useColorScheme } from "~/hooks/useColorScheme";
 import { supabase } from "~/lib/supabase";
+import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 
 type ScreenState = "payment" | "verifying" | "success" | "failed";
 
@@ -26,6 +27,7 @@ export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { flags, loading: flagLoading } = useFeatureFlags();
 
   // State management
   const [isLoading, setIsLoading] = useState(false);
@@ -158,6 +160,40 @@ export default function PaymentScreen() {
       subscription?.remove();
     };
   }, [isLoading]);
+
+  if (flagLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Text className="mt-4 text-muted-foreground">Loading billing settings…</Text>
+      </View>
+    );
+  }
+
+  if (flags.killSwitch || !flags.payments) {
+    return (
+      <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: "#f9fafb" }}>
+        <View className="items-center w-full">
+          <Text className="text-3xl font-bold text-center mb-4 text-gray-900">Payments Unavailable</Text>
+          <Text className="text-lg text-center mb-8 text-gray-600">
+            {flags.safeModeMessage || "Billing is temporarily disabled while we investigate an issue."}
+          </Text>
+          <View className="w-full bg-orange-50 rounded-xl p-4 mb-6">
+            <Text className="text-orange-800 font-semibold text-center">Renewals are paused</Text>
+            <Text className="text-orange-700 text-sm text-center mt-1">
+              You can keep using the app; we’ll notify you when billing resumes.
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => router.replace("/(tabs)")}
+            style={{ paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, backgroundColor: "#fe885a" }}
+          >
+            <Text className="text-white font-semibold">Return to app</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   // Success Screen
   if (screenState === "success") {

@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { serviceProviderService } from "~/lib/services/serviceProviderService";
 import { supabase } from "~/lib/supabase";
 import { registerForPushNotifications, addNotificationResponseListener } from "~/lib/notifications";
+import { FeatureFlagProvider, useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -47,6 +48,7 @@ function RootLayoutNav() {
   const [hasAssistant, setHasAssistant] = useState<boolean | null>(null);
   const [serviceProviderId, setServiceProviderId] = useState<string | null>(null);
   const [pushRegistered, setPushRegistered] = useState(false);
+  const { flags, loading: flagsLoading, refresh: refreshFlags } = useFeatureFlags();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -61,6 +63,7 @@ function RootLayoutNav() {
     const checkUserStatus = async () => {
       if (session?.user) {
         try {
+          await refreshFlags(true);
           // First ensure the service provider record exists
           await serviceProviderService.createServiceProvider(session.user.id);
 
@@ -119,12 +122,12 @@ function RootLayoutNav() {
   }, [session]);
 
   useEffect(() => {
-    if (session?.user && serviceProviderId && !pushRegistered) {
+    if (session?.user && serviceProviderId && !pushRegistered && flags.notifications && !flags.killSwitch) {
       registerForPushNotifications({ serviceProviderId, authUserId: session.user.id }).finally(() => {
         setPushRegistered(true);
       });
     }
-  }, [session?.user, serviceProviderId, pushRegistered]);
+  }, [session?.user, serviceProviderId, pushRegistered, flags.notifications, flags.killSwitch]);
 
   useEffect(() => {
     const unsubscribe = addNotificationResponseListener((data) => {
@@ -142,7 +145,8 @@ function RootLayoutNav() {
     isLoading ||
     (session && subscriptionLoading) ||
     (session && onboardingCompleted === null) ||
-    (session && onboardingCompleted && hasBusinessNumber === null)
+    (session && onboardingCompleted && hasBusinessNumber === null) ||
+    flagsLoading
   ) {
     return <LoadingScreen />;
   }
@@ -194,7 +198,9 @@ export default function RootLayout() {
   return (
     <SplashScreenProvider>
       <SessionProvider>
-        <RootLayoutNav />
+        <FeatureFlagProvider>
+          <RootLayoutNav />
+        </FeatureFlagProvider>
       </SessionProvider>
     </SplashScreenProvider>
   );

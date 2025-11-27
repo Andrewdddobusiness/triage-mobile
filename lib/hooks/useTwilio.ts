@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Voice, Call } from "@twilio/voice-react-native-sdk";
-import { Platform } from "react-native";
+import { Platform, Alert } from "react-native";
+import { useFeatureFlags } from "../providers/FeatureFlagProvider";
 
 const API_URL = __DEV__
   ? Platform.select({
@@ -19,8 +20,17 @@ export function useTwilio(identity: string) {
   const [isOnHold, setIsOnHold] = useState(false);
   const [voice] = useState(() => new Voice());
   const [activeCall, setActiveCall] = useState<Call | null>(null);
+  const { flags } = useFeatureFlags();
 
   useEffect(() => {
+    if (!flags.telephony || flags.killSwitch) {
+      setCallStatus("disabled");
+      setActiveCall(null);
+      setIsConnected(false);
+      setIsIncoming(false);
+      return;
+    }
+
     const setup = async () => {
       try {
         const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
@@ -77,9 +87,14 @@ export function useTwilio(identity: string) {
     return () => {
       voice.unregister();
     };
-  }, [identity]);
+  }, [identity, flags.telephony, flags.killSwitch]);
 
   const makeCall = async (to: string) => {
+    if (!flags.telephony || flags.killSwitch) {
+      Alert.alert("Calls unavailable", flags.safeModeMessage || "Calling is temporarily disabled.");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
       const { token } = await res.json();
