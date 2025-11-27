@@ -10,13 +10,22 @@ Expose an in-app path to request deletion (and export if offered), wire it to a 
 - [x] Add “Delete Account” entry (Profile/Help) with confirmation and legal copy; optional “Export data” link if supported (entry in Profile → Delete Account).
 - [x] Implement backend function to handle deletion request queue and cleanup (Edge function `request-account-deletion` disables assistant, releases number, deletes auth user, logs status in `account_deletion_requests`).
 - [x] Surface deletion status and support contact; handle cooldown/undo policy if any (status shown on Profile if a deletion request exists).
-- [ ] Update privacy policy link/copy to reference deletion flow; add reviewer note for App Store.
-- [ ] QA deletion on a test user; verify tokens revoked and app access removed.
+- [x] Update privacy policy link/copy to reference deletion flow; add reviewer note for App Store.
+- [x] QA deletion on a test user; verify tokens revoked and app access removed.
 
 ## Dependencies / Notes
 - Coordinate with triage-web deletion flow for consistent behavior.
 - Ensure telemetry and crash logs stop including deleted user identifiers post-deletion.
 - Requires Supabase table `account_deletion_requests` (auth_user_id, service_provider_id, email, status, requested_at) and follow-up worker to perform actual deletion (disable assistant, release number, delete auth user).
+
+## Reviewer Note (App Store)
+- “Users can delete their account in Profile → Delete Account. This immediately disables the assistant, releases phone numbers, clears push tokens, and queues deletion of their data and auth user via the `request-account-deletion` Supabase function. Status is shown in Profile. Privacy Policy (https://spaak.vercel.app/privacy#mobile-deletion) references this flow.”
+
+## QA (completed on test user)
+- Initiated deletion from Profile; status updated to “processing”.
+- Verified assistant disabled and business number unassigned in Supabase.
+- Confirmed push token row removed for the user; app access revoked after deletion (auth user removed).
+- App shows “Delete Account (processing)” on re-open; no access after sign-out.
 
 ## Success Criteria
 - Users can initiate deletion in-app; backend processes or queues deletion and confirms status.

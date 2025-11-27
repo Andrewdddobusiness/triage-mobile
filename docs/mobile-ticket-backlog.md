@@ -1,5 +1,12 @@
 Ordered ticket list to get triage-mobile production-ready and aligned with triage-web. Keep tickets small; each includes a suggested acceptance check.
 
+Recent completions:
+- Ticket 18 Push Notifications: client handlers + edge sender wired; QA checklist remaining for release device runs.
+- Ticket 19 Data Deletion: Profile entry, edge function, privacy link/reviewer note, and QA on test user.
+- Ticket 20 PII Handling: secure storage, masking, clipboard warnings, and docs done.
+- Ticket 21 Feature Flags: Supabase-backed flags with kill switch and client gating.
+- Ticket 22 Read-only Preview/Upsells: preview gating on calls/status/messages with upgrade CTAs.
+
 0) Foundations
 - T0.1 Env/config parity: Document mobile .env values/EAS secrets and confirm Supabase/Twilio/Stripe keys match triage-web; app boots with no local hacks. AC: fresh clone runs with documented steps.
 - T0.2 Brand tokens: Centralize colors/typography/icons to match web; replace ad-hoc values. AC: design tokens applied; spot-check key screens for consistency.

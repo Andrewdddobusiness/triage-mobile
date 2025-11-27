@@ -13,7 +13,7 @@ export default function HelpScreen() {
   };
 
   const handleOpenPrivacy = () => {
-    Linking.openURL("https://spaak.vercel.app/privacy");
+    Linking.openURL("https://spaak.vercel.app/privacy#mobile-deletion");
   };
 
   const handleOpenTerms = () => {
@@ -71,7 +71,19 @@ export default function HelpScreen() {
             <Shield size={20} color="#6b7280" />
             <View className="flex-1 ml-3">
               <Text className="text-[#495057] font-medium">Privacy Policy</Text>
-              <Text className="text-gray-500 text-sm">How we handle your data</Text>
+              <Text className="text-gray-500 text-sm">Data handling and account deletion info</Text>
+            </View>
+            <ExternalLink size={16} color="#6b7280" />
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/(tabs)/profile")}
+            className="flex-row items-center py-3"
+          >
+            <FileText size={20} color="#6b7280" />
+            <View className="flex-1 ml-3">
+              <Text className="text-[#495057] font-medium">Delete Account</Text>
+              <Text className="text-gray-500 text-sm">Profile → Delete Account (removes data and tokens)</Text>
             </View>
             <ExternalLink size={16} color="#6b7280" />
           </Pressable>
