@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Switch, Pressable, Modal, TouchableOpacity, Image, Alert, Clipboard } from "react-native";
+import { View, ScrollView, Switch, Pressable, Modal, TouchableOpacity, Image, Alert } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,6 +12,8 @@ import { palette, radii, shadows } from "~/lib/theme";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { notify } from "~/lib/utils/notify";
+import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
+import { maskPhone } from "~/lib/utils/pii";
 
 interface AssistantPreset {
   id: string;
@@ -226,11 +228,12 @@ export default function AssistantSettingsScreen() {
     };
   }, [copied]);
 
-  // Copy phone number to clipboard
-  const handleCopyToClipboard = () => {
+  const copyBusinessNumber = async () => {
     if (phoneNumber) {
-      Clipboard.setString(phoneNumber);
-      setCopied(true);
+      const didCopy = await copySensitiveToClipboard(phoneNumber, "Business phone number");
+      if (didCopy) {
+        setCopied(true);
+      }
     }
   };
 
@@ -238,26 +241,6 @@ export default function AssistantSettingsScreen() {
     const { data, error } = await supabase.from("assistant_presets").select("*");
     if (error) console.error("Error loading presets:", error);
     else setPresets(data || []);
-  };
-
-  // Add copy to clipboard functionality
-  useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-    if (copied) {
-      timer = setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [copied]);
-
-  const copyToClipboard = () => {
-    if (phoneNumber) {
-      Clipboard.setString(phoneNumber);
-      setCopied(true);
-    }
   };
 
   const handleUpdateAssistant = async () => {
@@ -408,13 +391,18 @@ export default function AssistantSettingsScreen() {
             <Phone size={20} />
           </View>
           <View className="flex-row items-center">
-            <Text className="text-zinc-600">{phoneNumber || "No number assigned"}</Text>
+            <Text className="text-zinc-600">
+              {phoneNumber ? maskPhone(phoneNumber) : "No number assigned"}
+            </Text>
             {phoneNumber && (
-              <Pressable onPress={copyToClipboard} className="ml-2">
+              <Pressable onPress={() => void copyBusinessNumber()} className="ml-2">
                 {copied ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#fe885a" />}
               </Pressable>
             )}
           </View>
+          <Text className="text-xs text-gray-400 mt-1">
+            Full number is hidden to reduce accidental sharing. Copy when you need to paste it elsewhere.
+          </Text>
         </Card>
 
         {!hasBusinessNumber && (

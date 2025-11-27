@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Star } from "lucide-react-native";
 import Icon6 from "@expo/vector-icons/FontAwesome6";
 import IconEn from "@expo/vector-icons/Entypo";
+import { maskEmail, maskPhone } from "~/lib/utils/pii";
 
 // Mock data - in real app this would come from your backend
 const MOCK_CONTACTS = [
@@ -47,12 +48,12 @@ export default function ContactsScreen() {
   };
 
   const handleCall = (phone: string) => {
-    console.log(`Calling ${phone}`);
+    console.log("Calling saved contact");
     // Implement call functionality
   };
 
   const handleMessage = (id: string) => {
-    console.log(`Messaging contact ${id}`);
+    console.log("Messaging saved contact");
     // Navigate to message screen
   };
 
@@ -87,11 +88,11 @@ export default function ContactsScreen() {
           <View className="flex-row mt-3">
             <Pressable className="flex-row items-center" onPress={() => handleCall(contact.phone)}>
               <Icon6 name="phone" size={16} color="#adb5bd" />
-              <Text className="ml-1 text-sm text-gray-600">{contact.phone}</Text>
+              <Text className="ml-1 text-sm text-gray-600">{maskPhone(contact.phone)}</Text>
             </Pressable>
             <Pressable className="flex-row items-center ml-4" onPress={() => handleMessage(contact.id)}>
               <IconEn name="message" size={18} color={"#adb5bd"} />
-              <Text className="ml-1 text-sm text-gray-600">{contact.email}</Text>
+              <Text className="ml-1 text-sm text-gray-600">{maskEmail(contact.email)}</Text>
             </Pressable>
           </View>
         </View>

@@ -1,16 +1,7 @@
 // /app/request/[id].ts - Updated with Hardcoded Call Button Functionality
 
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  Clipboard,
-  Alert,
-  Linking,
-} from "react-native";
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert, Linking } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MapPin, ArrowLeft, Copy, Check } from "lucide-react-native";
@@ -22,6 +13,8 @@ import IconEn from "@expo/vector-icons/Entypo";
 import { trackEvent } from "~/lib/utils/analytics";
 import type CustomerInquiry from "~/stores/customerInquiries";
 import { Button } from "~/components/ui/button";
+import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
+import { maskEmail, maskPhone } from "~/lib/utils/pii";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -111,9 +104,11 @@ export default function RequestDetailScreen() {
     }
   };
 
-  const copyToClipboard = (text: string, field: string) => {
-    Clipboard.setString(text);
-    setCopiedField(field);
+  const copyToClipboard = async (text: string, field: string) => {
+    const didCopy = await copySensitiveToClipboard(text, field);
+    if (didCopy) {
+      setCopiedField(field);
+    }
   };
 
   return (
@@ -147,14 +142,14 @@ export default function RequestDetailScreen() {
             <View className="flex-row items-center justify-between mt-3">
               <View className="flex-row items-center flex-1">
                 <Icon6 name="phone" size={18} color={"#fe885a"} />
-                <Text className="text-gray-600 ml-2 text-lg">{selectedInquiry.phone}</Text>
-              </View>
-              <Pressable onPress={() => copyToClipboard(selectedInquiry.phone, "Phone number")} className="p-2">
-                {copiedField === "Phone number" ? (
-                  <Check size={18} color="#22c55e" />
-                ) : (
-                  <Copy size={18} color="#64748b" />
-                )}
+              <Text className="text-gray-600 ml-2 text-lg">{maskPhone(selectedInquiry.phone)}</Text>
+            </View>
+            <Pressable onPress={() => void copyToClipboard(selectedInquiry.phone, "Phone number")} className="p-2">
+              {copiedField === "Phone number" ? (
+                <Check size={18} color="#22c55e" />
+              ) : (
+                <Copy size={18} color="#64748b" />
+              )}
               </Pressable>
             </View>
 
@@ -162,10 +157,10 @@ export default function RequestDetailScreen() {
               <View className="flex-row items-center justify-between mt-1">
                 <View className="flex-row items-center flex-1">
                   <IconM name="email" size={20} color="#fe885a" />
-                  <Text className="text-gray-600 ml-2 text-lg">{selectedInquiry.email}</Text>
+                  <Text className="text-gray-600 ml-2 text-lg">{maskEmail(selectedInquiry.email)}</Text>
                 </View>
                 <Pressable
-                  onPress={() => (selectedInquiry.email ? copyToClipboard(selectedInquiry.email, "Email") : null)}
+                  onPress={() => (selectedInquiry.email ? void copyToClipboard(selectedInquiry.email, "Email") : null)}
                   className="p-2"
                 >
                   {copiedField === "Email" ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#64748b" />}
@@ -176,11 +171,15 @@ export default function RequestDetailScreen() {
               <View className="flex-row items-center justify-between mt-1">
                 <View className="flex-row items-center flex-1">
                   <Icon6 name="map" size={18} color="#fe885a" />
-                  <Text className="text-gray-600 ml-2 text-lg">{selectedInquiry.location}</Text>
+                  <Text className="text-gray-600 ml-2 text-lg">
+                    {selectedInquiry.location.length > 14
+                      ? `${selectedInquiry.location.slice(0, 10)}…`
+                      : selectedInquiry.location}
+                  </Text>
                 </View>
                 <Pressable
                   onPress={() =>
-                    selectedInquiry.location ? copyToClipboard(selectedInquiry.location, "Address") : null
+                    selectedInquiry.location ? void copyToClipboard(selectedInquiry.location, "Address") : null
                   }
                   className="p-2"
                 >
@@ -188,6 +187,9 @@ export default function RequestDetailScreen() {
                 </Pressable>
               </View>
             )}
+            <Text className="text-xs text-gray-400 mt-2">
+              Full contact details are hidden in the UI. Use copy or call actions when you need the complete value.
+            </Text>
           </View>
 
           {/* Status controls */}

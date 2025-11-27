@@ -146,8 +146,6 @@ function RootLayoutNav() {
   ) {
     return <LoadingScreen />;
   }
-  console.log("hasActiveSubscription: ", hasActiveSubscription);
-  console.log("hasSubscriptionHistory: ", hasSubscriptionHistory);
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />

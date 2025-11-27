@@ -103,7 +103,6 @@ export default function AppLayout() {
         .select("id")
         .eq("auth_user_id", session?.user.id)
         .single();
-      console.log("serviceProvider: ", serviceProvider);
 
       if (spError) throw spError;
 
@@ -113,8 +112,6 @@ export default function AppLayout() {
         .select("id")
         .eq("service_provider_id", serviceProvider.id)
         .single();
-
-      console.log("assistant: ", assistant);
 
       if (assistantError && assistantError.code !== "PGRST116") throw assistantError;
 
@@ -165,11 +162,11 @@ export default function AppLayout() {
   }
 
   const handleSearch = () => {
-    console.log("Search pressed");
+    // Intentionally left blank: no-op placeholder for future search
   };
 
   const handleNotification = () => {
-    console.log("Notification pressed");
+    // Intentionally left blank: no-op placeholder for future notifications
   };
 
   return (

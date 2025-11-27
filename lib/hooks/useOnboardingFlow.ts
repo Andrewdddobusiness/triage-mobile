@@ -5,7 +5,7 @@ import { useSession } from "~/lib/auth/ctx";
 import { serviceProviderService } from "~/lib/services/serviceProviderService";
 import { OnboardingFormData, OnboardingFormErrors, OnboardingStepConfig } from "~/lib/types/onboarding";
 import { useAnimatedGradient } from "./useAnimatedGradient";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { secureStorage } from "../utils/secureStorage";
 
 export const useOnboardingFlow = () => {
   const { session } = useSession();
@@ -102,7 +102,7 @@ export const useOnboardingFlow = () => {
           const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
           if (isCompleted) router.replace("/(tabs)");
           // Load any saved progress if not completed
-          const stored = await AsyncStorage.getItem(STORAGE_KEY);
+          const stored = await secureStorage.getItem(STORAGE_KEY);
           if (stored) {
             try {
               const parsed = JSON.parse(stored);
@@ -117,7 +117,7 @@ export const useOnboardingFlow = () => {
               if (typeof parsed.showCustomService === "boolean") setShowCustomService(parsed.showCustomService);
             } catch (err) {
               console.warn("Failed to parse stored onboarding data", err);
-              await AsyncStorage.removeItem(STORAGE_KEY);
+              await secureStorage.removeItem(STORAGE_KEY);
             }
           }
         } catch (error) {
@@ -300,7 +300,7 @@ export const useOnboardingFlow = () => {
   useEffect(() => {
     const persist = async () => {
       try {
-        await AsyncStorage.setItem(
+        await secureStorage.setItem(
           STORAGE_KEY,
           JSON.stringify({
             formData,
@@ -325,7 +325,7 @@ export const useOnboardingFlow = () => {
   // Clear persisted data when onboarding completes successfully
   const clearPersisted = async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      await secureStorage.removeItem(STORAGE_KEY);
     } catch (err) {
       console.warn("Failed to clear onboarding data", err);
     }

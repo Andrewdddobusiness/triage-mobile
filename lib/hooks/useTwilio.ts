@@ -2,17 +2,6 @@ import { useEffect, useState } from "react";
 import { Voice, Call } from "@twilio/voice-react-native-sdk";
 import { Platform } from "react-native";
 
-// Log environment variables to check if they're set
-console.log("Environment variables loaded:", {
-  EXPO_PUBLIC_API_URL_PROD: process.env.EXPO_PUBLIC_API_URL_PROD ? "Set" : "Missing",
-  EXPO_PUBLIC_API_URL_DEV_IOS: process.env.EXPO_PUBLIC_API_URL_DEV_IOS ? "Set" : "Missing",
-  EXPO_PUBLIC_API_URL_DEV_ANDROID: process.env.EXPO_PUBLIC_API_URL_DEV_ANDROID ? "Set" : "Missing",
-});
-
-console.log("this: ", process.env.EXPO_PUBLIC_API_URL_PROD);
-console.log(process.env.EXPO_PUBLIC_API_URL_DEV_IOS);
-console.log(process.env.EXPO_PUBLIC_API_URL_DEV_ANDROID);
-
 const API_URL = __DEV__
   ? Platform.select({
       ios: process.env.EXPO_PUBLIC_API_URL_DEV_IOS,
@@ -20,19 +9,6 @@ const API_URL = __DEV__
       default: process.env.EXPO_PUBLIC_API_URL_DEV_IOS,
     })
   : process.env.EXPO_PUBLIC_API_URL_PROD;
-
-// Log the selected API_URL
-console.log("Selected API_URL:", API_URL || "Not set");
-console.log("Development mode:", __DEV__ ? "Yes" : "No");
-console.log("Platform:", Platform.OS);
-
-// const API_URL = __DEV__
-//   ? Platform.select({
-//       ios: "https://14c7-49-195-80-255.ngrok-free.app",
-//       android: "http://10.0.2.2:3001",
-//       default: "https://14c7-49-195-80-255.ngrok-free.app",
-//     })
-//   : "https://14c7-49-195-80-255.ngrok-free.app";
 
 export function useTwilio(identity: string) {
   const [isConnected, setIsConnected] = useState(false);
@@ -47,9 +23,7 @@ export function useTwilio(identity: string) {
   useEffect(() => {
     const setup = async () => {
       try {
-        console.log("Fetching token from:", `${API_URL}/accessToken?identity=${identity}`);
         const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
-        console.log("useEffect response:", res);
         if (!res.ok) {
           const text = await res.text();
           console.error("Server response:", text);
@@ -58,21 +32,16 @@ export function useTwilio(identity: string) {
 
         const data = await res.json();
         const { token } = data;
-        console.log("Token:", token);
 
         // Initialize PushKit with proper error handling
         try {
-          console.log("Initializing PushKit registry...");
           await voice.initializePushRegistry();
-          console.log("PushKit registry initialized successfully");
 
           // Only proceed with registration if PushKit initialization succeeded
           const regResult = await voice.register(token);
-          console.log("Voice registered:", regResult);
 
           // Rest of your event handlers...
           voice.on("connected", (call: Call) => {
-            console.log("✅ Connected call", call);
             setActiveCall(call);
             setIsConnected(true);
             setCallStatus("connected");
@@ -88,8 +57,7 @@ export function useTwilio(identity: string) {
             setIsOnHold(false);
           });
 
-          voice.on("callInvite", (invite) => {
-            console.log("📞 Incoming call invite:", invite);
+          voice.on("callInvite", () => {
             setIsIncoming(true);
             setCallStatus("incoming");
           });
@@ -116,7 +84,6 @@ export function useTwilio(identity: string) {
       const res = await fetch(`${API_URL}/accessToken?identity=${identity}`);
       const { token } = await res.json();
 
-      console.log("Initiating call to:", to);
       await voice.connect(token, {
         params: { To: to },
       });

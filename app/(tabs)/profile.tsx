@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Pressable, Clipboard, Linking } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,6 +27,8 @@ import IconEn from "@expo/vector-icons/Entypo";
 import IconIon from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { palette, radii, shadows } from "~/lib/theme";
+import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
+import { maskPhone } from "~/lib/utils/pii";
 
 export default function ProfileScreen() {
   const {
@@ -106,11 +108,13 @@ export default function ProfileScreen() {
   }, [copied]);
 
   // Copy phone number to clipboard
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (businessNumber) {
-      Clipboard.setString(businessNumber);
-      setCopied(true);
-      trackEvent("profile_business_number_copied");
+      const didCopy = await copySensitiveToClipboard(businessNumber, "Business phone number");
+      if (didCopy) {
+        setCopied(true);
+        trackEvent("profile_business_number_copied");
+      }
     }
   };
 
@@ -224,7 +228,7 @@ export default function ProfileScreen() {
           <View className="mt-3 items-center">
             <Text className="text-sm text-gray-500 mb-1">Provided Business Number</Text>
             <View className="flex-row items-center">
-              <Text className="text-base text-[#fe885a] font-medium">{businessNumber}</Text>
+              <Text className="text-base text-[#fe885a] font-medium">{maskPhone(businessNumber)}</Text>
               <Pressable
                 onPress={copyToClipboard}
                 className="ml-2"
@@ -233,6 +237,7 @@ export default function ProfileScreen() {
                 {copied ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#fe885a" />}
               </Pressable>
             </View>
+            <Text className="text-xs text-gray-400 mt-1">Full number hidden; copy to use it safely.</Text>
           </View>
         ) : (
           <View className="mt-3 items-center">

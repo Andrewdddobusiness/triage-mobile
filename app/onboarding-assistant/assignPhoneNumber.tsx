@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Dimensions, TouchableOpacity, ActivityIndicator, Alert, Clipboard } from "react-native";
+import { View, Text, Dimensions, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -8,6 +8,7 @@ import { supabase } from "~/lib/supabase";
 import * as Haptics from "expo-haptics";
 import { Phone, Copy, Check } from "lucide-react-native";
 import { trackEvent } from "~/lib/utils/analytics";
+import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 
 const { width } = Dimensions.get("window");
 
@@ -181,13 +182,13 @@ export default function AssignPhoneNumberScreen() {
   };
 
   // Copy phone number to clipboard
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (phoneNumber) {
-      Clipboard.setString(phoneNumber);
-      setCopied(true);
-      // Trigger success haptic feedback
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      trackEvent("assign_phone_copied");
+      const didCopy = await copySensitiveToClipboard(phoneNumber, "Business phone number");
+      if (didCopy) {
+        setCopied(true);
+        trackEvent("assign_phone_copied");
+      }
     }
   };
 
@@ -240,6 +241,9 @@ export default function AssignPhoneNumberScreen() {
                     {copied ? <Check size={24} color="#22c55e" /> : <Copy size={24} color="#fe885a" />}
                   </TouchableOpacity>
                 </View>
+                <Text className="text-xs text-gray-400 text-center mt-2">
+                  Avoid sharing this in screenshots; copy when you need the full number.
+                </Text>
               </View>
             </View>
           </View>

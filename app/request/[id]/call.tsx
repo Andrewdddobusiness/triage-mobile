@@ -5,6 +5,7 @@ import { useTwilio } from "~/lib/hooks/useTwilio";
 import { Pause, Volume2, MicOff, PhoneOff, UserSquare2, MessageSquare, ClipboardEdit } from "lucide-react-native";
 import { useSession } from "~/lib/auth/ctx";
 import { useCustomerInquiries } from "~/stores/customerInquiries";
+import { maskPhone } from "~/lib/utils/pii";
 
 export default function CallScreen() {
   const { id } = useLocalSearchParams();
@@ -35,7 +36,7 @@ export default function CallScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Active call from Melbourne VIC</Text>
-        <Text style={styles.subHeaderText}>{inquiry?.phone || "Unknown"}</Text>
+        <Text style={styles.subHeaderText}>{inquiry?.phone ? maskPhone(inquiry.phone) : "Unknown"}</Text>
       </View>
 
       <View style={styles.content}>
