@@ -19,6 +19,11 @@ Review all permissions, ensure only necessary ones remain in `app.json`, add in-
 - Current behavior: calls use native dialer (no in-app recording). Camera/photo access only for future uploads; speech recognition optional. No background modes requested.
 - Reviewer notes: “Calls open the native dialer; the app does not record audio in-app. Microphone/camera/photo access is requested only when initiating a call or attaching media; speech recognition supports optional voice interactions. No background modes are enabled.”
 
+## In-app disclosures (T8.3 alignment)
+- Call/recording: Request detail and Help copy clarify that calls open the native dialer and recordings are only available on the web dashboard; no in-app recording happens.
+- Microphone/speech: `app.json` strings explain usage; no background audio/VoIP entitlements.
+- Privacy policy link in Help points to deletion section; reviewer note covers permission usage above.
+
 ## Success Criteria
 - Only necessary permissions are requested with compliant copy.
 - App Review notes and in-app disclosures cover voice/recording behavior; no permission-related rejections.

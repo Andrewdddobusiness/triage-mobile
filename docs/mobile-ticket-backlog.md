@@ -52,9 +52,9 @@ Recent completions:
 - T7.3 Error/offline UX: Standardize offline/retry messaging for Supabase calls/functions. AC: reproducible offline tests pass.
 
 8) Observability and privacy
-- T8.1 Crash reporting: Add Sentry (or chosen) with user/session context; upload symbols. AC: test crash visible in dashboard.
-- T8.2 Analytics alignment: Implement shared taxonomy for auth/onboarding/subscription/inbox events. AC: events flowing in TestFlight.
-- T8.3 Privacy/consent: In-app disclosures for microphone/speech/call recording; data deletion/export entry point for Apple 5.1. AC: legal signoff or reviewer note.
+- T8.1 Crash reporting: Add Sentry (or chosen) with user/session context; upload symbols. AC: test crash visible in dashboard. ✅ wiring added; requires DSN + build to validate.
+- T8.2 Analytics alignment: Implement shared taxonomy for auth/onboarding/subscription/inbox events. AC: events flowing in TestFlight. ✅ taxonomy documented (docs/11-observability-and-analytics.md); trackEvent scrubbed/flagged.
+- T8.3 Privacy/consent: In-app disclosures for microphone/speech/call recording; data deletion/export entry point for Apple 5.1. AC: legal signoff or reviewer note. ✅ disclosures in help/call UX; reviewer note in docs/16-permissions-and-consent.md.
 
 9) Release engineering and submission
 - T9.1 EAS build reliability: Green production build (ios distribution: store) with correct bundle id/merchant id. AC: build artifact produced.
