@@ -14,9 +14,9 @@ Ensure preset catalog matches triage-web, selection persists to Supabase, and as
 - [x] Add confirmation/success feedback and error handling for preset updates and toggle changes.
 - [x] Instrument preset/toggle changes and gated-action upsell CTAs (impression/click/error) to match web empty/gated analytics.
 
-## Remaining to close
-- Add user feedback for preset/toggle changes (success toast, error state, optimistic update with rollback).
-- Instrument analytics for preset/toggle changes and gated upsells: impressions, clicks, success/error, subscription state.
+## QA/Notes
+- Preset updates and toggle changes show success toasts and error alerts; optimistic updates roll back on Supabase errors.
+- Analytics: preset selection modal open/select/update, toggle success/error, and gated CTA impressions/clicks are instrumented.
 
 ## Dependencies / Notes
 - Supabase tables: `assistant_presets`, `service_provider_assistants`, `twilio_phone_numbers`.

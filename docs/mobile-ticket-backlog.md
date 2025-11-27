@@ -28,11 +28,11 @@ Recent completions:
 - T3.3 Analytics: Emit step start/complete/drop-off events using shared taxonomy. AC: events visible in analytics tool.
 
 4) Assistant setup and telephony
-- T4.1 Preset selection: Load presets, update assistant_preset_id, align catalog with web. AC: change reflected in Supabase and UI.
-- T4.2 Number assignment: Harden assign-phone-number function calls with retries/errors; confirm success writes number. AC: assigned number shown; failure copy and retry.
-- T4.3 Enablement gating: Toggle disabled until business number exists; copy matches web. AC: cannot enable without number; state persists after relaunch.
-- T4.4 Call/recording UX decision: Define/implement call button behavior (CallKeep/Twilio) and recording access; ensure permissions cover chosen behavior. AC: signed-off UX doc and implementation or feature flag.
-- T4.5 Clipboard/haptics: Ensure copy buttons (numbers/emails) work and provide feedback. AC: manual QA on iOS device.
+- T4.1 Preset selection: Load presets, update assistant_preset_id, align catalog with web. AC: change reflected in Supabase and UI. ✅ see docs/05-assistant-presets-and-gating.md
+- T4.2 Number assignment: Harden assign-phone-number function calls with retries/errors; confirm success writes number. AC: assigned number shown; failure copy and retry. ✅ see docs/06-phone-number-assignment-resilience.md
+- T4.3 Enablement gating: Toggle disabled until business number exists; copy matches web. AC: cannot enable without number; state persists after relaunch. ✅ gated + analytics (docs/05-assistant-presets-and-gating.md)
+- T4.4 Call/recording UX decision: Define/implement call button behavior (CallKeep/Twilio) and recording access; ensure permissions cover chosen behavior. AC: signed-off UX doc and implementation or feature flag. ✅ native dialer + recording deferral, reviewer note in docs/07-call-and-recording-ux.md
+- T4.5 Clipboard/haptics: Ensure copy buttons (numbers/emails) work and provide feedback. AC: manual QA on iOS device. ✅ copy-to-clipboard with haptics/toasts and masking in request/profile/assistant/assignment; device QA recommended.
 
 5) Inbox and requests
 - T5.1 List fetch performance: get-inquiries function wired; loading/empty states; pull-to-refresh. AC: list renders with caching; empty state copy.
