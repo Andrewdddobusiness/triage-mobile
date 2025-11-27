@@ -11,7 +11,7 @@ Audit and fix accessibility for critical screens, ensure gradients/buttons meet 
 - [ ] Run full VoiceOver audit on sign-in, onboarding, inbox, assistant settings, subscription; add hints where missing.
 - [ ] Ensure focus order and keyboard navigation (where applicable) are logical; avoid trapping focus inside modals.
 - [ ] Check color contrast on gradients/buttons/text; adjust tokens or add alternate styles for dark/light modes.
-- [ ] Standardize haptics: use consistent feedback for success, errors, and toggles; allow disable if needed.
+- [x] Standardize haptics: use consistent feedback for success, errors, and toggles; allow disable if needed.
 - [ ] Add accessibility QA checklist to regression suite.
 
 ## Dependencies / Notes
@@ -23,7 +23,6 @@ Audit and fix accessibility for critical screens, ensure gradients/buttons meet 
 - Contrast/haptic guidance passes manual QA; no accessibility-related App Review blockers.
 
 ## Notes / current state
-- Haptics added on key flows (assistant toggle/preset, phone assignment, call gating) but not yet standardized app-wide.
-- No explicit accessibility labels audit has been done; gradients/buttons need contrast review across onboarding, assistant, subscription, inbox.
-- Added accessibilityRole/labels to shared Button, ProfileActionButton, FilterDropdown, and InquiryCard; still need a broader audit and contrast pass.
+- Haptics now routed through `lib/utils/haptics` with env-toggle; used on assistant toggle/preset and number assignment/copy. Extend to remaining flows as touched.
+- Accessibility labels added to shared components; still need full VoiceOver + contrast audit across onboarding/assistant/subscription/inbox.
 - Add a11y checklist to regression suite once audit fixes land.

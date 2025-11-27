@@ -8,6 +8,7 @@ import { supabase } from "~/lib/supabase";
 import * as Haptics from "expo-haptics";
 import { Phone, Copy, Check } from "lucide-react-native";
 import { trackEvent } from "~/lib/utils/analytics";
+import { haptics } from "~/lib/utils/haptics";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 
 const { width } = Dimensions.get("window");
@@ -114,7 +115,7 @@ export default function AssignPhoneNumberScreen() {
           setPhoneNumber(data.phoneNumber || "");
           setAssigned(true);
           setAvailability("available");
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          haptics.success();
           trackEvent("assign_phone_success", { attempt });
           return;
         }
@@ -127,7 +128,7 @@ export default function AssignPhoneNumberScreen() {
       console.error("Error assigning phone number:", error);
       setError(error instanceof Error ? error.message : "Failed to assign phone number");
       // Trigger error haptic feedback
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      haptics.error();
     } finally {
       setLoading(false);
       setLoadingMessage("");
@@ -187,6 +188,7 @@ export default function AssignPhoneNumberScreen() {
       const didCopy = await copySensitiveToClipboard(phoneNumber, "Business phone number");
       if (didCopy) {
         setCopied(true);
+        haptics.success();
         trackEvent("assign_phone_copied");
       }
     }

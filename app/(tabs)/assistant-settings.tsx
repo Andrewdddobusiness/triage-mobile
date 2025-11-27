@@ -15,6 +15,7 @@ import { notify } from "~/lib/utils/notify";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskPhone } from "~/lib/utils/pii";
 import { UpsellModal } from "~/components/ui/UpsellModal";
+import { haptics } from "~/lib/utils/haptics";
 
 interface AssistantPreset {
   id: string;
@@ -80,7 +81,7 @@ export default function AssistantSettingsScreen() {
   };
 
   const navigateToPhoneNumber = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    haptics.impact(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/onboarding-assistant/assignPhoneNumber");
   };
 
@@ -157,14 +158,10 @@ export default function AssistantSettingsScreen() {
     if (!session?.user || !hasBusinessNumber || isGated) {
       if (!hasBusinessNumber) {
         trackEvent("assistant_toggle_blocked", { reason: "missing_business_number" });
-        Alert.alert(
-          "Business Phone Required",
-          "You need to set up a business phone number before activating your AI assistant.",
-          [
-            { text: "Cancel", style: "cancel" },
-            { text: "Set Up Phone", onPress: navigateToPhoneNumber },
-          ]
-        );
+        Alert.alert("Business Phone Required", "Set up a business phone number to activate your AI assistant.", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Set Up Phone", onPress: navigateToPhoneNumber },
+        ]);
       } else if (isGated) {
         trackEvent("assistant_toggle_blocked", { reason: "subscription" });
         setShowUpsell(true);
@@ -193,7 +190,7 @@ export default function AssistantSettingsScreen() {
 
       const nextEnabled = !assistantEnabled;
       setAssistantEnabled(nextEnabled);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      haptics.success();
       trackEvent("assistant_toggle_success", { enabled: nextEnabled });
       notify(nextEnabled ? "AI assistant enabled." : "AI assistant disabled.");
     } catch (error) {
