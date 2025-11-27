@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Image, Dimensions, TouchableOpacity, Alert, AppState } from "react-native";
+import { View, Image, Dimensions, TouchableOpacity, Alert, AppState, Linking } from "react-native";
 import { Link, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,9 +9,9 @@ import { useSession } from "~/lib/auth/ctx";
 import { supabase } from "~/lib/supabase";
 import { X } from "lucide-react-native";
 import Icon6 from "@expo/vector-icons/FontAwesome6";
-
-
+import { palette } from "~/lib/theme";
 import { useGoogleSignIn } from "~/hooks/useGoogleSignIn";
+import { trackEvent } from "~/lib/utils/analytics";
 
 const { width } = Dimensions.get("window");
 
@@ -42,7 +42,9 @@ export default function SignInScreen() {
 
       await signIn(email, password);
       router.replace("/(tabs)");
+      trackEvent("auth_email_signin_success");
     } catch (error) {
+      trackEvent("auth_email_signin_error", { message: (error as Error)?.message });
       if (error instanceof Error) {
         // Handle specific error cases
         const errorText = error.message.toLowerCase();
@@ -81,9 +83,24 @@ export default function SignInScreen() {
       // signInWithGoogle already handles navigation to /(tabs)
     } catch (error) {
       console.error("Google Sign-in error:", error);
+      trackEvent("auth_google_signin_error", { message: (error as Error)?.message });
       setErrorMessage("Error signing in with Google. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const resetUrl = process.env.EXPO_PUBLIC_WEB_RESET_URL;
+    if (!resetUrl) {
+      setErrorMessage("Reset link unavailable. Please contact support.");
+      return;
+    }
+    try {
+      await Linking.openURL(resetUrl);
+      trackEvent("auth_forgot_password_clicked");
+    } catch {
+      setErrorMessage("Could not open reset link. Please try again from the web.");
     }
   };
 
@@ -91,7 +108,7 @@ export default function SignInScreen() {
     <View
       style={{
         flex: 1,
-        backgroundColor: "#FAFAFA", // Off white background
+        backgroundColor: palette.surfaceMuted,
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
@@ -107,18 +124,22 @@ export default function SignInScreen() {
       </View>
 
       <View className="mb-8 flex-row justify-center items-center ">
-        <Text className="text-[#202020] text-3xl font-semibold">Welcome back!</Text>
+        <Text className="text-3xl font-semibold" style={{ color: palette.text }}>
+          Welcome back!
+        </Text>
       </View>
 
       <View className="absolute top-0 right-0 mt-16 mr-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <X size={24} color="#202020" />
+          <X size={24} color={palette.text} />
         </TouchableOpacity>
       </View>
 
       <View className="flex-1">
         {/* Form */}
-        <Text className="text-[#202020] text-base mb-4 font-semibold">Enter your email</Text>
+        <Text className="text-base mb-4 font-semibold" style={{ color: palette.text }}>
+          Enter your email
+        </Text>
         <View className=" mb-4">
           <Input
             placeholder="Your email"
@@ -129,11 +150,14 @@ export default function SignInScreen() {
               setEmail(text);
               setErrorMessage(""); // Clear error when user types
             }}
-            className="text-black px-4 py-3 text-base rounded-full"
-            placeholderTextColor="rgba(0,0,0,0.3)"
+            className="px-4 py-3 text-base rounded-full"
+            style={{ color: palette.text }}
+            placeholderTextColor={palette.textMuted}
           />
         </View>
-        <Text className="text-[#202020] text-base mb-4 font-semibold">Password</Text>
+        <Text className="text-base mb-4 font-semibold" style={{ color: palette.text }}>
+          Password
+        </Text>
         <View className=" mb-2 relative">
           <Input
             placeholder="Your password"
@@ -143,8 +167,9 @@ export default function SignInScreen() {
               setPassword(text);
               setErrorMessage(""); // Clear error when user types
             }}
-            className="text-black px-4 py-3 text-base pr-12 rounded-full"
-            placeholderTextColor="rgba(0,0,0,0.3)"
+            className="px-4 py-3 text-base pr-12 rounded-full"
+            style={{ color: palette.text }}
+            placeholderTextColor={palette.textMuted}
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -156,21 +181,29 @@ export default function SignInScreen() {
               justifyContent: "center",
             }}
           >
-            <Icon6 name={showPassword ? "eye-slash" : "eye"} size={20} color="rgba(0,0,0,0.5)" />
+            <Icon6 name={showPassword ? "eye-slash" : "eye"} size={20} color={palette.textMuted} />
           </TouchableOpacity>
         </View>
 
         {/* Error message */}
         {errorMessage ? (
-          <Text className="text-red-500 text-sm mb-4 px-4">{errorMessage}</Text>
+          <Text className="text-sm mb-4 px-4" style={{ color: palette.danger }}>
+            {errorMessage}
+          </Text>
         ) : (
           <View className="mb-4" />
         )}
 
-        {/* Reset password temporarily disabled on mobile; use web flow if needed */}
-        <View className="mb-6" />
+        <TouchableOpacity onPress={handleForgotPassword} className="mb-6">
+          <Text className="text-sm font-medium" style={{ color: palette.primary }}>
+            Forgot password?
+          </Text>
+          <Text className="text-xs mt-1" style={{ color: palette.textMuted }}>
+            We’ll open the reset page in your browser.
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
-          disabled={loading}
+          disabled={loading || !email || !password}
           className="mb-4"
           style={{
             width: width - 48,
@@ -213,26 +246,29 @@ export default function SignInScreen() {
             onPress={handleGoogleSignIn}
             disabled={isSubmitting}
             activeOpacity={0.8}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 9999,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingVertical: 16,
-              width: "100%",
-            }}
-          >
-            <Image source={require("~/assets/images/icons/google.png")} className="w-8 h-8 rounded-full mr-2" />
-            <Text style={{ color: "#fe885a", fontWeight: "bold" }}>Sign in with Google</Text>
-          </TouchableOpacity>
-        </LinearGradient>
+          style={{
+            backgroundColor: "white",
+            borderRadius: 9999,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 16,
+            width: "100%",
+            opacity: isSubmitting ? 0.7 : 1,
+          }}
+        >
+          <Image source={require("~/assets/images/icons/google.png")} className="w-8 h-8 rounded-full mr-2" />
+          <Text style={{ color: palette.primary, fontWeight: "bold" }}>
+            {isSubmitting ? "Signing in..." : "Sign in with Google"}
+          </Text>
+        </TouchableOpacity>
+      </LinearGradient>
 
         {/* Already have an account link */}
         <View className="flex-row justify-center gap-x-1 mt-6">
-          <Text className="text-[#202020]">Don't have an account?</Text>
+          <Text style={{ color: palette.text }}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.replace("/signUp")}>
-            <Text className="text-[#fe885a] font-medium">Sign Up</Text>
+            <Text style={{ color: palette.primary, fontWeight: "600" }}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </View>

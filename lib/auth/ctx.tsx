@@ -1,8 +1,9 @@
-import { createContext, useContext, type PropsWithChildren } from "react";
+import { createContext, useContext, type PropsWithChildren, useRef } from "react";
 import { supabase } from "~/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { Alert, Linking } from "react-native";
+import { trackEvent } from "../utils/analytics";
 
 type SubscriptionStatus = {
   hasActiveSubscription: boolean;
@@ -58,6 +59,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [inFlightCheck, setInFlightCheck] = useState<Promise<SubscriptionStatus> | null>(null);
+  const previousSession = useRef<Session | null>(null);
 
   const checkSubscription = async (): Promise<SubscriptionStatus> => {
     if (!session?.user?.id) {
@@ -129,6 +131,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      previousSession.current = session;
       setIsLoading(false);
       // Don't call checkSubscription here - let the next useEffect handle it
     });
@@ -136,8 +139,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (!session && previousSession.current) {
+        trackEvent("auth_session_lost", { event });
+      }
+      previousSession.current = session;
       if (!session) {
         setHasActiveSubscription(false);
         setSubscriptionData(null);

@@ -8,9 +8,9 @@ Recent completions:
 - Ticket 22 Read-only Preview/Upsells: preview gating on calls/status/messages with upgrade CTAs.
 
 0) Foundations
-- T0.1 Env/config parity: Document mobile .env values/EAS secrets and confirm Supabase/Twilio/Stripe keys match triage-web; app boots with no local hacks. AC: fresh clone runs with documented steps.
-- T0.2 Brand tokens: Centralize colors/typography/icons to match web; replace ad-hoc values. AC: design tokens applied; spot-check key screens for consistency.
-- T0.3 Secret hygiene: Verify no secrets in repo; ensure SecureStore usage for auth tokens; audit app.json/eas.json extra for correctness. AC: audit log with fixes applied.
+- T0.1 Env/config parity: Document mobile .env values/EAS secrets and confirm Supabase/Twilio/Stripe keys match triage-web; app boots with no local hacks. AC: fresh clone runs with documented steps. ✅ see docs/00-env-and-brand-tokens.md
+- T0.2 Brand tokens: Centralize colors/typography/icons to match web; replace ad-hoc values. AC: design tokens applied; spot-check key screens for consistency. ✅ tokens in lib/theme.ts; applied to Help/Profile; expand as you touch other screens.
+- T0.3 Secret hygiene: Verify no secrets in repo; ensure SecureStore usage for auth tokens; audit app.json/eas.json extra for correctness. AC: audit log with fixes applied. ✅ audit logged in docs/00-env-and-brand-tokens.md (no private keys in repo; app.json extras are public client IDs).
 
 1) Auth and session
 - T1.1 Email/password flow polish: Validate loading/error states, copy, and forgot-password entry. AC: happy/sad paths covered; reset email sent via Supabase.
