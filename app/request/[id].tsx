@@ -16,11 +16,13 @@ import { Button } from "~/components/ui/button";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskEmail, maskPhone } from "~/lib/utils/pii";
 import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
+import { UpsellModal } from "~/components/ui/UpsellModal";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
   const { selectedInquiry, selectInquiry, inquiries, isLoading, updateInquiryStatus, error } = useCustomerInquiries();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [upsellVisible, setUpsellVisible] = useState(false);
   const { flags } = useFeatureFlags();
   const statusOptions: { id: CustomerInquiry["status"]; label: string }[] = [
     { id: "new", label: "New" },
@@ -56,6 +58,8 @@ export default function RequestDetailScreen() {
     );
   }
 
+  const isPreview = !flags.telephony || flags.killSwitch;
+
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "Not specified";
     return new Intl.NumberFormat("en-AU", {
@@ -75,7 +79,7 @@ export default function RequestDetailScreen() {
 
   const handleCall = async () => {
     if (flags.killSwitch || !flags.telephony) {
-      Alert.alert("Calls unavailable", flags.safeModeMessage || "Telephony is temporarily disabled.");
+      setUpsellVisible(true);
       trackEvent("request_call_blocked_flag", { requestId: id, reason: flags.killSwitch ? "kill_switch" : "telephony" });
       return;
     }
@@ -100,6 +104,12 @@ export default function RequestDetailScreen() {
   };
 
   const handleStatusChange = async (nextStatus: CustomerInquiry["status"]) => {
+    if (!flags.killSwitch && flags.telephony === false) {
+      setUpsellVisible(true);
+      trackEvent("request_status_gated", { requestId: id });
+      return;
+    }
+
     if (!selectedInquiry || selectedInquiry.status === nextStatus) return;
     trackEvent("request_status_change_attempt", { requestId: id, nextStatus });
     try {
@@ -201,7 +211,10 @@ export default function RequestDetailScreen() {
 
           {/* Status controls */}
           <View className="bg-white p-4 mb-2">
-            <Text className="text-xl font-semibold mb-3">Status</Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xl font-semibold">Status</Text>
+              {isPreview && <Text className="text-xs text-orange-600">Preview only</Text>}
+            </View>
             <View className="flex-row flex-wrap gap-2">
               {statusOptions.map((opt) => {
                 const isActive = selectedInquiry.status === opt.id;
@@ -211,8 +224,8 @@ export default function RequestDetailScreen() {
                     onPress={() => handleStatusChange(opt.id)}
                     className={`px-4 py-2 rounded-full border ${
                       isActive ? "bg-orange-100 border-orange-400" : "bg-gray-100 border-gray-200"
-                    }`}
-                  >
+                    } ${isPreview ? "opacity-70" : ""}`}
+                    >
                     <Text className={isActive ? "text-orange-700 font-semibold" : "text-gray-700"}>{opt.label}</Text>
                   </Pressable>
                 );
@@ -277,25 +290,35 @@ export default function RequestDetailScreen() {
         <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
           <View className="p-4">
             <View className="flex-row space-x-12">
-              <View className="flex-1">
+            <View className="flex-1">
                 <Button
                   variant="secondary"
-                  onPress={() =>
-                    Alert.alert(
-                      "Messaging coming soon",
-                      "Mobile messaging will arrive in a future update. For now, use the web dashboard."
-                    )
-                  }
+                  onPress={() => {
+                    setUpsellVisible(true);
+                    trackEvent("request_message_gated", { requestId: id });
+                  }}
+                  disabled={isPreview}
                 >
-                  Message
+                  {isPreview ? "Message (Pro)" : "Message"}
                 </Button>
               </View>
               <View className="flex-1">
-                <Button onPress={handleCall}>Call Customer</Button>
+                <Button onPress={handleCall} disabled={isPreview}>
+                  {isPreview ? "Call (Pro)" : "Call Customer"}
+                </Button>
               </View>
             </View>
           </View>
         </SafeAreaView>
+        <UpsellModal
+          visible={upsellVisible}
+          onClose={() => setUpsellVisible(false)}
+          onUpgrade={() => {
+            setUpsellVisible(false);
+            router.push("/onboarding-assistant/payment");
+          }}
+          message="Call customers, update statuses, and send messages with Spaak Pro."
+        />
       </View>
     </>
   );

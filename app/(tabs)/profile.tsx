@@ -29,6 +29,7 @@ import { router } from "expo-router";
 import { palette, radii, shadows } from "~/lib/theme";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskPhone } from "~/lib/utils/pii";
+import { UpsellModal } from "~/components/ui/UpsellModal";
 
 export default function ProfileScreen() {
   const {
@@ -48,6 +49,7 @@ export default function ProfileScreen() {
   const [supportLinkError, setSupportLinkError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deletionStatus, setDeletionStatus] = useState<string | null>(null);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   // Get user data from session
   useEffect(() => {
@@ -253,6 +255,13 @@ export default function ProfileScreen() {
           icon={<Crown size={20} color="#adb5bd" />}
           onPress={() => router.push("/subscription")}
         />
+        {!hasActiveSubscription && (
+          <ProfileActionButton
+            label="Upgrade to Pro"
+            icon={<IconEn name={"price-tag"} size={20} color="#fe885a" />}
+            onPress={() => setShowUpsell(true)}
+          />
+        )}
         <ProfileActionButton
           label="Account"
           icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
@@ -313,6 +322,16 @@ export default function ProfileScreen() {
           variant="destructive"
         />
       </View>
+      <UpsellModal
+        visible={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        onUpgrade={() => {
+          setShowUpsell(false);
+          router.push("/onboarding-assistant/payment");
+        }}
+        message="Unlock AI assistant, calling, and notifications with Spaak Pro for 59 AUD/month. Cancel anytime."
+        primaryCtaLabel="Get Pro for 59 AUD/mo"
+      />
     </ScrollView>
   );
 }

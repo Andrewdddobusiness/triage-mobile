@@ -14,6 +14,7 @@ import { Button } from "~/components/ui/button";
 import { notify } from "~/lib/utils/notify";
 import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskPhone } from "~/lib/utils/pii";
+import { UpsellModal } from "~/components/ui/UpsellModal";
 
 interface AssistantPreset {
   id: string;
@@ -39,6 +40,7 @@ export default function AssistantSettingsScreen() {
   const [copied, setCopied] = useState(false);
   const [hasBusinessNumber, setHasBusinessNumber] = useState(false);
   const [checkingBusinessNumber, setCheckingBusinessNumber] = useState(true);
+  const [showUpsell, setShowUpsell] = useState(false);
   const isGated = !hasActiveSubscription;
 
   useEffect(() => {
@@ -165,14 +167,7 @@ export default function AssistantSettingsScreen() {
         );
       } else if (isGated) {
         trackEvent("assistant_toggle_blocked", { reason: "subscription" });
-        Alert.alert(
-          "Upgrade Required",
-          "Upgrade to Pro to activate your AI assistant.",
-          [
-            { text: "Not now", style: "cancel" },
-            { text: "Upgrade", onPress: () => router.replace("/onboarding-assistant/payment") },
-          ]
-        );
+        setShowUpsell(true);
       }
       return;
     }
@@ -430,6 +425,16 @@ export default function AssistantSettingsScreen() {
           </View>
         )}
       </ScrollView>
+
+      <UpsellModal
+        visible={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        onUpgrade={() => {
+          setShowUpsell(false);
+          router.replace("/onboarding-assistant/payment");
+        }}
+        message="Activate your AI assistant, assign a business number, and unlock calling with Spaak Pro."
+      />
 
       {/* Preset Selection Modal */}
       <Modal visible={modalVisible} animationType="fade" transparent={true}>
