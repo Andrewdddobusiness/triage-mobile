@@ -44,6 +44,8 @@ export default function ProfileScreen() {
   const [businessNumber, setBusinessNumber] = useState("");
   const [copied, setCopied] = useState(false);
   const [supportLinkError, setSupportLinkError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deletionStatus, setDeletionStatus] = useState<string | null>(null);
 
   // Get user data from session
   useEffect(() => {
@@ -52,6 +54,14 @@ export default function ProfileScreen() {
         try {
           const profile = await userService.getUserProfile(session.user.id);
           setUserProfile(profile);
+          const { data: deletionReq } = await supabase
+            .from("account_deletion_requests")
+            .select("status")
+            .eq("auth_user_id", session.user.id)
+            .order("requested_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          setDeletionStatus(deletionReq?.status || null);
 
           // Fetch the assigned business phone number
           const { data: serviceProvider, error: spError } = await supabase
@@ -247,6 +257,49 @@ export default function ProfileScreen() {
           label="Help & Info"
           icon={<IconEn name={"help-with-circle"} size={20} color="#adb5bd" />}
           onPress={() => router.push("/help")}
+        />
+        <ProfileActionButton
+          label={deletionStatus ? `Delete Account (${deletionStatus})` : "Delete Account"}
+          icon={<IconF name="trash" size={20} color="#ef4444" />}
+          onPress={async () => {
+            if (deletionStatus && deletionStatus !== "failed") {
+              Alert.alert("Deletion in progress", "Your account deletion request is already being processed.");
+              return;
+            }
+            Alert.alert(
+              "Delete account",
+              "This will permanently delete your account and linked data. This cannot be undone.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Delete",
+                  style: "destructive",
+                  onPress: async () => {
+                    if (!session?.user) return;
+                    try {
+                      setDeleting(true);
+                      const { error } = await supabase.functions.invoke("request-account-deletion", {
+                        body: { authUserId: session.user.id },
+                      });
+                      if (error) throw error;
+                      Alert.alert("Deletion requested", "We’re processing your deletion request. You’ll be signed out.", [
+                        {
+                          text: "OK",
+                          onPress: () => signOut(),
+                        },
+                      ]);
+                    } catch (err) {
+                      Alert.alert("Could not request deletion", "Please try again or contact support.");
+                      console.error(err);
+                    } finally {
+                      setDeleting(false);
+                    }
+                  },
+                },
+              ]
+            );
+          }}
+          variant="destructive"
         />
         <ProfileActionButton
           label="Sign Out"

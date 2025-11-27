@@ -7,7 +7,7 @@ Users receive no push notifications for new inquiries, status changes, or assist
 Add push notifications using Expo Notifications (or bare APNs/FCM if preferred): request permission with compliant copy, register device tokens, send notifications on key events (new inquiry, assigned number, assistant status), and handle foreground/background delivery.
 
 ## Tasks
-- [ ] Decide notification scope (new inquiries, status updates, number assignment success/failure, assistant enabled/disabled).
+- [x] Decide notification scope (new inquiries, status updates, number assignment success/failure, assistant enabled/disabled) and routes: inquiry → `request/[id]`, assistant → settings.
 - [x] Implement permission prompt with clear value proposition; handle denial gracefully.
 - [x] Register and store Expo push token (or APNs/FCM token) tied to the authenticated user/service provider.
 - [ ] Implement server-side trigger (Supabase function or backend) to send notifications for chosen events.
