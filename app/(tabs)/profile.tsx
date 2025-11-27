@@ -204,7 +204,9 @@ export default function ProfileScreen() {
         </View>
 
         {/* User Info */}
-        <Text className="text-xl font-semibold mt-4 text-[#111827]">{userProfile.name}</Text>
+        <Text className="text-xl font-semibold mt-4" style={{ color: palette.text }}>
+          {userProfile.name}
+        </Text>
 
         {/* Subscription Plan */}
         {hasActiveSubscription ? (
@@ -218,32 +220,44 @@ export default function ProfileScreen() {
               backgroundColor: "#fe885a1a",
             }}
           >
-            <Crown size={14} color="#fe885a" />
-            <Text className="text-sm font-medium text-[#fe885a] ml-1">Pro Plan</Text>
+            <Crown size={14} color={palette.primary} />
+            <Text className="text-sm font-medium ml-1" style={{ color: palette.primary }}>
+              Pro Plan
+            </Text>
           </View>
         ) : (
-          <Text className="text-sm font-medium text-gray-500 mt-1">No active plan</Text>
+          <Text className="text-sm font-medium mt-1" style={{ color: palette.textMuted }}>
+            No active plan
+          </Text>
         )}
 
         {/* Business Phone Number */}
         {businessNumber ? (
           <View className="mt-3 items-center">
-            <Text className="text-sm text-gray-500 mb-1">Provided Business Number</Text>
+            <Text className="text-sm mb-1" style={{ color: palette.textMuted }}>
+              Provided Business Number
+            </Text>
             <View className="flex-row items-center">
-              <Text className="text-base text-[#fe885a] font-medium">{maskPhone(businessNumber)}</Text>
+              <Text className="text-base font-medium" style={{ color: palette.primary }}>
+                {maskPhone(businessNumber)}
+              </Text>
               <Pressable
                 onPress={copyToClipboard}
                 className="ml-2"
                 style={{ padding: 6, borderRadius: radii.button, backgroundColor: palette.surfaceMuted }}
               >
-                {copied ? <Check size={18} color="#22c55e" /> : <Copy size={18} color="#fe885a" />}
+                {copied ? <Check size={18} color={palette.success} /> : <Copy size={18} color={palette.primary} />}
               </Pressable>
             </View>
-            <Text className="text-xs text-gray-400 mt-1">Full number hidden; copy to use it safely.</Text>
+            <Text className="text-xs mt-1" style={{ color: palette.textMuted }}>
+              Full number hidden; copy to use it safely.
+            </Text>
           </View>
         ) : (
           <View className="mt-3 items-center">
-            <Text className="text-sm text-gray-500">No business number assigned</Text>
+            <Text className="text-sm" style={{ color: palette.textMuted }}>
+              No business number assigned
+            </Text>
           </View>
         )}
       </View>

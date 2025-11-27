@@ -8,6 +8,8 @@ The web and mobile apps share a single Supabase workspace at the repository root
 
 ## Environment setup
 
+See `docs/00-env-and-brand-tokens.md` for the full checklist. Quick start:
+
 1) Copy the sample env and fill in values (public keys only for mobile builds):
 
 ```bash
@@ -18,8 +20,9 @@ Required values:
 - `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 - `EXPO_PUBLIC_API_URL_PROD`, `EXPO_PUBLIC_API_URL_DEV_IOS`, `EXPO_PUBLIC_API_URL_DEV_ANDROID`
 - `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`, `EXPO_PUBLIC_GOOGLE_CLIENT_ID`
+- `EXPO_PUBLIC_WEB_RESET_URL`
 
-Optional server-side variables (Twilio, Supabase service role, VAPI) are for local backend use only—never ship them in mobile builds. Run `npm run env:check` to verify required values are present.
+Optional server-side variables (Twilio, Supabase service role, VAPI) are for local backend use only—never ship them in mobile builds. Run `npm run env:check` to verify required values are present. EAS secrets should mirror web values for Supabase/Stripe/Twilio; keep private keys server-side only.
 
 ## Get started
 
