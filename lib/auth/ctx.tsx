@@ -203,19 +203,26 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
       if (error) {
         console.error("Error opening customer portal:", error);
-        Alert.alert("Error", "Failed to open customer portal. Please try again.");
+        trackEvent("customer_portal_error", { message: (error as Error)?.message });
+        Alert.alert(
+          "Unable to open portal",
+          "Please check your connection or sign in again, then retry. If the issue persists, contact support."
+        );
         return;
       }
 
       if (data?.url) {
         // Open the Stripe customer portal URL
         await Linking.openURL(data.url);
+        trackEvent("customer_portal_opened");
       } else {
+        trackEvent("customer_portal_error", { message: "missing_url" });
         Alert.alert("Error", "No portal URL received. Please try again.");
       }
     } catch (error) {
       console.error("Error opening customer portal:", error);
-      Alert.alert("Error", "Failed to open customer portal. Please try again.");
+      trackEvent("customer_portal_error", { message: (error as Error)?.message });
+      Alert.alert("Error", "Failed to open customer portal. Please try again or from the web dashboard.");
     }
   };
 

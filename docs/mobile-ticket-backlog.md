@@ -18,9 +18,9 @@ Recent completions:
 - T1.3 Session persistence: Ensure refresh after background/kill; no surprise logouts. AC: 24h soak without reauth; telemetry on refresh errors.
 
 2) Subscription/paywall
-- T2.1 Routing matrix: Validate hasActiveSubscription/hasSubscriptionHistory navigation (payment/subscription/onboarding). AC: deterministic paths for new, lapsed, active users.
-- T2.2 Payment compliance: Decide IAP vs external; align with App Store rules. AC: documented decision and reviewer note template.
-- T2.3 Customer portal: Ensure portal link opens and handles expired sessions. AC: works online; graceful offline failure.
+- T2.1 Routing matrix: Validate hasActiveSubscription/hasSubscriptionHistory navigation (payment/subscription/onboarding). AC: deterministic paths for new, lapsed, active users. ✅ see docs/02-subscription-routing-and-payment.md
+- T2.2 Payment compliance: Decide IAP vs external; align with App Store rules. AC: documented decision and reviewer note template. ✅ external Stripe, reviewer note in docs/02-subscription-routing-and-payment.md
+- T2.3 Customer portal: Ensure portal link opens and handles expired sessions. AC: works online; graceful offline failure. ✅ portal flow hardened with telemetry/alerts; see docs/02-subscription-routing-and-payment.md
 
 3) Onboarding data
 - T3.1 Form completeness: Required fields, custom specialty/service, validation matching web; data persists to Supabase. AC: reload shows saved data.
