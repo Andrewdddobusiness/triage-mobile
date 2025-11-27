@@ -35,10 +35,10 @@ Recent completions:
 - T4.5 Clipboard/haptics: Ensure copy buttons (numbers/emails) work and provide feedback. AC: manual QA on iOS device. ✅ copy-to-clipboard with haptics/toasts and masking in request/profile/assistant/assignment; device QA recommended.
 
 5) Inbox and requests
-- T5.1 List fetch performance: get-inquiries function wired; loading/empty states; pull-to-refresh. AC: list renders with caching; empty state copy.
-- T5.2 Filters/search: Status/job type filters accurate; decide on search (client vs server). AC: filter correctness verified; search spec implemented or deferred.
-- T5.3 Request actions: Implement/decide message and call buttons; format currency/date/location per locale. AC: actions active or intentionally removed with rationale.
-- T5.4 Status updates: Add UI to change status using updateInquiryStatus with optimistic update and rollback. AC: Supabase reflects changes; errors surfaced.
+- T5.1 List fetch performance: get-inquiries function wired; loading/empty states; pull-to-refresh. AC: list renders with caching; empty state copy. ✅ 30s cache + refresh control + offline/error states (docs/08-inbox-performance-and-filters.md)
+- T5.2 Filters/search: Status/job type filters accurate; decide on search (client vs server). AC: filter correctness verified; search spec implemented or deferred. ✅ client-side filters/search implemented (docs/08-inbox-performance-and-filters.md)
+- T5.3 Request actions: Implement/decide message and call buttons; format currency/date/location per locale. AC: actions active or intentionally removed with rationale. ✅ call uses native dialer; messaging gated/coming soon; locale formatting present (docs/09-request-actions-and-status.md)
+- T5.4 Status updates: Add UI to change status using updateInquiryStatus with optimistic update and rollback. AC: Supabase reflects changes; errors surfaced. ✅ implemented; tests/manual QA still TODO (docs/09-request-actions-and-status.md)
 
 6) Profile, account, help
 - T6.1 Profile data: Name, plan badge, business number display; copy to clipboard. AC: matches web; handles missing data.
