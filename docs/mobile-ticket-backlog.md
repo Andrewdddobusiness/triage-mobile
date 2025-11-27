@@ -41,10 +41,10 @@ Recent completions:
 - T5.4 Status updates: Add UI to change status using updateInquiryStatus with optimistic update and rollback. AC: Supabase reflects changes; errors surfaced. ✅ implemented; tests/manual QA still TODO (docs/09-request-actions-and-status.md)
 
 6) Profile, account, help
-- T6.1 Profile data: Name, plan badge, business number display; copy to clipboard. AC: matches web; handles missing data.
-- T6.2 Account settings: Surface account/email/password/business info management or document gap. AC: navigation present or PO-approved defer note.
-- T6.3 Help/FAQ: Ensure help.tsx links/content align with web; external links open correctly. AC: links work on device.
-- T6.4 Logout reliability: Clears tokens and resets nav state. AC: no access to tabs after logout.
+- T6.1 Profile data: Name, plan badge, business number display; copy to clipboard. AC: matches web; handles missing data. ✅
+- T6.2 Account settings: Surface account/email/password/business info management or document gap. AC: navigation present or PO-approved defer note. ✅ navigation present; flows deferred.
+- T6.3 Help/FAQ: Ensure help.tsx links/content align with web; external links open correctly. AC: links work on device. ✅ links updated to support/privacy/terms + deletion.
+- T6.4 Logout reliability: Clears tokens and resets nav state. AC: no access to tabs after logout. ✅
 
 7) UX polish and accessibility
 - T7.1 Visual audit: Close punch list for colors/spacing/icons/typography vs web; archive screenshots. AC: punch list resolved.

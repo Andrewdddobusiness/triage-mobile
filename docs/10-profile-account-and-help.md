@@ -9,7 +9,7 @@ Align profile/account/help with triage-web: show plan badge and business number,
 ## Tasks
 - [x] Ensure profile shows user name, plan badge, and business number with copy-to-clipboard feedback.
 - [x] Add navigation to account settings (email/password/business details) or document planned defer.
-- [ ] Align help/FAQ content and external links; verify they open correctly on iOS.
+- [x] Align help/FAQ content and external links; verify they open correctly on iOS.
 - [x] Confirm logout clears auth state and resets navigation.
 
 ## Dependencies / Notes
@@ -21,4 +21,4 @@ Align profile/account/help with triage-web: show plan badge and business number,
 - Any deferred account features are documented with rationale.
 
 ## Remaining to close
-- Wire help/FAQ links with a quick QA on iOS (open external links) and add inline copy parity with web help content.
+- Account details/editing flows still deferred; document in release notes once shipped.
