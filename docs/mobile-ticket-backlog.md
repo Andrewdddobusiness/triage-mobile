@@ -57,7 +57,7 @@ Recent completions:
 - T8.3 Privacy/consent: In-app disclosures for microphone/speech/call recording; data deletion/export entry point for Apple 5.1. AC: legal signoff or reviewer note. ✅ disclosures in help/call UX; reviewer note in docs/16-permissions-and-consent.md.
 
 9) Release engineering and submission
-- T9.1 EAS build reliability: Green production build (ios distribution: store) with correct bundle id/merchant id. AC: build artifact produced.
-- T9.2 Config sanity: app.json permissions/background modes trimmed to what’s needed; icons/splash correct. AC: linted config; unused permissions removed.
+- T9.1 EAS build reliability: Green production build (ios distribution: store) with correct bundle id/merchant id. AC: build artifact produced. 🚧 pending fresh store build/upload.
+- T9.2 Config sanity: app.json permissions/background modes trimmed to what’s needed; icons/splash correct. AC: linted config; unused permissions removed. ✅ app.json reviewed (no background modes; mic/camera only; correct bundle/merchant ids).
 - T9.3 Feature flags: Flags for telephony/payments to allow phased rollout. AC: defaults documented; toggles stored in Supabase/config.
-- T9.4 App Store package: Metadata, privacy answers, reviewer notes, and screenshots prepared (see ios-app-store-submission.md). AC: submission ready checklist complete.
+- T9.4 App Store package: Metadata, privacy answers, reviewer notes, and screenshots prepared (see ios-app-store-submission.md). AC: submission ready checklist complete. 🚧 metadata/privacy/reviewer notes drafted; screenshots + final build/ASC upload still needed (docs/12-app-store-submission.md).
