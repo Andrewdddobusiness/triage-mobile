@@ -9,7 +9,7 @@ import { secureStorage } from "../utils/secureStorage";
 
 export const useOnboardingFlow = () => {
   const { session } = useSession();
-  const STORAGE_KEY = "onboarding:form";
+  const STORAGE_KEY = "onboarding_form";
   const [formData, setFormData] = useState<OnboardingFormData>({
     businessName: "",
     ownerName: "",
@@ -98,6 +98,8 @@ export const useOnboardingFlow = () => {
     const checkOnboardingStatus = async () => {
       if (session?.user) {
         try {
+          // Clean up legacy storage key if present (ignore invalid key errors)
+          await secureStorage.removeItem("onboarding:form").catch(() => {});
           await serviceProviderService.createServiceProvider(session.user.id);
           const isCompleted = await serviceProviderService.isOnboardingCompleted(session.user.id);
           if (isCompleted) router.replace("/(tabs)");
@@ -106,7 +108,14 @@ export const useOnboardingFlow = () => {
           if (stored) {
             try {
               const parsed = JSON.parse(stored);
-              setFormData((prev) => ({ ...prev, ...(parsed.formData || {}) }));
+              const parsedForm = parsed.formData || {};
+              setFormData((prev) => ({
+                ...prev,
+                ...parsedForm,
+                specialty: Array.isArray(parsedForm.specialty) ? parsedForm.specialty : [],
+                servicesOffered: Array.isArray(parsedForm.servicesOffered) ? parsedForm.servicesOffered : [],
+                serviceArea: Array.isArray(parsedForm.serviceArea) ? parsedForm.serviceArea : [],
+              }));
               if (typeof parsed.currentStep === "number") {
                 setCurrentStep(parsed.currentStep);
                 setAnimatedStep(parsed.currentStep);
@@ -121,7 +130,8 @@ export const useOnboardingFlow = () => {
             }
           }
         } catch (error) {
-          setFormError("Failed to check onboarding status. Please try again.");
+          console.error("Failed to check onboarding status", error);
+          setFormError("");
         }
       }
       setInitializing(false);
@@ -157,28 +167,32 @@ export const useOnboardingFlow = () => {
       setLoading(true);
       if (session?.user) {
         // Prepare the specialty values (handle custom specialty)
-        let finalSpecialties = [...formData.specialty];
+        let finalSpecialties = Array.isArray(formData.specialty) ? [...formData.specialty] : [];
         if (formData.specialty.includes("Other") && customSpecialty.trim()) {
           finalSpecialties = finalSpecialties.filter((s) => s !== "Other");
           finalSpecialties.push(customSpecialty.trim());
         }
 
         // Prepare services offered (handle custom service)
-        let finalServicesOffered = [...formData.servicesOffered];
+        let finalServicesOffered = Array.isArray(formData.servicesOffered) ? [...formData.servicesOffered] : [];
         if (formData.servicesOffered.includes("Other") && customService.trim()) {
           finalServicesOffered = finalServicesOffered.filter((s) => s !== "Other");
           finalServicesOffered.push(customService.trim());
         }
 
-        const success = await serviceProviderService.completeOnboardingWithDetails(
-          session.user.id,
-          formData.businessName.trim(),
-          formData.ownerName.trim(),
-          formData.businessEmail.trim(),
-          finalSpecialties,
-          finalServicesOffered,
-          formData.serviceArea
-        );
+        const finalServiceArea = Array.isArray(formData.serviceArea)
+          ? formData.serviceArea.filter((s) => !!s && typeof s === "string")
+          : [];
+
+        const success = await serviceProviderService.completeOnboardingWithDetails({
+          authUserId: session.user.id,
+          businessName: formData.businessName.trim(),
+          ownerName: formData.ownerName.trim(),
+          businessEmail: formData.businessEmail.trim(),
+          specialty: finalSpecialties,
+          servicesOffered: finalServicesOffered,
+          serviceArea: finalServiceArea,
+        });
 
         if (success) {
           await clearPersisted();

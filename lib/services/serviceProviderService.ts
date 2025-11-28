@@ -77,16 +77,25 @@ export const serviceProviderService = {
    * @param serviceArea Array of service areas
    * @returns Boolean indicating if the update was successful
    */
-  async completeOnboardingWithDetails(
-    authUserId: string,
-    businessName: string,
-    ownerName: string,
-    businessEmail: string,
-    specialty: string[],
-    servicesOffered: string[],
-    serviceArea: string[]
-  ): Promise<boolean> {
+  async completeOnboardingWithDetails(params: {
+    authUserId: string;
+    businessName: string;
+    ownerName: string;
+    businessEmail: string;
+    specialty: string[];
+    servicesOffered: string[];
+    serviceArea: string[];
+  }): Promise<boolean> {
     try {
+      const {
+        authUserId,
+        businessName,
+        ownerName,
+        businessEmail,
+        specialty,
+        servicesOffered,
+        serviceArea,
+      } = params;
       // Get the service provider record
       const { data: serviceProvider, error: spError } = await supabase
         .from("service_providers")
@@ -97,18 +106,24 @@ export const serviceProviderService = {
       if (spError) throw spError;
 
       // Update the service provider with all the details
-      const { error: updateError } = await supabase
-        .from("service_providers")
-        .update({
-          business_name: businessName,
-          owner_name: ownerName,
-          business_email: businessEmail || null,
-          specialty,
-          services_offered: servicesOffered,
-          service_area: serviceArea,
-          onboarding_status: "completed",
-        })
-        .eq("id", serviceProvider.id);
+      const payload = {
+        business_name: businessName,
+        owner_name: ownerName,
+        business_email: businessEmail || null,
+        specialty: Array.isArray(specialty) ? specialty : [],
+        services_offered: Array.isArray(servicesOffered) ? servicesOffered : [],
+        service_area: Array.isArray(serviceArea) ? serviceArea : [],
+        onboarding_status: "completed",
+      };
+
+      let { error: updateError } = await supabase.from("service_providers").update(payload).eq("id", serviceProvider.id);
+
+      // Fallback: if the backend expects business_email as an array type, retry with single-element array.
+      if (updateError?.message?.includes("malformed array literal") && businessEmail) {
+        const retryPayload = { ...payload, business_email: [businessEmail] };
+        const retry = await supabase.from("service_providers").update(retryPayload).eq("id", serviceProvider.id);
+        updateError = retry.error;
+      }
 
       if (updateError) throw updateError;
 
