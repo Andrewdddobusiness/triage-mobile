@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StatusBar, BackHandler, ActivityIndicator, Modal, AppState } from "react-native";
+import { View, ScrollView, StatusBar, BackHandler, ActivityIndicator, Modal, AppState, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
 import * as Linking from "expo-linking";
 import { useSession } from "~/lib/auth/ctx";
