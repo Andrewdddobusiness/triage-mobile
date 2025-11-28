@@ -293,7 +293,7 @@ export default function AssistantSettingsScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
-          paddingBottom: insets.bottom + 20,
+          paddingBottom: insets.bottom + 80,
           backgroundColor: palette.surfaceMuted,
         }}
       >

@@ -305,20 +305,11 @@ export default function ProfileScreen() {
                 onPress={() => router.push("/subscription")}
               />
             </View>
-            {!hasActiveSubscription && (
-              <View style={{ paddingVertical: 8 }}>
-                <ProfileActionButton
-                  label="Upgrade to Pro"
-                  icon={<IconEn name={"price-tag"} size={20} color="#fe885a" />}
-                  onPress={() => setShowUpsell(true)}
-                />
-              </View>
-            )}
-            <View style={{ paddingVertical: 8 }}>
-              <ProfileActionButton
-                label="Account"
-                icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
-                onPress={() => router.push("/account")}
+          <View style={{ paddingVertical: 8 }}>
+            <ProfileActionButton
+              label="Account"
+              icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
+              onPress={() => router.push("/account")}
               />
             </View>
             <View style={{ paddingVertical: 8 }}>
