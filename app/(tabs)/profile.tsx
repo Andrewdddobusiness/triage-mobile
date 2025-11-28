@@ -112,7 +112,10 @@ export default function ProfileScreen() {
   // Copy phone number to clipboard
   const copyToClipboard = async () => {
     if (businessNumber) {
-      const didCopy = await copySensitiveToClipboard(businessNumber, "Business phone number");
+      const didCopy = await copySensitiveToClipboard(
+        businessNumber,
+        "Business phone number"
+      );
       if (didCopy) {
         setCopied(true);
         trackEvent("profile_business_number_copied");
@@ -150,7 +153,9 @@ export default function ProfileScreen() {
 
     switch (subscriptionData.status) {
       case "active":
-        return subscriptionData.cancel_at_period_end ? "text-orange-500" : "text-green-500";
+        return subscriptionData.cancel_at_period_end
+          ? "text-orange-500"
+          : "text-green-500";
       case "trialing":
         return "text-blue-500";
       case "past_due":
@@ -163,189 +168,203 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView
-      className="flex-1"
-      contentContainerStyle={{
-        paddingBottom: insets.bottom + 80,
-        backgroundColor: palette.surfaceMuted,
-      }}
-    >
-      {/* Profile Header */}
-      <View
-        className="items-center"
-        style={[
-          {
-            backgroundColor: palette.surface,
-            padding: 24,
-            marginHorizontal: 16,
-            marginTop: 16,
-            borderRadius: radii.card,
-            borderWidth: 1,
-            borderColor: palette.border,
-          },
-          shadows.card,
-        ]}
+    <View style={{ flex: 1, backgroundColor: palette.surfaceMuted }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 140,
+          paddingTop: 10,
+          paddingHorizontal: 16,
+        }}
       >
-        {/* Profile Image with Edit Button */}
-        <View className="relative">
-          <View
-            className="items-center justify-center"
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 48,
-              backgroundColor: palette.surfaceMuted,
+        {/* Profile Header */}
+        <View
+          className="items-center"
+          style={[
+            {
+              backgroundColor: palette.surface,
+              padding: 24,
+              marginHorizontal: 16,
+              marginTop: 16,
+              borderRadius: radii.card,
               borderWidth: 1,
               borderColor: palette.border,
-            }}
-          >
-            <User size={36} color="#adb5bd" />
+            },
+            shadows.card,
+          ]}
+        >
+          {/* Profile Image with Edit Button */}
+          <View className="relative">
+            <View
+              className="items-center justify-center"
+              style={{
+                width: 96,
+                height: 96,
+                borderRadius: 48,
+                backgroundColor: palette.surfaceMuted,
+                borderWidth: 1,
+                borderColor: palette.border,
+              }}
+            >
+              <User size={36} color="#adb5bd" />
+            </View>
           </View>
+
+          {/* User Info */}
+          <Text
+            className="text-xl font-semibold mt-4"
+            style={{ color: palette.text }}
+          >
+            {userProfile.name}
+          </Text>
+
+          {/* Subscription Plan */}
+          {hasActiveSubscription ? (
+            <View
+              className="flex-row items-center"
+              style={{
+                marginTop: 4,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: radii.pill,
+                backgroundColor: "#fe885a1a",
+              }}
+            >
+              <Crown size={14} color={palette.primary} />
+              <Text
+                className="text-sm font-medium ml-1"
+                style={{ color: palette.primary }}
+              >
+                Pro Plan
+              </Text>
+            </View>
+          ) : (
+            <Text
+              className="text-sm font-medium mt-1"
+              style={{ color: palette.textMuted }}
+            >
+              No active plan
+            </Text>
+          )}
+
+          {/* Business Phone Number */}
+          {businessNumber ? (
+            <View className="mt-3 items-center">
+              <Text
+                className="text-sm mb-1"
+                style={{ color: palette.textMuted }}
+              >
+                Provided Business Number
+              </Text>
+              <View className="flex-row items-center">
+                <Text
+                  className="text-base font-medium"
+                  style={{ color: palette.primary }}
+                >
+                  {maskPhone(businessNumber)}
+                </Text>
+                <Pressable
+                  onPress={copyToClipboard}
+                  className="ml-2"
+                  style={{
+                    padding: 6,
+                    borderRadius: radii.button,
+                    backgroundColor: palette.surfaceMuted,
+                  }}
+                >
+                  {copied ? (
+                    <Check size={18} color={palette.success} />
+                  ) : (
+                    <Copy size={18} color={palette.primary} />
+                  )}
+                </Pressable>
+              </View>
+              <Text
+                className="text-xs mt-1"
+                style={{ color: palette.textMuted }}
+              >
+                Full number hidden; copy to use it safely.
+              </Text>
+            </View>
+          ) : (
+            <View className="mt-3 items-center">
+              <Text className="text-sm" style={{ color: palette.textMuted }}>
+                No business number assigned
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* User Info */}
-        <Text className="text-xl font-semibold mt-4" style={{ color: palette.text }}>
-          {userProfile.name}
-        </Text>
-
-        {/* Subscription Plan */}
-        {hasActiveSubscription ? (
-          <View
-            className="flex-row items-center"
-            style={{
-              marginTop: 4,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: radii.pill,
-              backgroundColor: "#fe885a1a",
-            }}
-          >
-            <Crown size={14} color={palette.primary} />
-            <Text className="text-sm font-medium ml-1" style={{ color: palette.primary }}>
-              Pro Plan
-            </Text>
-          </View>
-        ) : (
-          <Text className="text-sm font-medium mt-1" style={{ color: palette.textMuted }}>
-            No active plan
-          </Text>
-        )}
-
-        {/* Business Phone Number */}
-        {businessNumber ? (
-          <View className="mt-3 items-center">
-            <Text className="text-sm mb-1" style={{ color: palette.textMuted }}>
-              Provided Business Number
-            </Text>
-            <View className="flex-row items-center">
-              <Text className="text-base font-medium" style={{ color: palette.primary }}>
-                {maskPhone(businessNumber)}
-              </Text>
-              <Pressable
-                onPress={copyToClipboard}
-                className="ml-2"
-                style={{ padding: 6, borderRadius: radii.button, backgroundColor: palette.surfaceMuted }}
-              >
-                {copied ? <Check size={18} color={palette.success} /> : <Copy size={18} color={palette.primary} />}
-              </Pressable>
+        {/* Actions List */}
+        <View style={{ gap: 4, marginTop: 8, marginBottom: 90 }}>
+          <View style={{ gap: 4 }}>
+            <View style={{ paddingVertical: 8 }}>
+              <ProfileActionButton
+                label="Subscription"
+                icon={<Crown size={20} color="#adb5bd" />}
+                onPress={() => router.push("/subscription")}
+              />
             </View>
-            <Text className="text-xs mt-1" style={{ color: palette.textMuted }}>
-              Full number hidden; copy to use it safely.
-            </Text>
+            {!hasActiveSubscription && (
+              <View style={{ paddingVertical: 8 }}>
+                <ProfileActionButton
+                  label="Upgrade to Pro"
+                  icon={<IconEn name={"price-tag"} size={20} color="#fe885a" />}
+                  onPress={() => setShowUpsell(true)}
+                />
+              </View>
+            )}
+            <View style={{ paddingVertical: 8 }}>
+              <ProfileActionButton
+                label="Account"
+                icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
+                onPress={() => router.push("/account")}
+              />
+            </View>
+            <View style={{ paddingVertical: 8 }}>
+              <ProfileActionButton
+                label="Help & Info"
+                icon={
+                  <IconEn name={"help-with-circle"} size={20} color="#adb5bd" />
+                }
+                onPress={() => router.push("/help")}
+              />
+            </View>
           </View>
-        ) : (
-          <View className="mt-3 items-center">
-            <Text className="text-sm" style={{ color: palette.textMuted }}>
-              No business number assigned
-            </Text>
-          </View>
-        )}
-      </View>
 
-      {/* Actions List */}
-      <View className="mt-4 space-y-3 px-4">
-        <ProfileActionButton
-          label="Subscription"
-          icon={<Crown size={20} color="#adb5bd" />}
-          onPress={() => router.push("/subscription")}
-        />
-        {!hasActiveSubscription && (
-          <ProfileActionButton
-            label="Upgrade to Pro"
-            icon={<IconEn name={"price-tag"} size={20} color="#fe885a" />}
-            onPress={() => setShowUpsell(true)}
-          />
-        )}
-        <ProfileActionButton
-          label="Account"
-          icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
-          onPress={() => router.push("/account")}
-        />
-        <ProfileActionButton
-          label="Help & Info"
-          icon={<IconEn name={"help-with-circle"} size={20} color="#adb5bd" />}
-          onPress={() => router.push("/help")}
-        />
-        <ProfileActionButton
-          label={deletionStatus ? `Delete Account (${deletionStatus})` : "Delete Account"}
-          icon={<IconF name="trash" size={20} color="#ef4444" />}
-          onPress={async () => {
-            if (deletionStatus && deletionStatus !== "failed") {
-              Alert.alert("Deletion in progress", "Your account deletion request is already being processed.");
-              return;
-            }
-            Alert.alert(
-              "Delete account",
-              "This will permanently delete your account and linked data. This cannot be undone.",
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "Delete",
-                  style: "destructive",
-                  onPress: async () => {
-                    if (!session?.user) return;
-                    try {
-                      setDeleting(true);
-                      const { error } = await supabase.functions.invoke("request-account-deletion", {
-                        body: { authUserId: session.user.id },
-                      });
-                      if (error) throw error;
-                      Alert.alert("Deletion requested", "We’re processing your deletion request. You’ll be signed out.", [
-                        {
-                          text: "OK",
-                          onPress: () => signOut(),
-                        },
-                      ]);
-                    } catch (err) {
-                      Alert.alert("Could not request deletion", "Please try again or contact support.");
-                      console.error(err);
-                    } finally {
-                      setDeleting(false);
-                    }
-                  },
-                },
-              ]
-            );
+          <View style={{ paddingVertical: 8 }}>
+            <ProfileActionButton
+              label="Sign Out"
+              icon={<IconF name="sign-out" size={20} color="#ef4444" />}
+              onPress={signOut}
+              variant="destructive"
+            />
+          </View>
+
+          <View style={{ paddingVertical: 8 }}>
+            <ProfileActionButton
+              label={
+                deletionStatus
+                  ? `Delete Account (${deletionStatus})`
+                  : "Delete Account"
+              }
+              icon={<IconF name="trash" size={20} color="#ef4444" />}
+              onPress={() => router.push("/account?delete=true")}
+              variant="destructive"
+            />
+          </View>
+        </View>
+        <UpsellModal
+          visible={showUpsell}
+          onClose={() => setShowUpsell(false)}
+          onUpgrade={() => {
+            setShowUpsell(false);
+            router.push("/onboarding-assistant/payment");
           }}
-          variant="destructive"
+          message="Unlock AI assistant, calling, and notifications with Spaak Pro for 59 AUD/month. Cancel anytime."
+          primaryCtaLabel="Get Pro for 59 AUD/mo"
         />
-        <ProfileActionButton
-          label="Sign Out"
-          icon={<IconF name="sign-out" size={20} color="#ef4444" />}
-          onPress={signOut}
-          variant="destructive"
-        />
-      </View>
-      <UpsellModal
-        visible={showUpsell}
-        onClose={() => setShowUpsell(false)}
-        onUpgrade={() => {
-          setShowUpsell(false);
-          router.push("/onboarding-assistant/payment");
-        }}
-        message="Unlock AI assistant, calling, and notifications with Spaak Pro for 59 AUD/month. Cancel anytime."
-        primaryCtaLabel="Get Pro for 59 AUD/mo"
-      />
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
