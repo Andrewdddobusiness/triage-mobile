@@ -307,6 +307,15 @@ export default function AssistantSettingsScreen() {
             <Text className="text-amber-700">
               You need to set up a business phone number before you can activate your AI assistant.
             </Text>
+            <TouchableOpacity
+              onPress={() => {
+                trackEvent("assistant_gated_cta_click", { cta: "assign_phone_banner" });
+                navigateToPhoneNumber();
+              }}
+              className="mt-2"
+            >
+              <Text className="text-orange-500 font-semibold">Set up now</Text>
+            </TouchableOpacity>
           </View>
         )}
         {isGated && (
@@ -397,30 +406,6 @@ export default function AssistantSettingsScreen() {
           </Text>
         </Card>
 
-        {!hasBusinessNumber && (
-          <View style={{ marginHorizontal: 16, marginTop: 16 }}>
-            <Button
-              onPress={() => {
-                trackEvent("assistant_gated_cta_click", { cta: "assign_phone" });
-                navigateToPhoneNumber();
-              }}
-            >
-              Finish setting up your AI assistant!
-            </Button>
-          </View>
-        )}
-        {isGated && (
-          <View style={{ marginHorizontal: 16, marginTop: hasBusinessNumber ? 16 : 8 }}>
-            <Button
-              onPress={() => {
-                trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription" });
-                router.replace("/onboarding-assistant/payment");
-              }}
-            >
-              Upgrade to enable AI assistant
-            </Button>
-          </View>
-        )}
       </ScrollView>
 
       <UpsellModal
