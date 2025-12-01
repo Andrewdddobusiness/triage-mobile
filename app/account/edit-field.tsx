@@ -1,12 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
-  Pressable,
-} from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, TouchableOpacity, Alert, ScrollView, ActivityIndicator, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { useLocalSearchParams, router } from "expo-router";
@@ -15,7 +8,8 @@ import { useSession } from "~/lib/auth/ctx";
 import { supabase } from "~/lib/supabase";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { palette, radii } from "~/lib/theme";
-import { Button } from "~/components/ui/button";
+import { MultiSelectStep } from "~/components/onboarding/MultiSelectStep";
+import { ServiceAreaStep } from "~/components/onboarding/ServiceAreaStep";
 
 const FIELD_MAP: Record<string, keyof typeof columnMap> = {
   ownerName: "owner_name",
@@ -45,10 +39,47 @@ export default function EditFieldScreen() {
   const insets = useSafeAreaInsets();
   const [value, setValue] = useState(params.value || "");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [multiError, setMultiError] = useState("");
 
   const title = params.title || "Edit";
   const field = params.field || "";
   const columnKey = FIELD_MAP[field];
+
+  const isMultiSelect = columnKey === "services_offered" || columnKey === "specialty";
+  const isServiceArea = columnKey === "service_area";
+
+  const servicesOfferedOptions = useMemo(
+    () => ["New Builds", "Renovations", "Repairs", "Installations", "Emergency Call-Outs", "Inspections", "Custom Work", "Other"],
+    []
+  );
+  const specialtyOptions = useMemo(
+    () => ["Builder", "Electrician", "Plumber", "Carpenter", "Landscaper", "Painter", "Roofer", "Tiler", "Handyman", "Other"],
+    []
+  );
+
+  const initialList = (params.value || "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(isMultiSelect ? initialList : []);
+  const [customOption, setCustomOption] = useState("");
+  const [serviceAreas, setServiceAreas] = useState<string[]>(isServiceArea ? initialList : []);
+
+  const toggleOption = (opt: string) => {
+    setMultiError("");
+    setSelectedOptions((prev) => (prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]));
+  };
+
+  const validateServiceArea = (areas: string[]) => {
+    if (!areas.length) {
+      setError("Please add at least one service area");
+      return false;
+    }
+    setError("");
+    return true;
+  };
 
   const save = async () => {
     if (!session?.user) return;
@@ -56,6 +87,41 @@ export default function EditFieldScreen() {
       Alert.alert("Error", "Unsupported field");
       return;
     }
+
+    setError("");
+    setMultiError("");
+    const trimmed = value.trim();
+
+    // Field-specific validation mirroring onboarding
+    if (columnKey === "business_email") {
+      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      if (!emailRegex.test(trimmed.toLowerCase())) {
+        setError("Please enter a valid email address");
+        return;
+      }
+    }
+
+    if (isMultiSelect) {
+      const hasSelection = selectedOptions.length > 0;
+      const pickedOther = selectedOptions.includes("Other");
+      const customTrimmed = customOption.trim();
+      if (!hasSelection) {
+        setMultiError("Please select at least one option");
+        return;
+      }
+      if (pickedOther && !customTrimmed) {
+        setMultiError("Please specify your custom option");
+        return;
+      }
+    }
+
+    if (isServiceArea) {
+      if (serviceAreas.length === 0) {
+        setError("Please add at least one service area");
+        return;
+      }
+    }
+
     try {
       setSaving(true);
       const { data: serviceProvider, error: spError } = await supabase
@@ -63,25 +129,31 @@ export default function EditFieldScreen() {
         .select("id")
         .eq("auth_user_id", session.user.id)
         .single();
-      if (spError || !serviceProvider)
-        throw spError || new Error("No service provider");
+      if (spError || !serviceProvider) throw spError || new Error("No service provider");
 
       // Prepare payload: arrays for multi-value fields
       const payload: Record<string, unknown> = {};
       if (columnKey === "business_email") {
-        payload[columnKey] = value.trim() ? [value.trim()] : null;
-      } else if (
-        columnKey === "services_offered" ||
-        columnKey === "specialty" ||
-        columnKey === "service_area"
-      ) {
-        const arr = value
-          .split(",")
-          .map((v) => v.trim())
-          .filter(Boolean);
-        payload[columnKey] = arr;
+        payload[columnKey] = trimmed ? [trimmed.toLowerCase()] : null;
+      } else if (columnKey === "services_offered" || columnKey === "specialty" || columnKey === "service_area") {
+        if (isMultiSelect) {
+          const customTrimmed = customOption.trim();
+          const cleaned = selectedOptions.filter((o) => o !== "Other");
+          if (selectedOptions.includes("Other") && customTrimmed) {
+            cleaned.push(customTrimmed);
+          }
+          payload[columnKey] = cleaned;
+        } else if (isServiceArea) {
+          payload[columnKey] = serviceAreas;
+        } else {
+          const arr = trimmed
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean);
+          payload[columnKey] = arr;
+        }
       } else {
-        payload[columnKey] = value.trim();
+        payload[columnKey] = trimmed;
       }
 
       const { error: updateError } = await supabase
@@ -89,14 +161,9 @@ export default function EditFieldScreen() {
         .update(payload)
         .eq("id", serviceProvider.id);
       if (updateError) throw updateError;
-      Alert.alert("Saved", "Your changes have been saved.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      Alert.alert("Saved", "Your changes have been saved.", [{ text: "OK", onPress: () => router.back() }]);
     } catch (err) {
-      Alert.alert(
-        "Error",
-        err instanceof Error ? err.message : "Could not save changes"
-      );
+      Alert.alert("Error", err instanceof Error ? err.message : "Could not save changes");
     } finally {
       setSaving(false);
     }
@@ -142,25 +209,67 @@ export default function EditFieldScreen() {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-sm text-gray-600 mb-2">Enter a value</Text>
-        <Input
-          value={value}
-          onChangeText={setValue}
-          multiline={
-            columnKey === "services_offered" ||
-            columnKey === "specialty" ||
-            columnKey === "service_area"
-          }
-          placeholder={
-            columnKey === "business_email"
-              ? "you@business.com"
-              : columnKey === "owner_name"
-              ? "Owner name"
-              : columnKey === "business_name"
-              ? "Business name"
-              : "Comma separated values for multiple entries"
-          }
-        />
+        {isMultiSelect ? (
+          <View style={{ gap: 16 }}>
+            <Text className="text-sm text-gray-600">Select options</Text>
+            <MultiSelectStep
+              options={columnKey === "services_offered" ? servicesOfferedOptions : specialtyOptions}
+              selectedOptions={selectedOptions}
+              toggleOption={toggleOption}
+              showCustomInput={selectedOptions.includes("Other")}
+              customValue={customOption}
+              setCustomValue={(text) => {
+                setMultiError("");
+                setCustomOption(text);
+              }}
+              customPlaceholder="Enter your custom option"
+              error={multiError}
+            />
+          </View>
+        ) : isServiceArea ? (
+          <View style={{ gap: 12 }}>
+            <Text className="text-sm text-gray-600">Add service areas</Text>
+            <ServiceAreaStep
+              serviceArea={serviceAreas}
+              setServiceArea={(areas) => {
+                setError("");
+                setServiceAreas(areas);
+              }}
+              errors={{ serviceArea: error }}
+              setErrors={(updater) => {
+                const next =
+                  typeof updater === "function" ? updater({ serviceArea: error }) : updater;
+                setError((next as any).serviceArea || "");
+              }}
+              validateField={(_, val) => validateServiceArea(val as string[])}
+            />
+            {error ? <Text className="text-xs text-orange-500 ml-1">{error}</Text> : null}
+          </View>
+        ) : (
+          <>
+            <Text className="text-sm text-gray-600 mb-2">Enter a value</Text>
+            <Input
+              value={value}
+              onChangeText={(text) => {
+                setError("");
+                setValue(text);
+              }}
+              placeholder={
+                columnKey === "business_email"
+                  ? "you@business.com"
+                  : columnKey === "owner_name"
+                  ? "Owner name"
+                  : columnKey === "business_name"
+                  ? "Business name"
+                  : "Enter value"
+              }
+              keyboardType={columnKey === "business_email" ? "email-address" : "default"}
+              autoCapitalize={columnKey === "business_email" ? "none" : "words"}
+              autoCorrect={columnKey !== "business_email"}
+            />
+            {error ? <Text className="text-xs text-orange-500 ml-1">{error}</Text> : null}
+          </>
+        )}
       </ScrollView>
       <View
         style={{
