@@ -6,19 +6,23 @@ import { InquiryCard } from "~/components/ui/InquiryCard";
 import { FilterDropdown } from "~/components/ui/FilterDropdown";
 import { STATUS_FILTERS, IFilterOption, JOB_TYPE_FILTERS } from "~/lib/types/filters";
 import { useSession } from "~/lib/auth/ctx";
+import { supabase } from "~/lib/supabase";
+import { router } from "expo-router";
 
 import IconIon from "@expo/vector-icons/Ionicons";
+import { AlertTriangle } from "lucide-react-native";
 import { trackEvent } from "~/lib/utils/analytics";
 import { EmptyState } from "~/components/ui/empty-state";
 import { Loader } from "~/components/ui/loader";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading, error, isOffline } = useCustomerInquiries();
-  const { session } = useSession();
+  const { session, hasActiveSubscription } = useSession();
   const insets = useSafeAreaInsets();
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<IFilterOption>(STATUS_FILTERS.options[0]);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<IFilterOption>(JOB_TYPE_FILTERS.options[0]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hasBusinessNumber, setHasBusinessNumber] = useState<boolean | null>(null);
 
   // Calculate bottom padding to account for tab bar and safe area
   const bottomPadding = Platform.select({
@@ -30,8 +34,35 @@ export default function InboxScreen() {
   useEffect(() => {
     if (session?.user) {
       fetchInquiries();
+      fetchBusinessNumber();
     }
   }, [session]);
+
+  const fetchBusinessNumber = async () => {
+    try {
+      const { data: serviceProvider, error: spError } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("auth_user_id", session?.user.id)
+        .single();
+      if (spError || !serviceProvider?.id) {
+        setHasBusinessNumber(false);
+        return;
+      }
+      const { data: phoneNumbers, error: phoneError } = await supabase
+        .from("twilio_phone_numbers")
+        .select("id")
+        .eq("assigned_to", serviceProvider.id)
+        .not("assigned_at", "is", null);
+      if (phoneError) {
+        setHasBusinessNumber(false);
+        return;
+      }
+      setHasBusinessNumber((phoneNumbers || []).length > 0);
+    } catch (err) {
+      setHasBusinessNumber(false);
+    }
+  };
 
   const handleStatusFilterSelect = (option: IFilterOption) => {
     setSelectedStatusFilter(option);
@@ -141,10 +172,44 @@ export default function InboxScreen() {
           }
           ListEmptyComponent={
             <View className="flex-1 p-4">
-              <EmptyState
-                title="No inquiries yet"
-                description="Share your business number to start capturing calls. Pull to refresh anytime."
-              />
+              {!hasActiveSubscription ? (
+                <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                  <View className="flex-row items-center mb-2">
+                    <AlertTriangle size={18} color="#c2410c" />
+                    <Text className="text-amber-800 font-semibold text-lg ml-2">Upgrade required</Text>
+                  </View>
+                  <Text className="text-amber-700 text-sm mb-3">
+                    Upgrade to Pro to start capturing calls and logging inquiries.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => router.push("/subscription")}
+                    className="bg-[#fe885a] rounded-full py-3 px-4 items-center"
+                  >
+                    <Text className="text-white font-semibold">Upgrade to Pro</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : hasBusinessNumber === false ? (
+                <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                  <View className="flex-row items-center mb-2">
+                    <AlertTriangle size={18} color="#c2410c" />
+                    <Text className="text-amber-800 font-semibold text-lg ml-2">Finish setup</Text>
+                  </View>
+                  <Text className="text-amber-700 text-sm mb-3">
+                    Set up your assistant and assign a business number to start capturing calls.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => router.push("/onboarding-assistant/assignPhoneNumber")}
+                    className="bg-[#fe885a] rounded-full py-3 px-4 items-center"
+                  >
+                    <Text className="text-white font-semibold">Set up Assistant</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <EmptyState
+                  title="No inquiries yet"
+                  description="Share your business number to start capturing calls. Pull to refresh anytime."
+                />
+              )}
             </View>
           }
         />

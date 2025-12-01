@@ -332,9 +332,9 @@ export default function AssistantSettingsScreen() {
                 trackEvent("assistant_gated_cta_click", { cta: "upgrade_subscription_banner" });
                 router.replace("/onboarding-assistant/payment");
               }}
-              className="mt-3"
+              className="mt-3 bg-[#fe885a] rounded-full py-3 px-4 items-center"
             >
-              <Text className="text-orange-500 font-semibold">Upgrade to Pro</Text>
+              <Text className="text-white font-semibold">Upgrade to Pro</Text>
             </TouchableOpacity>
           </View>
         )}
