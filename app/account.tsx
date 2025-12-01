@@ -176,12 +176,7 @@ export default function AccountScreen() {
                 value={profile.name || "Add owner name"}
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "ownerName",
-                      title: "Owner / contact name",
-                      value: profile.name || "",
-                    },
+                    pathname: "/account/edit/owner-name",
                   })
                 }
               />
@@ -191,12 +186,7 @@ export default function AccountScreen() {
                 hint="Shown on greetings and invoices"
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "businessName",
-                      title: "Business name",
-                      value: profile.businessName || "",
-                    },
+                    pathname: "/account/edit/business-name",
                   })
                 }
               />
@@ -205,12 +195,7 @@ export default function AccountScreen() {
                 value={profile.businessEmail || "you@business.com"}
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "businessEmail",
-                      title: "Business email",
-                      value: profile.businessEmail || "",
-                    },
+                    pathname: "/account/edit/business-email",
                   })
                 }
               />
@@ -219,12 +204,7 @@ export default function AccountScreen() {
                 value={profile.servicesOffered.length ? profile.servicesOffered.join(", ") : "Select options"}
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "servicesOffered",
-                      title: "Services offered",
-                      value: profile.servicesOffered.join(", "),
-                    },
+                    pathname: "/account/edit/services-offered",
                   })
                 }
               />
@@ -233,12 +213,7 @@ export default function AccountScreen() {
                 value={profile.specialties.length ? profile.specialties.join(", ") : "Select options"}
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "specialties",
-                      title: "Trade specialties",
-                      value: profile.specialties.join(", "),
-                    },
+                    pathname: "/account/edit/specialties",
                   })
                 }
               />
@@ -247,12 +222,7 @@ export default function AccountScreen() {
                 value={profile.serviceAreas.length ? profile.serviceAreas.join(", ") : "Add suburbs/regions"}
                 onPress={() =>
                   router.push({
-                    pathname: "/account/edit-field",
-                    params: {
-                      field: "serviceAreas",
-                      title: "Service areas",
-                      value: profile.serviceAreas.join(", "),
-                    },
+                    pathname: "/account/edit/service-areas",
                   })
                 }
               />
