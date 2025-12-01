@@ -35,7 +35,7 @@ export {
 function LoadingScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-background">
-      <ActivityIndicator size="large" color={"#FFA500"} />
+      <ActivityIndicator size="large" color={NAV_THEME.light.primary || "#fe885a"} />
       <Text className="mt-4 text-muted-foreground">Loading...</Text>
     </View>
   );

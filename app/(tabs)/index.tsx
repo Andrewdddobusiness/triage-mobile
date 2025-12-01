@@ -1,14 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
-  Platform,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, Text, FlatList, RefreshControl, Platform, TouchableOpacity, TextInput } from "react-native";
 import { useCustomerInquiries } from "~/stores/customerInquiries";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { InquiryCard } from "~/components/ui/InquiryCard";
@@ -19,6 +10,7 @@ import { useSession } from "~/lib/auth/ctx";
 import IconIon from "@expo/vector-icons/Ionicons";
 import { trackEvent } from "~/lib/utils/analytics";
 import { EmptyState } from "~/components/ui/empty-state";
+import { Loader } from "~/components/ui/loader";
 
 export default function InboxScreen() {
   const { inquiries, fetchInquiries, isLoading, error, isOffline } = useCustomerInquiries();
@@ -70,7 +62,7 @@ export default function InboxScreen() {
   if (isLoading && inquiries.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Loader />
         <Text className="mt-4 text-gray-500">Loading...</Text>
       </View>
     );

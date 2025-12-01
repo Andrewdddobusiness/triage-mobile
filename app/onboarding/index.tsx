@@ -1,9 +1,10 @@
 import React from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
+import { Loader } from "~/components/ui/loader";
 
 // Import components
 import { StepIndicator } from "~/components/onboarding/StepIndicator";
@@ -47,7 +48,7 @@ export default function OnboardingScreen() {
   if (initializing) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Loader />
         <Text className="mt-4 text-muted-foreground">Loading...</Text>
       </View>
     );

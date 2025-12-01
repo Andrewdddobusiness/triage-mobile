@@ -17,6 +17,7 @@ import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskEmail, maskPhone } from "~/lib/utils/pii";
 import { useFeatureFlags } from "~/lib/providers/FeatureFlagProvider";
 import { UpsellModal } from "~/components/ui/UpsellModal";
+import { Loader } from "~/components/ui/loader";
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -52,7 +53,7 @@ export default function RequestDetailScreen() {
   if (isLoading || !selectedInquiry) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={"#FFA500"} />
+        <Loader />
         <Text className="mt-4 text-muted-foreground">Loading...</Text>
       </View>
     );
