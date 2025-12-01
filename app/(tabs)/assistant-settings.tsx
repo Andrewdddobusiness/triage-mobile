@@ -298,7 +298,7 @@ export default function AssistantSettingsScreen() {
         }}
       >
         {/* Business Phone Number Requirement Notice */}
-        {!hasBusinessNumber && (
+        {hasActiveSubscription && !hasBusinessNumber && (
           <View className="bg-amber-50 border border-amber-200 p-4 mt-4 mx-4 rounded-lg">
             <View className="flex-row items-center mb-2">
               <AlertTriangle size={20} color="#f59e0b" />
