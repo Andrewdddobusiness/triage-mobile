@@ -117,7 +117,7 @@ export default function SignInScreen() {
       {/* Logo */}
       <View className="mt-16 mb-8 flex-row justify-center items-center ">
         <Image
-          source={require("../assets/images/logo/color/logo-color-1.png")}
+        source={require("../../assets/images/logo/color/logo-color-1.png")}
           className="w-10 h-10 mr-2"
           resizeMode="contain"
         />
