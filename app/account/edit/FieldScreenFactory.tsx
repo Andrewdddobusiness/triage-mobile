@@ -35,10 +35,11 @@ export function createFieldScreen(config: FieldConfig) {
     const [value, setValue] = useState("");
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [customOption, setCustomOption] = useState("");
+    const [customOptions, setCustomOptions] = useState<string[]>([]);
     const [serviceAreas, setServiceAreas] = useState<string[]>([]);
 
     const options = useMemo(() => config.options || [], [config.options]);
-    const showCustom = selectedOptions.includes("Other");
+    const showCustom = selectedOptions.includes("Other") || customOptions.length > 0;
 
     useEffect(() => {
       const load = async () => {
@@ -52,7 +53,13 @@ export function createFieldScreen(config: FieldConfig) {
           if (fetchError) throw fetchError;
           const fieldValue = data?.[config.columnKey];
           if (config.type === "multi" && Array.isArray(fieldValue)) {
-            setSelectedOptions(fieldValue);
+            const standard = fieldValue.filter((v: string) => options.includes(v) || v === "Other");
+            const custom = fieldValue.filter((v: string) => !options.includes(v) && v !== "Other");
+            setCustomOptions(custom);
+            if (custom.length && !standard.includes("Other")) {
+              standard.push("Other");
+            }
+            setSelectedOptions(standard);
           } else if (config.type === "serviceArea" && Array.isArray(fieldValue)) {
             setServiceAreas(fieldValue);
           } else if (typeof fieldValue === "string") {
@@ -71,7 +78,41 @@ export function createFieldScreen(config: FieldConfig) {
 
     const toggleOption = (opt: string) => {
       setMultiError("");
+      if (opt === "Other") {
+        setSelectedOptions((prev) => {
+          const has = prev.includes("Other");
+          if (has) {
+            setCustomOptions([]);
+            return prev.filter((o) => o !== "Other");
+          }
+          return [...prev, "Other"];
+        });
+        return;
+      }
       setSelectedOptions((prev) => (prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]));
+    };
+
+    const addCustomOption = (opt: string) => {
+      const trimmed = opt.trim();
+      if (!trimmed) return;
+      setCustomOptions((prev) => {
+        if (prev.includes(trimmed)) return prev;
+        return [...prev, trimmed];
+      });
+      if (!selectedOptions.includes("Other")) {
+        setSelectedOptions((prev) => [...prev, "Other"]);
+      }
+      setCustomOption("");
+    };
+
+    const removeCustomOption = (opt: string) => {
+      setCustomOptions((prev) => {
+        const next = prev.filter((o) => o !== opt);
+        if (!next.length) {
+          setSelectedOptions((sel) => sel.filter((o) => o !== "Other"));
+        }
+        return next;
+      });
     };
 
     const validate = () => {
@@ -92,17 +133,19 @@ export function createFieldScreen(config: FieldConfig) {
         }
         return true;
       }
-      if (config.type === "multi") {
-        if (!selectedOptions.length) {
-          setMultiError("Please select at least one option");
-          return false;
+        if (config.type === "multi") {
+          const customTrimmed = customOptions.filter(Boolean);
+          const selectedCount = selectedOptions.filter((o) => o !== "Other").length + customTrimmed.length;
+          if (!selectedCount) {
+            setMultiError("Please select at least one option");
+            return false;
+          }
+          if (showCustom && !customOption.trim() && !customOptions.length) {
+            setMultiError("Please specify your custom option");
+            return false;
+          }
+          return true;
         }
-        if (showCustom && !customOption.trim()) {
-          setMultiError("Please specify your custom option");
-          return false;
-        }
-        return true;
-      }
       if (config.type === "serviceArea") {
         if (!serviceAreas.length) {
           setError("Please add at least one service area");
@@ -135,10 +178,11 @@ export function createFieldScreen(config: FieldConfig) {
         } else if (config.type === "multi") {
           const customTrimmed = customOption.trim();
           const cleaned = selectedOptions.filter((o) => o !== "Other");
+          const extras = [...customOptions];
           if (selectedOptions.includes("Other") && customTrimmed) {
-            cleaned.push(customTrimmed);
+            extras.push(customTrimmed);
           }
-          payload[config.columnKey] = cleaned;
+          payload[config.columnKey] = [...cleaned, ...extras];
         } else if (config.type === "serviceArea") {
           payload[config.columnKey] = serviceAreas;
         }
@@ -171,6 +215,9 @@ export function createFieldScreen(config: FieldConfig) {
                 setMultiError("");
                 setCustomOption(text);
               }}
+              customOptions={customOptions}
+              addCustomOption={addCustomOption}
+              removeCustomOption={removeCustomOption}
               customPlaceholder="Enter your custom option"
               error={multiError}
             />

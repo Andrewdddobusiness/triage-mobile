@@ -11,6 +11,9 @@ interface MultiSelectStepProps {
   showCustomInput: boolean;
   customValue: string;
   setCustomValue: (text: string) => void;
+  customOptions?: string[];
+  addCustomOption?: (value: string) => void;
+  removeCustomOption?: (value: string) => void;
   customPlaceholder: string;
   error?: string;
 }
@@ -22,9 +25,18 @@ export const MultiSelectStep: React.FC<MultiSelectStepProps> = ({
   showCustomInput,
   customValue,
   setCustomValue,
+  customOptions = [],
+  addCustomOption,
+  removeCustomOption,
   customPlaceholder,
   error,
 }) => {
+  const handleAdd = () => {
+    const trimmed = customValue.trim();
+    if (!trimmed) return;
+    addCustomOption?.(trimmed);
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View className="flex-row flex-wrap justify-between">
@@ -48,18 +60,36 @@ export const MultiSelectStep: React.FC<MultiSelectStepProps> = ({
       </View>
 
       {showCustomInput && (
-        <Input
-          className={
-            selectedOptions.includes("Other") && !customValue.trim()
-              ? "rounded-full mt-2 border-red-500"
-              : "rounded-full mt-2"
-          }
-          style={{ height: 56 }}
-          value={customValue}
-          placeholder={customPlaceholder}
-          onChangeText={setCustomValue}
-          autoCapitalize="words"
-        />
+        <View style={{ gap: 10 }}>
+          <Input
+            className={
+              selectedOptions.includes("Other") && !customValue.trim()
+                ? "rounded-full mt-2 border-red-500"
+                : "rounded-full mt-2"
+            }
+            style={{ height: 56 }}
+            value={customValue}
+            placeholder={customPlaceholder}
+            onChangeText={setCustomValue}
+            onSubmitEditing={handleAdd}
+            returnKeyType="done"
+            autoCapitalize="words"
+          />
+          {!!customOptions.length && (
+            <View className="flex-row flex-wrap gap-2">
+              {customOptions.map((opt) => (
+                <TouchableOpacity
+                  key={opt}
+                  onPress={() => removeCustomOption?.(opt)}
+                  className="bg-orange-50 border border-orange-500 rounded-full px-3 py-2 flex-row items-center"
+                >
+                  <Text className="text-orange-700">{opt}</Text>
+                  <Text className="text-orange-700 ml-2">×</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
       )}
       {error ? <Text className="text-xs text-orange-500 ml-2 mt-1">{error}</Text> : null}
     </ScrollView>
