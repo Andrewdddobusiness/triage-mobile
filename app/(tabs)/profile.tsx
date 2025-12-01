@@ -172,9 +172,10 @@ export default function ProfileScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
-          paddingBottom: insets.bottom + 140,
-          paddingTop: 10,
+          paddingBottom: insets.bottom + 120,
+          paddingTop: 8,
           paddingHorizontal: 16,
+          gap: 12,
         }}
       >
         {/* Profile Header */}
@@ -184,8 +185,7 @@ export default function ProfileScreen() {
             {
               backgroundColor: palette.surface,
               padding: 24,
-              marginHorizontal: 16,
-              marginTop: 16,
+              marginTop: 4,
               borderRadius: radii.card,
               borderWidth: 1,
               borderColor: palette.border,
@@ -296,54 +296,44 @@ export default function ProfileScreen() {
         </View>
 
         {/* Actions List */}
-        <View style={{ gap: 4, marginTop: 8, marginBottom: 90 }}>
-          <View style={{ gap: 4 }}>
-            <View style={{ paddingVertical: 8 }}>
-              <ProfileActionButton
-                label="Subscription"
-                icon={<Crown size={20} color="#adb5bd" />}
-                onPress={() => router.push("/subscription")}
-              />
-            </View>
-          <View style={{ paddingVertical: 8 }}>
-            <ProfileActionButton
-              label="Account"
-              icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
-              onPress={() => router.push("/account")}
-              />
-            </View>
-            <View style={{ paddingVertical: 8 }}>
-              <ProfileActionButton
-                label="Help & Info"
-                icon={
-                  <IconEn name={"help-with-circle"} size={20} color="#adb5bd" />
-                }
-                onPress={() => router.push("/help")}
-              />
-            </View>
-          </View>
+        <View style={{ gap: 8, marginTop: 0 }}>
+          <ProfileActionButton
+            label="Subscription"
+            icon={<Crown size={20} color="#adb5bd" />}
+            onPress={() => router.push("/subscription")}
+          />
 
-          <View style={{ paddingVertical: 8 }}>
-            <ProfileActionButton
-              label="Sign Out"
-              icon={<IconF name="sign-out" size={20} color="#ef4444" />}
-              onPress={signOut}
-              variant="destructive"
-            />
-          </View>
+          <ProfileActionButton
+            label="Account"
+            icon={<IconIon name={"person"} size={20} color="#adb5bd" />}
+            onPress={() => router.push("/account")}
+          />
 
-          <View style={{ paddingVertical: 8 }}>
-            <ProfileActionButton
-              label={
-                deletionStatus
-                  ? `Delete Account (${deletionStatus})`
-                  : "Delete Account"
-              }
-              icon={<IconF name="trash" size={20} color="#ef4444" />}
-              onPress={() => router.push("/account?delete=true")}
-              variant="destructive"
-            />
-          </View>
+          <ProfileActionButton
+            label="Help & Info"
+            icon={
+              <IconEn name={"help-with-circle"} size={20} color="#adb5bd" />
+            }
+            onPress={() => router.push("/help")}
+          />
+
+          <ProfileActionButton
+            label="Sign Out"
+            icon={<IconF name="sign-out" size={20} color="#ef4444" />}
+            onPress={signOut}
+            variant="destructive"
+          />
+
+          <ProfileActionButton
+            label={
+              deletionStatus
+                ? `Delete Account (${deletionStatus})`
+                : "Delete Account"
+            }
+            icon={<IconF name="trash" size={20} color="#ef4444" />}
+            onPress={() => router.push("/account?delete=true")}
+            variant="destructive"
+          />
         </View>
         <UpsellModal
           visible={showUpsell}
