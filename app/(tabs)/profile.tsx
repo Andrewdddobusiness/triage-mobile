@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable, Image, Alert, ActivityIndicator } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useSession } from "~/lib/auth/ctx";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -118,7 +118,29 @@ export default function ProfileScreen() {
   const pickAndUploadAvatar = async () => {
     if (!session?.user) return;
     try {
+      // Avoid calling into image-picker if the native module isn't present in this build
+      const pickerNative = (globalThis as any)?.ExpoModules?.ExponentImagePicker;
+      if (!pickerNative) {
+        Alert.alert(
+          "Update required",
+          "Image picker isn’t available in this build. Please update the development client to use profile photos."
+        );
+        return;
+      }
+
       const ImagePicker = await import("expo-image-picker");
+      if (
+        !ImagePicker ||
+        typeof ImagePicker.requestMediaLibraryPermissionsAsync !== "function" ||
+        typeof ImagePicker.launchImageLibraryAsync !== "function"
+      ) {
+        Alert.alert(
+          "Update required",
+          "Image picker isn’t available in this build. Please update the development client to use profile photos."
+        );
+        return;
+      }
+
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Permission needed", "Please allow photo library access to set your profile image.");

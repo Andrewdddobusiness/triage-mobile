@@ -16,6 +16,7 @@ import { copySensitiveToClipboard } from "~/lib/utils/piiClipboard";
 import { maskPhone } from "~/lib/utils/pii";
 import { UpsellModal } from "~/components/ui/UpsellModal";
 import { haptics } from "~/lib/utils/haptics";
+import { Loader } from "~/components/ui/loader";
 
 interface AssistantPreset {
   id: string;
@@ -283,7 +284,8 @@ export default function AssistantSettingsScreen() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+        <Loader />
+        <Text className="mt-2 text-gray-600">Loading assistant settings...</Text>
       </View>
     );
   }
