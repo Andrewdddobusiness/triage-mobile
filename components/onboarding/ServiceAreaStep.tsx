@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 
 const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -110,25 +110,50 @@ export const ServiceAreaStep: React.FC<Props> = ({ serviceArea, setServiceArea, 
 
       {loading && <ActivityIndicator size="large" color={"#FFA500"} className="mt-2" />}
 
-      {suggestions.length > 0 && (
-        <FlatList
-          data={suggestions}
-          keyExtractor={(item, index) => item.formattedAddress || item.displayName?.text || index.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSelect(item)} className="p-3 border-b border-gray-200 bg-white">
-              <Text className="font-semibold">{item.text?.text}</Text>
-            </TouchableOpacity>
-          )}
-          keyboardShouldPersistTaps="handled"
-          className="absolute z-50 top-[60px] left-0 right-0 bg-white max-h-64 rounded-xl border border-gray-300 shadow-md"
-        />
-      )}
+      {suggestions.length > 0 ? (
+        <View
+          style={{
+            maxHeight: 240,
+            marginTop: 8,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: "#e5e7eb",
+            backgroundColor: "white",
+            shadowColor: "#000",
+            shadowOpacity: 0.08,
+            shadowRadius: 6,
+            shadowOffset: { width: 0, height: 3 },
+            elevation: 3,
+          }}
+        >
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {suggestions.map((item, index) => (
+              <TouchableOpacity
+                key={item.formattedAddress || item.displayName?.text || index.toString()}
+                onPress={() => handleSelect(item)}
+                className="p-3 border-b border-gray-200 bg-white"
+              >
+                <Text className="font-semibold">{item.text?.text}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
 
-      {noResults && !loading && (
-        <View className="absolute z-50 top-[60px] left-0 right-0 bg-white max-h-64 rounded-xl border border-gray-300 p-4">
+      {noResults && !loading ? (
+        <View
+          style={{
+            marginTop: 8,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: "#e5e7eb",
+            backgroundColor: "white",
+            padding: 12,
+          }}
+        >
           <Text className="text-center text-gray-500">No locations found</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 };
