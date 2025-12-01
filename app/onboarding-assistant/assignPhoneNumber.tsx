@@ -197,7 +197,7 @@ export default function AssignPhoneNumberScreen() {
   return (
     <LinearGradient
       colors={["#FFFFFF", "#FFF5EC", "#FFE8D6"]}
-      locations={[0, 0.3, 0.6, 0.9]}
+      locations={[0, 0.5, 1]}
       start={{ x: 0.3, y: 0.2 }}
       end={{ x: 0.7, y: 0.8 }}
       style={{

@@ -1,4 +1,4 @@
-import { createFieldScreen } from "./FieldScreenFactory";
+import { createFieldScreen } from "~/lib/screens/FieldScreenFactory";
 
 export default createFieldScreen({
   title: "Business name",

@@ -50,6 +50,8 @@ export default function ProfileScreen() {
   const [deleting, setDeleting] = useState(false);
   const [deletionStatus, setDeletionStatus] = useState<string | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Get user data from session
   useEffect(() => {
@@ -86,6 +88,10 @@ export default function ProfileScreen() {
           if (!phoneError && phoneNumbers) {
             setBusinessNumber(phoneNumbers.phone_number);
           }
+          const metaAvatar = (session.user.user_metadata as any)?.avatar_url;
+          if (metaAvatar) {
+            setAvatarUrl(metaAvatar);
+          }
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -108,6 +114,66 @@ export default function ProfileScreen() {
       if (timer) clearTimeout(timer);
     };
   }, [copied]);
+
+  const pickAndUploadAvatar = async () => {
+    if (!session?.user) return;
+    try {
+      const ImagePicker = await import("expo-image-picker");
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Please allow photo library access to set your profile image.");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled || !result.assets?.length) return;
+      const asset = result.assets[0];
+      if (!asset?.uri) return;
+
+      setUploadingAvatar(true);
+      const fileExt = asset.fileName?.split(".").pop() || "jpg";
+      const filePath = `avatars/${session.user.id}-${Date.now()}.${fileExt}`;
+
+      const response = await fetch(asset.uri);
+      const blob = await response.blob();
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, blob, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: asset.mimeType || "image/jpeg",
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const publicUrl = data?.publicUrl;
+      if (!publicUrl) {
+        throw new Error("Could not retrieve image URL");
+      }
+
+      await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
+      setAvatarUrl(publicUrl);
+      trackEvent("profile_avatar_updated");
+    } catch (error) {
+      console.error("Avatar upload error", error);
+      Alert.alert(
+        "Upload failed",
+        "Image picker isn’t available in this build. Please update the dev client to use profile photos."
+      );
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Copy phone number to clipboard
   const copyToClipboard = async () => {
@@ -195,19 +261,54 @@ export default function ProfileScreen() {
         >
           {/* Profile Image with Edit Button */}
           <View className="relative">
-            <View
-              className="items-center justify-center"
+            {avatarUrl ? (
+              <Image
+                source={{ uri: avatarUrl }}
+                style={{
+                  width: 96,
+                  height: 96,
+                  borderRadius: 48,
+                  borderWidth: 1,
+                  borderColor: palette.border,
+                }}
+              />
+            ) : (
+              <View
+                className="items-center justify-center"
+                style={{
+                  width: 96,
+                  height: 96,
+                  borderRadius: 48,
+                  backgroundColor: palette.surfaceMuted,
+                  borderWidth: 1,
+                  borderColor: palette.border,
+                }}
+              >
+                <User size={36} color="#adb5bd" />
+              </View>
+            )}
+            <Pressable
+              onPress={pickAndUploadAvatar}
+              className="absolute"
               style={{
-                width: 96,
-                height: 96,
-                borderRadius: 48,
-                backgroundColor: palette.surfaceMuted,
-                borderWidth: 1,
-                borderColor: palette.border,
+                right: -4,
+                bottom: -4,
+                backgroundColor: palette.primary,
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 2,
+                borderColor: palette.surface,
               }}
             >
-              <User size={36} color="#adb5bd" />
-            </View>
+              {uploadingAvatar ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Pencil size={16} color="#fff" />
+              )}
+            </Pressable>
           </View>
 
           {/* User Info */}
